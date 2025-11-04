@@ -1,0 +1,1 @@
+A quick and simple fix for those who want the convenience of larger file size uploads to chat services without the need to pay.

@@ -1,8 +1,5 @@
 package com.filespark;
 
-import java.util.*;
-import java.nio.file.Path;
-import java.nio.file.Files;
 import java.io.File;
 
 import javafx.application.Application;
@@ -17,11 +14,6 @@ import javafx.stage.FileChooser.ExtensionFilter;
 
 public class App extends Application implements EventHandler<ActionEvent> {
 
-    // constants
-    public static final String WINDOW_TITLE = "FileSpark Uploader Test";
-    public static final double WINDOW_WIDTH = 750;
-    public static final double WINDOW_HEIGHT = 750;
-    // variables
     Button uploadFileButton;
     FileChooser fileChooser;
 
@@ -34,7 +26,7 @@ public class App extends Application implements EventHandler<ActionEvent> {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        primaryStage.setTitle(WINDOW_TITLE);
+        primaryStage.setTitle(Config.WINDOW_TITLE);
         uploadFileButton = new Button();
         uploadFileButton.setText("Upload File");
         
@@ -42,7 +34,7 @@ public class App extends Application implements EventHandler<ActionEvent> {
         StackPane layout = new StackPane();
         layout.getChildren().add(uploadFileButton);
 
-        Scene scene = new Scene(layout, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(layout, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -66,34 +58,24 @@ public class App extends Application implements EventHandler<ActionEvent> {
 
             File file = fileChooser.showOpenDialog(null);
 
-            if (file != null){
+            if (file == null){
 
-                Path filePath = file.toPath();
+                System.out.println("No file selected");
 
-                try {
-
-                    String fileName = filePath.getFileName().toString();
-                    double fileMegaBytes = (double) Files.size(filePath) / 1024 / 1024;
-                    String mime = Files.probeContentType(filePath);
-
-                    // debugging prints for the selected file
-                    System.out.println("File Name: " + fileName);
-                    System.out.println("Full Path: " + filePath.toAbsolutePath());
-                    System.out.println("File Size: " + String.format("%.2f MB", fileMegaBytes));
-                    System.out.println("MIME Type: " + (mime != null ? mime : "Unknown"));
-
-                }
-                catch (Exception exception) {
-
-                    System.out.println(exception.getMessage());
-
-                }
-                
             }
 
-        } else{
+            try{
 
-            System.out.println("No file has been selected");
+                RawFile rawFile = new RawFile(file);
+                rawFile.printDebugInfo();
+                S3Uploader.uploadFile(rawFile.getFile());
+
+            }
+            catch (Exception exception){
+
+                System.err.println(exception.getMessage());
+
+            }
 
         }
 
