@@ -17,8 +17,10 @@ public final class S3Uploader {
     private static S3Client getClient() {
 
         if (s3 != null) return s3;
-        String accessKey = System.getenv("AWS_ACCESS_KEY_ID");
-        String secretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+
+        String accessKey = Config.getS3AccessKey();
+        String secretKey = Config.getS3SecretKey();
+
         if (accessKey == null || secretKey == null || accessKey.isEmpty() || secretKey.isEmpty()){
 
             throw new IllegalStateException("AWS Credentials Missing");
