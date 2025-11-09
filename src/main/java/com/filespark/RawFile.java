@@ -1,3 +1,5 @@
+// a class representing information about a regular file on the user's PC
+
 package com.filespark;
 
 import java.nio.file.Path;
