@@ -48,7 +48,16 @@
       <artifactId>java-dotenv</artifactId>
       <version>5.2.2</version>
     </dependency>
-    
+
+    <!-- mslinks for dereferencing .lnk files -->
+    <dependency>
+      <groupId>com.github.DmitriiShamrikov</groupId>
+      <artifactId>mslinks</artifactId>
+      <version>1.1.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libraries/mslinks-1.1.0.jar</systemPath>
+    </dependency>
+
   </dependencies>
 
   <build>

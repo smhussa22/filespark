@@ -1,6 +1,11 @@
+// holds any global variables in a protected manner
+
 package com.filespark;
 
 import software.amazon.awssdk.regions.Region;
+
+import java.util.List;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class Config {
@@ -22,5 +27,9 @@ public class Config {
 
     public static String getS3AccessKey() { return S3_ACCESS_KEY; }
     public static String getS3SecretKey() { return S3_SECRET_KEY; }
+
+    // FileScanner
+    public static final int filesPerFetch = 25;
+    public static final List<String> allowedExtensions = List.of(".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".mkv", ".pdf", ".docx", ".txt", ".zip", ".rar", ".7z", ".heic");
 
 }
