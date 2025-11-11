@@ -7,12 +7,8 @@ import javafx.scene.layout.StackPane;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 
 public class App extends Application {
 
@@ -31,7 +27,7 @@ public class App extends Application {
         testButton.setOnAction(e -> {
 
             System.out.println("Scanning 25 files...");
-            for (File file : FileScanner.getRecentFiles(25)) {
+            for (File file : FileScanner.getRecentFiles(Config.filesPerFetch)) {
 
                 System.out.println(file.getName());
         
