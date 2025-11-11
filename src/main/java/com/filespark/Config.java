@@ -32,4 +32,10 @@ public class Config {
     public static final int filesPerFetch = 25;
     public static final List<String> allowedExtensions = List.of(".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".mkv", ".pdf", ".docx", ".txt", ".zip", ".rar", ".7z", ".heic");
 
+    // Windows Stuff
+    public static final String WIN32_CLASS_ID_OBJECT_SHELL_LINK = "{00021401-0000-0000-C000-000000000046}";
+    public static final String WIN32_INTERFACE_ID_SHELL_LINK_WIDE = "{000214F9-0000-0000-C000-000000000046}";
+    public static final String WIN32_INTERFACE_ID_PERSIST_FILE = "{0000010B-0000-0000-C000-000000000046}";
+    public static final int WIN32_MAX_PATH = 260;
+
 }

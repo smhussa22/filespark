@@ -49,13 +49,18 @@
       <version>5.2.2</version>
     </dependency>
 
-    <!-- mslinks for dereferencing .lnk files -->
+    <!-- JNA core -->
     <dependency>
-      <groupId>com.github.DmitriiShamrikov</groupId>
-      <artifactId>mslinks</artifactId>
-      <version>1.1.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/libraries/mslinks-1.1.0.jar</systemPath>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>5.13.0</version>
+    </dependency>
+
+    <!-- JNA platform (includes Shell32, COM, etc.) -->
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna-platform</artifactId>
+      <version>5.13.0</version>
     </dependency>
 
   </dependencies>

@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Files;
 import java.io.File;
 import java.util.*;
-import mslinks.ShellLink;
 
 public class FileScanner {
 
@@ -31,49 +30,47 @@ public class FileScanner {
         Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
         files = Arrays.copyOfRange(files, 0, Math.min(files.length, 25));
 
-        int count = 0;
+        int filesAdded = 0;
         
         for (File shortcut : files){
 
-            boolean isLnk = shortcut.getName().toLowerCase().endsWith((".lnk"));
-            if (isLnk) {
+            String fileName = shortcut.getName().toLowerCase();
 
-                try {
+            if (fileName.endsWith(".lnk")) {
 
-                    ShellLink link = new ShellLink(shortcut);
-                    String actualPath = link.getLinkInfo().getLocalBasePath();
+                System.out.println("Resolving: " + shortcut.getName());
 
-                    if(actualPath != null && !actualPath.isBlank()){
+                String resolvedPath = DereferenceWindowsShortcut.dereferenceByLiteralPath(shortcut.getAbsolutePath());
+                if (resolvedPath != null && !resolvedPath.isBlank()){
 
-                        File actualFile = new File(actualPath);
-                        String actualFileName = actualFile.getName().toLowerCase();
-                        boolean allowedExtension = Config.allowedExtensions.stream().anyMatch(actualFileName::endsWith);
-                        
-                        if(allowedExtension){
+                    File targetFile = new File(resolvedPath);
+                    String targetFileName = targetFile.getName().toLowerCase();
 
-                            System.out.println("Added: " + actualFile.getName());
-                            recentFiles.add(actualFile);
-                            count++;
+                    boolean isAllowed = Config.allowedExtensions.stream().anyMatch(targetFileName::endsWith);
+                    
+                    if (isAllowed) {
 
-                        }
+                        System.out.println("Added: " + targetFile.getName());
+                        recentFiles.add(targetFile);
+                        filesAdded++;
 
                     }
                     else {
 
-                        System.err.println("Couldn't add: " + shortcut.getName());
-
+                        System.err.println("Skipped: " + targetFile.getName());
+                    
                     }
 
                 }
-                catch (Exception exception){
+                else {
 
-                    System.err.println("FileScanner exception:" + exception.getMessage() + " on: " + shortcut.getName());
+                    System.err.println("Could not resolve: " + shortcut.getName());
 
                 }
 
             }
 
-            if (count >= numberOfFilesToFetch) break;
+            if (filesAdded >= numberOfFilesToFetch) break;
 
         }
 
