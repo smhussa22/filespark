@@ -27,7 +27,7 @@ public class App extends Application {
         testButton.setOnAction(e -> {
 
             System.out.println("Scanning 25 files...");
-            for (File file : FileScanner.getRecentFiles(Config.filesPerFetch)) {
+            for (File file : FileScanner.getRecentFiles(1)) {
 
                 System.out.println(file.getName());
         

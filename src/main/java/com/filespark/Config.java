@@ -37,5 +37,8 @@ public class Config {
     public static final String WIN32_INTERFACE_ID_SHELL_LINK_WIDE = "{000214F9-0000-0000-C000-000000000046}";
     public static final String WIN32_INTERFACE_ID_PERSIST_FILE = "{0000010B-0000-0000-C000-000000000046}";
     public static final int WIN32_MAX_PATH = 260;
+    public static final int WIN32_VTABLE_GETPATH = 20;
+    public static final int WIN32_VTABLE_RESOLVE = 21;
+    public static final int WIN32_VTABLE_LOAD = 5;
 
 }
