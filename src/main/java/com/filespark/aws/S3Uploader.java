@@ -1,9 +1,11 @@
 // directly uploads a file on the user's pc -> aws s3 cloud via putobject
 
-package com.filespark;
+package com.filespark.aws;
 
 import java.io.File;
 import java.util.UUID;
+
+import com.filespark.Config;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -44,7 +46,6 @@ public final class S3Uploader {
 
     }
     
-
     public static void uploadFile (File file) {
 
         try {

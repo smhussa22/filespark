@@ -2,10 +2,10 @@
 
 package com.filespark;
 
-import java.nio.file.Path;
-import java.nio.file.Files;
 import java.io.File;
 import java.util.*;
+
+import com.filespark.windows.DereferenceWindowsShortcut;
 
 public class FileScanner {
 
