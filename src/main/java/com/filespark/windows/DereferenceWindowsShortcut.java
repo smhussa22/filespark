@@ -27,10 +27,6 @@ import com.sun.jna.platform.win32.COM.COMUtils;
 
 public class DereferenceWindowsShortcut {
 
-    private static final Guid.CLSID CLSID_SHELL_LINK = new Guid.CLSID(Config.WIN32_CLASS_ID_OBJECT_SHELL_LINK);
-    private static final Guid.IID IID_PERSIST_FILE = new Guid.IID(Config.WIN32_INTERFACE_ID_PERSIST_FILE);
-    private static final Guid.IID IID_SHELL_LINK_WIDE = new Guid.IID(Config.WIN32_INTERFACE_ID_SHELL_LINK_WIDE);
-
     public static String dereferenceByLiteralPath(String literalPath) {
 
         Ole32.INSTANCE.CoInitialize(null);

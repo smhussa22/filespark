@@ -3,6 +3,9 @@
 package com.filespark;
 
 import java.io.File;
+
+import com.filespark.files.ScanWindowsRecent;
+
 import javafx.scene.layout.StackPane;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -26,8 +29,8 @@ public class App extends Application {
         Button testButton = new Button("Test Button");
         testButton.setOnAction(e -> {
 
-            System.out.println("Scanning 25 files...");
-            for (File file : FileScanner.getRecentFiles(1)) {
+            System.out.println("Scanning " + Config.filesPerFetch + " files...");
+            for (File file : ScanWindowsRecent.getRecentFiles(Config.filesPerFetch)) {
 
                 System.out.println(file.getName());
         

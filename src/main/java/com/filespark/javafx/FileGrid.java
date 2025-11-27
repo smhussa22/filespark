@@ -1,6 +1,6 @@
 // a resizeable grid of file tiles
 
-package com.filespark;
+package com.filespark.javafx;
 
 public class FileGrid {
     
