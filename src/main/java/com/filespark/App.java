@@ -5,6 +5,7 @@ package com.filespark;
 import java.io.File;
 
 import com.filespark.files.ScanWindowsRecent;
+import com.filespark.files.ScanWindowsDownloads;
 
 import javafx.scene.layout.StackPane;
 import javafx.application.Application;
@@ -30,10 +31,11 @@ public class App extends Application {
         testButton.setOnAction(e -> {
 
             System.out.println("Scanning " + Config.filesPerFetch + " files...");
-            for (File file : ScanWindowsRecent.getRecentFiles(Config.filesPerFetch)) {
+            for (File file : ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch)) {
 
                 System.out.println(file.getName());
-        
+                uploadFileToS3.uploadFileViaFastAPI(file);
+                
             }
             System.out.println("Scanning file sdone");
 
