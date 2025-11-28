@@ -26,4 +26,6 @@ public class Config {
     public static final int WIN32_VTABLE_RESOLVE = 19;
     public static final int WIN32_VTABLE_LOAD = 5;
 
+    // api stuff
+    public static final String webDomain = "http://127.0.0.1:8000";
 }
