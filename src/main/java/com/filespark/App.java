@@ -5,6 +5,7 @@ package com.filespark;
 import java.io.File;
 
 import com.filespark.files.ScanWindowsRecent;
+import com.filespark.javafx.FileTile;
 import com.filespark.files.ScanWindowsDownloads;
 
 import javafx.scene.layout.StackPane;
@@ -26,23 +27,15 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        // button for debugging and testing, will remove after
-        Button testButton = new Button("Test Button");
-        testButton.setOnAction(e -> {
-
-            System.out.println("Scanning " + Config.filesPerFetch + " files...");
-            for (File file : ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch)) {
-
-                System.out.println(file.getName());
-                uploadFileToS3.uploadFileViaFastAPI(file);
-                
-            }
-            System.out.println("Scanning file sdone");
-
-        });
         StackPane root = new StackPane();
-        root.getChildren().add(testButton);
+
+        // placeholder for editing
+        FileTile tile = new FileTile("document.pdf");
+
+        root.getChildren().add(tile);
+        root.setStyle("-fx-background-color: #1e1e1e");
         Scene scene = new Scene(root, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
