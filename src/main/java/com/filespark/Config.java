@@ -9,9 +9,9 @@ public class Config {
     private Config () {};
 
     // javafx
-    public static final String WINDOW_TITLE = "FileSpark Uploader Test";
-    public static final double WINDOW_WIDTH = 300;
-    public static final double WINDOW_HEIGHT = 100;
+    public static final String WINDOW_TITLE = "FileSpark";
+    public static final double WINDOW_WIDTH = 750;
+    public static final double WINDOW_HEIGHT = 750;
 
     // FileScanner
     public static final int filesPerFetch = 1;
