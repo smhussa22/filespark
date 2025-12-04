@@ -8,16 +8,33 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 
 public class FileTile extends StackPane {
 
     public FileTile(String fileName, String fileMimeType) {
 
         String path = getMimeType(fileName);
+
+        MenuItem uploadItem = new MenuItem("Upload As Embedded Link");
+        MenuItem showItem = new MenuItem("Show In Folder");
+
+        ContextMenu menu = new ContextMenu(uploadItem, showItem);
+
+        menu.getStyleClass().add("context-menu");
+        uploadItem.getStyleClass().add("menu-item");
+        showItem.getStyleClass().add("menu-item");
+        
+        uploadItem.setOnAction(event -> System.out.println("Upload: " + fileName));
+        showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName));
+
 
         Image image = new Image(getClass().getResourceAsStream(path));
         ImageView imageView = new ImageView(image);
@@ -52,6 +69,33 @@ public class FileTile extends StackPane {
         layout.setAlignment(Pos.CENTER);
         getChildren().add(layout);
 
+        layout.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+
+            if (event.getButton() == MouseButton.SECONDARY) {
+
+                menu.show(this, event.getScreenX(), event.getScreenY());
+
+            }
+            else {
+
+                menu.hide();
+
+            }
+
+        });
+
+        layout.setOnMouseEntered(event -> {
+
+            layout.setCursor(javafx.scene.Cursor.HAND);
+
+        });
+
+        layout.setOnMouseExited(event -> {
+
+            layout.setCursor(javafx.scene.Cursor.DEFAULT);
+
+        });
+
     }
 
     private String shortenFileName(String fileName) {
@@ -72,5 +116,6 @@ public class FileTile extends StackPane {
         return "/icons/default.png";
 
     }
+
     
 }

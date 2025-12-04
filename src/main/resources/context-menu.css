@@ -1,0 +1,41 @@
+.context-menu {
+
+    -menu-mainBlack: #212020;
+    -menu-mainGray: #2f2c2c;
+    -menu-mainOrange: #f77331;
+    -menu-text: #ffffff;
+    -menu-hoverGray: #3a3737;
+
+    -fx-background-color: -menu-mainBlack;
+    -fx-border-color: -menu-mainGray;
+    -fx-border-width: 1px;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+
+}
+
+.menu-item {
+
+    -fx-padding: 8 14;
+    -fx-background-color: transparent;
+
+}
+
+.menu-item:hover {
+
+    -fx-background-color: -menu-hoverGray;
+
+}
+
+.menu-item .label {
+
+    -fx-text-fill: -menu-text;
+    -fx-font-size: 14px;
+
+}
+
+.context-menu .separator {
+
+    -fx-background-color: -menu-mainGray;
+    
+}
