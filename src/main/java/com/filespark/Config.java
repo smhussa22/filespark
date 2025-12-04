@@ -14,7 +14,7 @@ public class Config {
     public static final double WINDOW_HEIGHT = 750;
 
     // FileScanner
-    public static final int filesPerFetch = 1;
+    public static final int filesPerFetch = 25;
     public static final List<String> allowedExtensions = List.of(".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".mkv", ".pdf", ".docx", ".txt", ".zip", ".rar", ".7z", ".heic");
 
     // Windows Stuff
@@ -28,4 +28,12 @@ public class Config {
 
     // api stuff
     public static final String webDomain = "http://127.0.0.1:8000";
+
+    // javafx stuff
+    public static final String mainBlack = "#212020";
+    public static final String mainOrange = "#f77331";
+    public static final String mainGrey = "#2f2c2c";
+    public static final int fileTileNameLength = 25;
+    private static final double fileTileLabelWidth = 160;
+
 }
