@@ -13,7 +13,8 @@ public class uploadFileToS3 {
 
             String boundary = "----JavaFormBoundary" + System.currentTimeMillis();
             URL requestUrl = new URL(Config.webDomain + "/upload");
-
+            System.out.println("Connecting to: " + requestUrl);
+            
             HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
@@ -21,8 +22,9 @@ public class uploadFileToS3 {
 
             OutputStream output = connection.getOutputStream();
             output.write(("--" + boundary + "\r\n").getBytes());
-            output.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"\r\n").getBytes());
-            output.write(("Content-Type: application/octet-stream\r\n\r\n").getBytes());
+            // @todo fix this
+            output.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName().replace("\\", "/").replaceAll(".*/", "") + "\"\r\n").getBytes());
+            output.write(("Content-Type: " + Files.probeContentType(file.toPath()) + "\r\n\r\n").getBytes());
             Files.copy(file.toPath(), output);
             output.write("\r\n".getBytes());
             output.write(("--" + boundary + "--\r\n").getBytes());

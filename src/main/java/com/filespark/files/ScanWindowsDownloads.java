@@ -46,8 +46,15 @@ public class ScanWindowsDownloads {
                     .anyMatch(targetFileName::endsWith);
 
             if (isAllowed) {
+
                 downloadsFiles.add(downloadFile);
             }
+            else {
+
+                System.out.println("Skipping: " + downloadFile.getName());
+
+            }
+
         }
 
         System.out.println("[ScanWindowsDownloads]: Returning " + downloadsFiles.size() + " real files");
