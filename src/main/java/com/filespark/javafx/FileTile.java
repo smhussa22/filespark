@@ -2,7 +2,11 @@
 
 package com.filespark.javafx;
 
+import java.io.File;
+
 import com.filespark.Config;
+import com.filespark.uploadFileToS3;
+import com.filespark.files.RawFile;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -19,8 +23,9 @@ import javafx.scene.control.MenuItem;
 
 public class FileTile extends StackPane {
 
-    public FileTile(String fileName, String fileMimeType) {
+    public FileTile(File file) {
 
+        String fileName = file.getName();
         String path = getMimeType(fileName);
 
         MenuItem uploadItem = new MenuItem("Upload As Embedded Link");
@@ -31,8 +36,8 @@ public class FileTile extends StackPane {
         menu.getStyleClass().add("context-menu");
         uploadItem.getStyleClass().add("menu-item");
         showItem.getStyleClass().add("menu-item");
-        
-        uploadItem.setOnAction(event -> System.out.println("Upload: " + fileName));
+
+        uploadItem.setOnAction(event -> { uploadFileToS3.uploadFileViaFastAPI(file); });
         showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName));
 
 
@@ -105,7 +110,7 @@ public class FileTile extends StackPane {
 
     }
 
-    private String getMimeType(String mimeType) {
+    private String getMimeType(String mimeType) { // @todo: doesnt work
 
         if (mimeType == null) return "/icons/default.png";
         mimeType = mimeType.toLowerCase();

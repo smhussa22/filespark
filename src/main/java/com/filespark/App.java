@@ -34,14 +34,8 @@ public class App extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
-        List<RawFile> rawFiles = downloadedFiles.stream().map(file -> {
 
-            try { return new RawFile(file); } 
-            catch (Exception exception) { return null; }
-        
-        }).filter(file -> file != null).collect(Collectors.toList());
-
-        FileGrid fileGrid = new FileGrid(rawFiles);
+        FileGrid fileGrid = new FileGrid(downloadedFiles);
         Scene scene = new Scene(fileGrid, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/context-menu.css").toExternalForm());
 

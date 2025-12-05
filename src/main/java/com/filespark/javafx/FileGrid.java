@@ -3,9 +3,9 @@
 package com.filespark.javafx;
 
 import java.util.List;
+import java.io.File;
 
 import com.filespark.Config;
-import com.filespark.files.RawFile;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,7 +16,7 @@ public class FileGrid extends ScrollPane {
 
     private final FlowPane grid = new FlowPane();
 
-    public FileGrid(List<RawFile> files) {
+    public FileGrid(List<File> files) {
 
         grid.setHgap(25);
         grid.setVgap(25);
@@ -24,9 +24,9 @@ public class FileGrid extends ScrollPane {
         grid.setAlignment(Pos.CENTER);
         grid.setStyle("-fx-background-color: " + Config.mainBlack);
 
-        for (RawFile file : files) {
+        for (File file : files) {
 
-            FileTile tile = new FileTile(file.getFileName(), file.getMediaType());
+            FileTile tile = new FileTile(file);
             grid.getChildren().add(tile); 
 
         }
