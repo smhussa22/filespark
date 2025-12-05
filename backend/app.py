@@ -1,8 +1,9 @@
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from s3 import upload_file_to_s3, generate_presigned_url, get_mime_from_s3
+from s3 import upload_file_to_s3, generate_presigned_get_url, generate_presigned_put_url, get_mime_from_s3
 import os
 from dotenv import load_dotenv
+from cuid2 import cuid2
 
 load_dotenv()
 domain = os.getenv("DOMAIN")
@@ -18,28 +19,55 @@ app.add_middleware(
 
 )
 
+def get_extension_from_mime(mime: str) -> str:
 
-@app.post("/upload")
-async def upload_file(file: UploadFile):
+    if not mime:
+        return ""
+    
+    mime_dictionary = {
 
-    key = file.filename
-    mime = file.content_type
-    upload_file_to_s3(file.file, key, mime)
-    url = generate_presigned_url(key)
-    embedUrl = f"http://{domain}/view/{key}"
+        "image/png": "png",
+        "image/jpeg": "jpg",  
+        "image/webp": "webp",
+        "image/heic": "heic",
+
+        "video/mp4": "mp4",
+        "video/quicktime": "mov", 
+        "video/x-matroska": "mkv", 
+
+        "application/pdf": "pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx", 
+        "application/zip": "zip",
+        "application/x-rar-compressed": "rar",
+        "application/x-7z-compressed": "7z",
+
+        "text/plain": "txt",
+    }
+
+    return mime_dictionary.get(mime.lower(), "")
+
+@app.get("/presign-upload")
+def presign_upload(filename: str, mime: str):
+    file_id = cuid2()
+    file_extension = get_extension_from_mime(mime)
+    upload_url = generate_presigned_put_url(file_id, mime)
 
     return {
 
-        "file": key,
-        "url": url,
-        "embedUrl": embedUrl
-        
-    }
+        "fileId": file_id,
+        "key": file_id,
+        "mime": mime,
+        "extension": file_extension,
+        "uploadUrl": upload_url,
+        "viewUrl": f"http://{domain}/view/{file_id}",
+        "originalFilename": filename
 
+    }
+    
 @app.get("/api/file/{key}")
 def get_file(key: str):
 
-    url = generate_presigned_url(key)
+    url = generate_presigned_get_url(key)
     mime = get_mime_from_s3(key)
     return {
 

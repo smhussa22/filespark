@@ -36,4 +36,7 @@ public class Config {
     public static final int fileTileNameLength = 25;
     private static final double fileTileLabelWidth = 160;
 
+    // multithread/concurrency stuff
+    public static final int maxUploads = 3;
+
 }

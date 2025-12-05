@@ -3,10 +3,8 @@
 package com.filespark.javafx;
 
 import java.io.File;
-
 import com.filespark.Config;
-import com.filespark.uploadFileToS3;
-import com.filespark.files.RawFile;
+import com.filespark.client.UploadManager;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -37,7 +35,7 @@ public class FileTile extends StackPane {
         uploadItem.getStyleClass().add("menu-item");
         showItem.getStyleClass().add("menu-item");
 
-        uploadItem.setOnAction(event -> { uploadFileToS3.uploadFileViaFastAPI(file); });
+        uploadItem.setOnAction(event -> { UploadManager.startUpload(file); });
         showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName));
 
 
