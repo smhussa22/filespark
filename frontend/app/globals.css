@@ -1,26 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  
+	--font-main: "Google Sans Flex", sans-serif; /* main font for most purposes */
+
+  --color-mainblack: #212020;
+  --color-maingrey: #2f2c2c;
+  --color-mainorange: #fe6100;
+  --color-mainwhite: #ffffff;
+
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer utilities {
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+	.font-main {
+
+    font-family: var(--font-main);
+
   }
+
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+	@apply bg-mainblack;
+	font-family: var(--font-main);
+
+}
+
+html {
+
+  overflow-y: scroll;
+  scroll-behaviour: 
+  
+}
+
+html::-webkit-scrollbar { /* chrome safari etc */
+  display: none;
+}
+
+html {
+
+  scrollbar-width: none; /* firefox */
+
+}
+
+html {
+
+  -ms-overflow-style: none; /* microsoft apps */
+
 }

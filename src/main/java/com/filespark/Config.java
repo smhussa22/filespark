@@ -31,7 +31,7 @@ public class Config {
 
     // javafx stuff
     public static final String mainBlack = "#212020";
-    public static final String mainOrange = "#f77331";
+    public static final String mainOrange = "#fe6100";
     public static final String mainGrey = "#2f2c2c";
     public static final int fileTileNameLength = 25;
     private static final double fileTileLabelWidth = 160;

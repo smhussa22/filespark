@@ -38,7 +38,6 @@ public class FileTile extends StackPane {
         uploadItem.setOnAction(event -> { UploadManager.startUpload(file); });
         showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName));
 
-
         Image image = new Image(getClass().getResourceAsStream(path));
         ImageView imageView = new ImageView(image);
 

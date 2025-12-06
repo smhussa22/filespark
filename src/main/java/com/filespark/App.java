@@ -7,18 +7,14 @@ import java.util.*;
 import java.util.stream.*;
 
 import com.filespark.javafx.FileGrid;
-import com.filespark.javafx.FileTile;
 import com.filespark.files.ScanWindowsDownloads;
-import com.filespark.files.RawFile;
 
-import javafx.scene.layout.FlowPane;
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+
+import java.awt.*;
 
 public class App extends Application {
 
@@ -32,8 +28,8 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
+        
+        java.util.List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
 
         FileGrid fileGrid = new FileGrid(downloadedFiles);
         Scene scene = new Scene(fileGrid, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
@@ -41,6 +37,20 @@ public class App extends Application {
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("FileSpark");
+        primaryStage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/icons/icon256.png")));
+
+        if (Taskbar.isTaskbarSupported()) {
+
+            Taskbar taskbar = java.awt.Taskbar.getTaskbar();
+
+            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+
+                taskbar.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/icon256.png")));
+
+            }
+            
+        }
+
         primaryStage.show();
 
     };

@@ -6,8 +6,7 @@ export default function Home () {
 
     <>
 
-      <h1>test</h1>
-
+tset
     </>
 
   );
