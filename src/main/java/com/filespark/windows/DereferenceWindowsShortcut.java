@@ -9,6 +9,7 @@ import java.io.File;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.ptr.PointerByReference;
 
 import com.sun.jna.platform.win32.Guid;
@@ -16,7 +17,6 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WTypes;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.Ole32;
-import com.sun.jna.platform.win32.COM.COMUtils;
 
 // pszFile -> preallocated UTF-16 char array where Windows will write the file path
 // cchMaxPath -> # of characters inside of the buffer 
@@ -29,8 +29,9 @@ public class DereferenceWindowsShortcut {
 
     public static String dereferenceByLiteralPath(String literalPath) {
 
-        Ole32.INSTANCE.CoInitialize(null);
         IShellLinkW link = ShellLink.createShellLink();
+        if (link == null) return null;
+
         char[] pszFile = new char[Config.WIN32_MAX_PATH];
         PointerByReference pfd = new PointerByReference();
         int fFlags = 0;
@@ -39,26 +40,23 @@ public class DereferenceWindowsShortcut {
         WTypes.LPWSTR pszFileName = new WTypes.LPWSTR(literalPath);
         WinNT.HRESULT hres = persistFile.Load(pszFileName, 0);
 
-        if (hres != WinNT.S_OK){
+        if (COMUtils.FAILED(hres)) return null;
 
-            System.err.println("windows/DereferenceWindowsShortcut.java: failed to get path on hres " + (hres == null ? "null" : hres.intValue()));
-            Ole32.INSTANCE.CoUninitialize();
-            return null;
-
-        }
+        hres = link.Resolve(null, 0);
+        if (COMUtils.FAILED(hres)) return null;
 
         hres = link.GetPath(pszFile, pszFile.length, pfd, fFlags);
 
-        if (hres != WinNT.S_OK){
+        if (COMUtils.FAILED(hres)) return null;
 
-            System.err.println("windows/DereferenceWindowsShortcut.java: failed to get path on hres " + (hres == null ? "null" : hres.intValue()));
-            Ole32.INSTANCE.CoUninitialize();
-            return null;
+        int len = 0;
+        while (len < pszFile.length && pszFile[len] != 0) {
+
+            len++;
 
         }
+        return new String(pszFile, 0, len);
 
-        Ole32.INSTANCE.CoUninitialize();
-        return new String(pszFile).trim();
 
     }
 

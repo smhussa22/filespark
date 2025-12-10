@@ -14,7 +14,7 @@ public class Config {
     public static final double WINDOW_HEIGHT = 750;
 
     // FileScanner
-    public static final int filesPerFetch = 25;
+    public static final int filesPerFetch = 5;
     public static final List<String> allowedExtensions = List.of(".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".mkv", ".pdf", ".docx", ".txt", ".zip", ".rar", ".7z", ".heic");
 
     // Windows Stuff

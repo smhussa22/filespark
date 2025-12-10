@@ -26,7 +26,7 @@ export default function NavigationBar() {
         <Link draggable={false} href="/" className="flex select-none items-center gap-4 p-4 hover:brightness-75 transition duration-200">
 
           <Image draggable={false} src="icon.svg" alt="FileSpark Logo" width={50} height={50} />
-          <h1 className="text-2xl tracking-tight font-medium">FileSpark</h1>
+          <h1 className="text-2xl text-mainorange tracking-tight font-medium">FileSpark</h1>
 
         </Link>
 

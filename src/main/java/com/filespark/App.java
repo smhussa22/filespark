@@ -4,6 +4,7 @@ package com.filespark;
 
 import java.io.File;
 import java.util.*;
+import java.util.List;
 import java.util.stream.*;
 
 import com.filespark.javafx.FileGrid;
@@ -29,7 +30,7 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         
-        java.util.List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
+        List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
 
         FileGrid fileGrid = new FileGrid(downloadedFiles);
         Scene scene = new Scene(fileGrid, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
