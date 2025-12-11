@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.stream.*;
 
 import com.filespark.javafx.FileGrid;
+import com.filespark.javafx.Sidebar;
 import com.filespark.files.ScanWindowsDownloads;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 
@@ -32,10 +34,16 @@ public class App extends Application {
         
         List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
 
+        Sidebar sidebar = new Sidebar();
         FileGrid fileGrid = new FileGrid(downloadedFiles);
-        Scene scene = new Scene(fileGrid, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        
+        BorderPane root = new BorderPane();
+        root.setLeft(sidebar);
+        root.setCenter(fileGrid);
+        
+        Scene scene = new Scene(root, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/context-menu.css").toExternalForm());
-
+    
         primaryStage.setScene(scene);
         primaryStage.setTitle("FileSpark");
         primaryStage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/icons/icon256.png")));

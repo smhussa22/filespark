@@ -14,7 +14,7 @@ public class Config {
     public static final double WINDOW_HEIGHT = 750;
 
     // FileScanner
-    public static final int filesPerFetch = 5;
+    public static final int filesPerFetch = 25;
     public static final List<String> allowedExtensions = List.of(".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".mkv", ".pdf", ".docx", ".txt", ".zip", ".rar", ".7z", ".heic");
 
     // Windows Stuff
@@ -31,10 +31,11 @@ public class Config {
 
     // javafx stuff
     public static final String mainBlack = "#212020";
-    public static final String mainOrange = "#fe6100";
+    public static final String mainOrange = "#BA4700";
     public static final String mainGrey = "#2f2c2c";
     public static final int fileTileNameLength = 25;
-    private static final double fileTileLabelWidth = 160;
+    public static final String defaultEmail = "filesparkuser@filespark.com";
+    public static final String defaultName = "FileSpark User";
 
     // multithread/concurrency stuff
     public static final int maxUploads = 3;

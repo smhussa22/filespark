@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.net.HttpURLConnection;
+import java.net.HttpURLConnection; // @todo switch to httpclient
 import javafx.concurrent.Task;
 
 public class UploadTask extends Task<Void>{

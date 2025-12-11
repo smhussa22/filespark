@@ -1,6 +1,6 @@
 package com.filespark.client;
 
-import java.net.HttpURLConnection;
+import java.net.HttpURLConnection; // @todo switch to httpclient
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

@@ -1,5 +1,77 @@
 package com.filespark.javafx;
 
-public class Sidebar {
-    
+import com.filespark.Config;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+
+public class Sidebar extends VBox {
+
+    // the one that is currently selected
+    private SidebarItem selectedItem = null;
+
+    public Sidebar() {
+
+        setPrefWidth(250);
+        setPadding(new Insets(20));
+        setSpacing(12);
+
+        setStyle(
+            "-fx-background-color: " + Config.mainBlack + ";" +
+            "-fx-border-color: transparent " + Config.mainGrey + " transparent transparent;" +
+            "-fx-border-width: 0 1px 0 0;"
+        );
+
+        SidebarSection browse = new SidebarSection("Browse");
+        SidebarItem downloads = item("default.png", "Downloads");
+        SidebarItem recent = item("default.png", "Recent");
+        browse.addItem(downloads);
+        browse.addItem(recent);
+
+        SidebarSection settings = new SidebarSection("Settings");
+        SidebarItem client = item("default.png", "Client Settings");
+        SidebarItem hotkey = item("default.png", "Hotkey Settings");
+        settings.addItem(client);
+        settings.addItem(hotkey);
+        
+        SidebarSection other = new SidebarSection("Other");
+        SidebarItem dashboard = item("default.png", "Link Dashboard");
+        SidebarItem debug = item("default.png", "Debug");
+        SidebarItem changelog = item("default.png", "Changelog");
+        other.addItem(dashboard);
+        other.addItem(debug);
+        other.addItem(changelog);
+
+        Region space = new Region();
+        VBox.setVgrow(space, Priority.ALWAYS);
+
+        ProfilePicture pic = new ProfilePicture("/icons/user.png");
+        UserPanel userPanel = new UserPanel("Unknown User", "unknownuser@unknown.com", pic);
+
+        getChildren().addAll(browse, settings, other, space, userPanel);
+        setSelect(downloads); // default to downloads
+
+    }
+
+    private SidebarItem item (String icon, String label) {
+
+        SidebarItem item = new SidebarItem("default.png", label);
+        item.setOnMouseClicked(e -> setSelect(item));
+        return item;
+
+    }
+
+    private void setSelect(SidebarItem item){
+
+        if (selectedItem != null) selectedItem.setSelected(false);
+        selectedItem = item;
+        item.setSelected(true);
+    }
+
 }

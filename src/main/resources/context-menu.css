@@ -39,3 +39,12 @@
     -fx-background-color: -menu-mainGray;
     
 }
+
+.scroll-pane .viewport {
+    -fx-background-color: #212020;
+}
+
+.scroll-pane {
+    -fx-background-color: #212020;
+}
+

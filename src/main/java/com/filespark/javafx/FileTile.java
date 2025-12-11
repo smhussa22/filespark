@@ -41,29 +41,29 @@ public class FileTile extends StackPane {
         Image image = new Image(getClass().getResourceAsStream(path));
         ImageView imageView = new ImageView(image);
 
-        imageView.setFitHeight(100);
-        imageView.setFitWidth(100);
+        imageView.setFitHeight(60);
+        imageView.setFitWidth(60);
         imageView.setPreserveRatio(false);
 
-        Rectangle clip = new Rectangle(200, 150);
+        Rectangle clip = new Rectangle(145, 105);
 
-        clip.setArcWidth(12);
-        clip.setArcHeight(12);
+        clip.setArcWidth(8);
+        clip.setArcHeight(8);
 
         imageView.setClip(clip);
 
-        Rectangle border = new Rectangle(250, 150);
+        Rectangle border = new Rectangle(175, 105);
 
         border.setFill(Color.web(Config.mainBlack));    
         border.setStroke(Color.web(Config.mainGrey)); 
         border.setStrokeWidth(1);
-        border.setArcWidth(12);
-        border.setArcHeight(12);
+        border.setArcWidth(8);
+        border.setArcHeight(8);
 
         StackPane imageHolder = new StackPane(border, imageView);
         Label label = new Label(shortenFileName(fileName));
 
-        label.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        label.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
         label.setTextFill(Color.WHITE);
 
         VBox layout = new VBox(6, imageHolder, label);
