@@ -1,7 +1,9 @@
 package com.filespark.client;
 
-import java.net.HttpURLConnection; // @todo switch to httpclient
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.io.*;
@@ -9,48 +11,31 @@ import org.json.JSONObject;
 
 import com.filespark.Config;
 
-public class FastAPI { //@todo wrap this in tries
+public class FastAPI { 
+
+    private static final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
 
     public static PresignResponse getPresignedUploadUrl(File file, String mime) throws Exception {
 
         String fileName = file.getName();
-        System.out.println(fileName);
-
-        String urlString = Config.webDomain + "/presign-upload?filename=" 
-            + URLEncoder.encode(fileName, StandardCharsets.UTF_8)
-            + "&mime="
-            + URLEncoder.encode(mime, StandardCharsets.UTF_8);
-
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder responseString = new StringBuilder();
-        String line;
-
-        while((line = reader.readLine()) != null){
-
-            responseString.append(line);
-
-        }
-
-        reader.close();
-
-        JSONObject json = new JSONObject(responseString.toString());
-
-        PresignResponse response = new PresignResponse();
-        response.fileId = json.getString("fileId");
-        response.key = json.getString("key");
-        response.mime = json.getString("mime");
-        response.extension = json.getString("extension");
-        response.uploadUrl = json.getString("uploadUrl");
-        response.viewUrl= json.getString("viewUrl");
-        response.originalFilename = json.getString("originalFilename");
+        String url = Config.webDomain + "/presign-upload?filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "&mime=" + URLEncoder.encode(mime, StandardCharsets.UTF_8);
         
-        if (connection != null) connection.disconnect();
+        HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) throw new RuntimeException("fastapi presign fail" + response.statusCode()); // @todo: maybe make this less harsh
+        JSONObject json = new JSONObject(response.body());
+
+        PresignResponse presignResponse = new PresignResponse();
+        presignResponse.fileId = json.getString("fileId");
+        presignResponse.key = json.getString("key");
+        presignResponse.mime = json.getString("mime");
+        presignResponse.extension = json.getString("extension");
+        presignResponse.uploadUrl = json.getString("uploadUrl");
+        presignResponse.viewUrl= json.getString("viewUrl");
+        presignResponse.originalFilename = json.getString("originalFilename");
         
-        return response;
+        return presignResponse;
 
     }
 

@@ -1,9 +1,11 @@
-import Image from 'next/image';
+import Image from "next/image";
+import Link from "next/link";
 import { BsGoogle } from "react-icons/bs";
 
 export default function LogInCard() {
   return (
-    <div className="
+    <div
+      className="
       w-full max-w-md
       rounded-2xl
       bg-maingrey/70
@@ -13,8 +15,8 @@ export default function LogInCard() {
       px-8 pt-10 pb-8
       flex flex-col items-center gap-8
       text-mainwhite
-    ">
-
+    "
+    >
       {/* Logo + Title */}
       <div className="flex flex-col items-center gap-4">
         <Image
@@ -29,9 +31,9 @@ export default function LogInCard() {
         </h1>
       </div>
 
-      {/* Google Button */}
-      <button
-        className="
+      <Link href="/api/auth/google">
+        <button
+          className="
           w-full
           flex items-center justify-center gap-3
           rounded-xl
@@ -41,12 +43,12 @@ export default function LogInCard() {
           shadow-md
           hover:shadow-lg hover:-translate-y-0.5
           transition-all duration-200
-          active:translate-y-0
+          active:translate-y-0 p-4
         "
-      >
-        <BsGoogle size={22} />
-        Continue with Google
-      </button>
+        >
+          <BsGoogle size={22} /> Continue with Google
+        </button>
+      </Link>
 
       {/* Helper Text */}
       <p className="text-sm text-mainwhite/60 text-center leading-relaxed">

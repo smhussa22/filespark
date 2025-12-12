@@ -1,9 +1,9 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from s3 import upload_file_to_s3, generate_presigned_get_url, generate_presigned_put_url, get_mime_from_s3
+from s3 import generate_presigned_get_url, generate_presigned_put_url, get_mime_from_s3
 import os
 from dotenv import load_dotenv
-from cuid2 import cuid2
+from cuid2 import Cuid
 
 load_dotenv()
 domain = os.getenv("DOMAIN")
@@ -48,7 +48,7 @@ def get_extension_from_mime(mime: str) -> str:
 
 @app.get("/presign-upload")
 def presign_upload(filename: str, mime: str):
-    file_id = cuid2()
+    file_id = str(Cuid())
     file_extension = get_extension_from_mime(mime)
     upload_url = generate_presigned_put_url(file_id, mime)
 
