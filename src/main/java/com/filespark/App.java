@@ -7,15 +7,25 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.*;
 
+import com.filespark.javafx.BaseNotification;
 import com.filespark.javafx.FileGrid;
 import com.filespark.javafx.Sidebar;
 import com.filespark.files.ScanWindowsDownloads;
+import com.filespark.javafx.NotificationContainer;
+import com.filespark.javafx.NotificationService;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+import javafx.scene.control.Button;
+
 
 import java.awt.*;
 
@@ -37,10 +47,24 @@ public class App extends Application {
         Sidebar sidebar = new Sidebar();
         FileGrid fileGrid = new FileGrid(downloadedFiles);
         
-        BorderPane root = new BorderPane();
-        root.setLeft(sidebar);
-        root.setCenter(fileGrid);
-        
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setLeft(sidebar);
+        mainLayout.setCenter(fileGrid);
+
+        mainLayout.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        StackPane.setAlignment(mainLayout, Pos.CENTER);
+
+        StackPane root = new StackPane();
+        root.getChildren().add(mainLayout);
+
+        NotificationContainer notifications = new NotificationContainer();
+        NotificationService.initialize(notifications);
+
+        StackPane.setAlignment(notifications, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(notifications, new Insets(20));
+
+        root.getChildren().add(notifications);
+
         Scene scene = new Scene(root, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/context-menu.css").toExternalForm());
     

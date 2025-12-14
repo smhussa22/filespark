@@ -36,6 +36,7 @@ public class Config {
     public static final int fileTileNameLength = 25;
     public static final String defaultEmail = "filesparkuser@filespark.com";
     public static final String defaultName = "FileSpark User";
+    public static final int maxNotifications = 3;
 
     // multithread/concurrency stuff
     public static final int maxUploads = 3;

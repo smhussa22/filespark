@@ -25,7 +25,6 @@ public class IShellLinkW extends Unknown {
         return (WinNT.HRESULT) _invokeNativeObject(3, args, WinNT.HRESULT.class);
     }
 
-    // ✅ vtable index 19 (CORRECT)
     public WinNT.HRESULT Resolve(Pointer hwnd, int fFlags) {
         Object[] args = { getPointer(), hwnd, fFlags };
         return (WinNT.HRESULT) _invokeNativeObject(19, args, WinNT.HRESULT.class);
