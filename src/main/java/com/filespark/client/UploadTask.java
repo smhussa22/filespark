@@ -32,7 +32,8 @@ public class UploadTask extends Task<Void>{
 
         long fileBytes = file.length();
 
-        HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(presignedUrl)).header("Content-Type", mime).PUT(streamFileProgress(file, fileBytes)).build();
+        // @todo: we need file progress
+        HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(presignedUrl)).header("Content-Type", mime).PUT(HttpRequest.BodyPublishers.ofFile(file.toPath())).build();
         HttpResponse<Void> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
 
         // 200 : ok 204: success no content
@@ -44,7 +45,6 @@ public class UploadTask extends Task<Void>{
 
         updateMessage(file.getName() + " uploaded!");
         updateProgress(fileBytes, fileBytes);
-        System.out.println("im here");
         return null;
 
     }
@@ -56,7 +56,7 @@ public class UploadTask extends Task<Void>{
             @Override
             public long contentLength() {
 
-                return totalBytes;
+                return file.length();
 
             }
 

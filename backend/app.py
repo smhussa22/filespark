@@ -4,11 +4,13 @@ from s3 import generate_presigned_get_url, generate_presigned_put_url, get_mime_
 import os
 from dotenv import load_dotenv
 from cuid2 import Cuid
+from routes.auth import router as auth_router
 
 load_dotenv()
 domain = os.getenv("DOMAIN")
 
 app = FastAPI()
+app.include_router(auth_router)
 app.add_middleware(
 
     CORSMiddleware,
@@ -18,6 +20,9 @@ app.add_middleware(
     allow_headers=["*"]
 
 )
+
+cuid = Cuid()
+
 
 def get_extension_from_mime(mime: str) -> str:
 
@@ -48,7 +53,7 @@ def get_extension_from_mime(mime: str) -> str:
 
 @app.get("/presign-upload")
 def presign_upload(filename: str, mime: str):
-    file_id = str(Cuid())
+    file_id = cuid.generate()
     file_extension = get_extension_from_mime(mime)
     upload_url = generate_presigned_put_url(file_id, mime)
 
