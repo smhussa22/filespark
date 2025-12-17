@@ -4,6 +4,7 @@ from pymongo.errors import DuplicateKeyError
 import os
 import requests
 from fastapi import APIRouter, HTTPException, Header, Depends
+from fastapi.responses import PlainTextResponse
 from jose import jwt
 from datetime import datetime, timedelta, timezone
 from bson import ObjectId
@@ -121,5 +122,10 @@ def me(user=Depends(get_current_user)):
         "picture": user["picture"],
 
     }
+
+# test route
+@router.get("/auth/test")
+def test():
+    return PlainTextResponse("backend")
     
 

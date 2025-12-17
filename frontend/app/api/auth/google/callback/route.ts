@@ -9,9 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(process.env.NEXT_PUBLIC_BASE_URL!);
   }
 
-  const parsed = JSON.parse(
-    Buffer.from(stateRaw, "base64url").toString()
-  );
+  const parsed = JSON.parse(Buffer.from(stateRaw, "base64url").toString());
   const nextPath = typeof parsed?.next === "string" ? parsed.next : "/";
 
   const backendRes = await fetch(
@@ -20,7 +18,7 @@ export async function GET(req: NextRequest) {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ code }),
-    }
+    },
   );
 
   if (!backendRes.ok) {
