@@ -30,7 +30,6 @@ public class FileTile extends StackPane {
         MenuItem showItem = new MenuItem("Show In Folder");
 
         ContextMenu menu = new ContextMenu(uploadItem, showItem);
-
         menu.getStyleClass().add("context-menu");
         uploadItem.getStyleClass().add("menu-item");
         showItem.getStyleClass().add("menu-item");

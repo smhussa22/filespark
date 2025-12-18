@@ -2,6 +2,8 @@ package com.filespark.javafx;
 import java.awt.Desktop;
 import java.net.URI;
 
+import com.filespark.client.OAuthCallbackServer;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.image.Image;
@@ -27,6 +29,8 @@ public class GoogleLoginButton extends Button {
 
             try{
 
+                // @todo
+                OAuthCallbackServer.start();
                 Desktop.getDesktop().browse(new URI("http://localhost:8000/auth/google/login"));
 
             }

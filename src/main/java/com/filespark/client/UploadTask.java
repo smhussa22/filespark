@@ -32,7 +32,6 @@ public class UploadTask extends Task<Void>{
 
         long fileBytes = file.length();
 
-        // @todo: we need file progress
         HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(presignedUrl)).header("Content-Type", mime).PUT(HttpRequest.BodyPublishers.ofFile(file.toPath())).build();
         HttpResponse<Void> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
 
@@ -49,6 +48,7 @@ public class UploadTask extends Task<Void>{
 
     }
 
+    // @todo: we need file progress
     private HttpRequest.BodyPublisher streamFileProgress(File file, long totalBytes){
 
         return new HttpRequest.BodyPublisher() {
