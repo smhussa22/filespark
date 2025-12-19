@@ -27,15 +27,19 @@ public class GoogleLoginButton extends Button {
 
         setOnAction(e -> {
 
+            setDisable(true);
+
             try{
 
+                int port = OAuthCallbackServer.start();
+                URI loginUri = new URI("http://localhost:8000/auth/google/login?port=" + port);
                 // @todo
-                OAuthCallbackServer.start();
-                Desktop.getDesktop().browse(new URI("http://localhost:8000/auth/google/login"));
+                Desktop.getDesktop().browse(loginUri);
 
             }
             catch(Exception ex){
 
+                setDisable(false);
                 ex.printStackTrace();
 
             }

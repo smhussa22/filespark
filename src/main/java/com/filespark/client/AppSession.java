@@ -1,6 +1,6 @@
 package com.filespark.client;
 
-public class AppSession {
+public final class AppSession {
  
     private static User user;
     private static String token;    
@@ -11,6 +11,13 @@ public class AppSession {
 
         user = u;
         token = t;
+
+    }
+
+    public static void logout() {
+
+        user = null;
+        token = null;
 
     }
 

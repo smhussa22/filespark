@@ -10,28 +10,33 @@ from datetime import datetime, timedelta, timezone
 from bson import ObjectId
 import urllib
 
+
+# @todo sep the web login
 router = APIRouter(prefix="/auth")
 
 db.users.create_index("email", unique=True)
 db.users.create_index("google_id", unique=True)
 
-google_client_id = os.getenv("GOOGLE_CLIENT_ID")
-google_client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+google_website_client_id = os.getenv("GOOGLE_WEBSITE_CLIENT_ID")
+google_website_client_secret = os.getenv("GOOGLE_WEBSITE_CLIENT_SECRET")
 google_website_redirect_uri = os.getenv("GOOGLE_WEBSITE_REDIRECT_URI")
-google_desktop_redirect_uri = os.getenv("GOOGLE_DESKTOP_REDIRECT_URI")
+
+google_desktop_client_id = os.getenv("GOOGLE_DESKTOP_CLIENT_ID")
+google_desktop_client_secret = os.getenv("GOOGLE_DESKTOP_CLIENT_SECRET")
+
 session_secret = os.getenv("SESSION_SECRET")
 
-def exchange_code_for_session(code: str) -> dict:
+def exchange_code_for_session(code: str, redirect_uri: str) -> dict:
     
     token_response = requests.post(
         "https://oauth2.googleapis.com/token", 
         data = {
 
             "code": code,
-            "client_id": google_client_id,
-            "client_secret": google_client_secret,
+            "client_id": google_desktop_client_id,
+            "client_secret": google_desktop_client_secret,
             "grant_type": "authorization_code",
-            "redirect_uri": google_desktop_redirect_uri,
+            "redirect_uri": redirect_uri,
 
         }
     )
@@ -143,18 +148,22 @@ def me(user=Depends(get_current_user)):
 @router.post("/google/session")
 def google_session(payload: dict):
     code = payload.get("code")
-    if not code:
+    redirect_uri = payload.get("redirect_uri")
+
+    if not code or not redirect_uri:
         raise HTTPException(status_code=400)
     
-    return exchange_code_for_session(code)
+    return exchange_code_for_session(code, redirect_uri)
 
 @router.get("/google/login")
-def google_login():
+def google_login(port: int):
+
+    redirect_uri = f"http://localhost:{port}/callback"
 
     params = {
 
-        "client_id": google_client_id,
-        "redirect_uri": google_desktop_redirect_uri,
+        "client_id": google_desktop_client_id,
+        "redirect_uri": redirect_uri,
         "response_type": "code",
         "scope": "openid email profile",
         "access_type": "offline",

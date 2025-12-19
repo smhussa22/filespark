@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.filespark.AppState;
 import com.filespark.scenes.Client;
 
 import javafx.application.Platform;
@@ -35,26 +36,33 @@ public class OAuthCallbackHandler {
     
     }
 
-    public static void exchangeCode(String code, Scene scene) {
+    public static void exchangeCode(String code) {
 
         try {
 
-            String body = mapper.writeValueAsString(Map.of("code", code));
+            String redirectUri = "http://localhost:" + OAuthCallbackServer.getPort() + "/callback";
+            String body = mapper.writeValueAsString(Map.of("code", code, "redirect_uri", redirectUri));
 
-            HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8000/auth/google/session")).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(body)).build();
+            HttpRequest request = HttpRequest.newBuilder()
+                                .uri(URI.create("http://localhost:8000/auth/google/session"))
+                                .header("Content-Type", "application/json")
+                                .POST(HttpRequest.BodyPublishers.ofString(body)).build();
 
             HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
 
                 if (response.statusCode() != 200) {
 
                     System.err.println("OAuth exchange failed: " + response.body());
+                    AppStateManager.set(AppState.LOGGED_OUT); // @todo: push an error notif
                     return;
 
                 }
 
                 try {
 
-                    //r
+                    SessionResponse session = mapper.readValue(response.body(), SessionResponse.class);
+                    AppSession.login(session.user, session.token);
+                    AppStateManager.set(AppState.LOGGED_IN);
 
                 } 
                 catch (Exception e) {

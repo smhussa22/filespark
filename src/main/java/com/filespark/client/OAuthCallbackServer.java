@@ -8,35 +8,62 @@ import com.sun.net.httpserver.HttpServer;
 
 import javafx.scene.Scene;
 
-public class OAuthCallbackServer {
+public final class OAuthCallbackServer {
     
     private static HttpServer server;
+    private static int port;
 
-    public static void start(Scene scene) throws Exception {
+    public static synchronized int start() throws Exception {
 
-        server = HttpServer.create(new InetSocketAddress(8765), 0);
+        if (server != null) return port;
+
+        server = HttpServer.create(new InetSocketAddress(0), 0);
+        port = server.getAddress().getPort();
+
         server.createContext("/callback", exchange -> {
 
-            URI uri = exchange.getRequestURI();
-            String query = uri.getQuery();
-            String code = OAuthCallbackHandler.extract(query, "code");
+            try {
 
-            if (code != null) OAuthCallbackHandler.exchangeCode(code, scene);
-            String response = "Login successful. You may return to FileSpark.";
-            exchange.sendResponseHeaders(200, response.length());
+                URI uri = exchange.getRequestURI();
+                String code = OAuthCallbackHandler.extract(uri.getQuery(), "code");
 
-            try (OutputStream os = exchange.getResponseBody()) {
+                if (code != null) OAuthCallbackHandler.exchangeCode(code);
+                
+                String response = "Login successful. You may return to FileSpark.";
+                exchange.sendResponseHeaders(200, response.getBytes().length);
 
-                os.write(response.getBytes(StandardCharsets.UTF_8));
+                try (OutputStream os = exchange.getResponseBody()) {
+
+                    os.write(response.getBytes(StandardCharsets.UTF_8));
+
+                }
 
             }
+            finally {
 
-            server.stop(0);
+                stop();
+
+            }
+            
 
         });
 
         server.start();
+        return port;
 
     }
+
+    public static synchronized void stop() {
+
+        if (server != null) {
+
+            server.stop(0);
+            server = null;
+
+        }
+
+    }
+
+    public static int getPort() { return port; }
 
 }
