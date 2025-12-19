@@ -1,22 +1,19 @@
 package com.filespark.javafx;
 
 import com.filespark.Config;
+import com.filespark.client.User;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 public class Sidebar extends VBox {
 
     // the one that is currently selected
     private SidebarItem selectedItem = null;
 
-    public Sidebar() {
+    public Sidebar(User user) {
 
         setPrefWidth(250);
         setPadding(new Insets(20));
@@ -51,8 +48,7 @@ public class Sidebar extends VBox {
         Region space = new Region();
         VBox.setVgrow(space, Priority.ALWAYS);
 
-        ProfilePicture pic = new ProfilePicture("/icons/user.png");
-        UserPanel userPanel = new UserPanel("Unknown User", "unknownuser@unknown.com", pic);
+        UserPanel userPanel = new UserPanel(user);
 
         getChildren().addAll(browse, settings, other, space, userPanel);
         setSelect(downloads); // default to downloads
@@ -72,6 +68,7 @@ public class Sidebar extends VBox {
         if (selectedItem != null) selectedItem.setSelected(false);
         selectedItem = item;
         item.setSelected(true);
+        
     }
 
 }

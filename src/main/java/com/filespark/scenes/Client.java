@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import com.filespark.Config;
+import com.filespark.client.User;
 import com.filespark.files.ScanWindowsDownloads;
 import com.filespark.javafx.*;
 
@@ -14,11 +15,14 @@ import javafx.scene.layout.StackPane;
 
 public class Client extends StackPane {
 
-    public Client() {
+    final User user;
 
+    public Client(User user) {
+
+        this.user = user;
         List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
 
-        Sidebar sidebar = new Sidebar();
+        Sidebar sidebar = new Sidebar(user);
         FileGrid fileGrid = new FileGrid(downloadedFiles);
 
         BorderPane mainLayout = new BorderPane();

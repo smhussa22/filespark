@@ -2,28 +2,32 @@ package com.filespark.client;
 
 import com.filespark.AppState;
 
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+
 public final class AppStateManager {
     
     private AppStateManager(){}
-    private static AppState state = AppState.LOGGED_OUT;
+    private static final ObjectProperty<AppState> state = new SimpleObjectProperty<>(AppState.LOGGED_OUT);
     private static Runnable onChange;
 
     public static AppState get() { 
 
-        return state;
+        return state.get();
 
     }
 
     public static void set (AppState newState) { 
 
-        state = newState;
-        if (onChange != null) onChange.run();
+        Platform.runLater(() -> state.set(newState));
 
     }
 
-    public static void setOnChange (Runnable r) {
+    public static ReadOnlyObjectProperty<AppState> property() {
 
-        onChange = r;
+        return state;
 
     }
 

@@ -1,5 +1,7 @@
 package com.filespark.client;
 
+import java.util.Optional;
+
 public final class AppSession {
  
     private static User user;
@@ -21,8 +23,9 @@ public final class AppSession {
 
     }
 
-    public static User getUser() { return user; }
+    public static Optional<User> getUser() { return Optional.ofNullable(user); }
     public static String getToken() { return token; }
     public static boolean isLoggedIn() { return (user != null && token != null); }
 
+    
 }

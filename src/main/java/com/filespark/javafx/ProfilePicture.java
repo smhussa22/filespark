@@ -10,11 +10,29 @@ import javafx.scene.shape.Circle;
 
 public class ProfilePicture extends StackPane {
 
-    public ProfilePicture(String imagePath) {
+    private static final String defaultAvatar = "/icons/user.png";
 
-        Image img = new Image(getClass().getResourceAsStream(imagePath));
+    public ProfilePicture(String imageUrl) {
+
+        Image img;
+
+        if (imageUrl == null || imageUrl.isBlank()) {
+
+            img = new Image(getClass().getResourceAsStream(defaultAvatar));
+
+        } 
+        else if (imageUrl.startsWith("http")) {
+
+            img = new Image(imageUrl, true);
+
+        } 
+        else {
+
+            img = new Image(getClass().getResourceAsStream(imageUrl));
+
+        }
+
         ImageView view = new ImageView(img);
-
         view.setFitWidth(40);
         view.setFitHeight(40);
         view.setPreserveRatio(false);
@@ -28,7 +46,6 @@ public class ProfilePicture extends StackPane {
         border.setFill(Color.TRANSPARENT);
 
         getChildren().addAll(view, border);
-
+        
     }
-    
 }

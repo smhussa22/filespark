@@ -2,6 +2,8 @@ package com.filespark.javafx;
 import java.awt.Desktop;
 import java.net.URI;
 
+import com.filespark.AppState;
+import com.filespark.client.AppStateManager;
 import com.filespark.client.OAuthCallbackServer;
 
 import javafx.scene.control.Button;
@@ -31,6 +33,7 @@ public class GoogleLoginButton extends Button {
 
             try{
 
+                AppStateManager.set(AppState.AUTHENTICATING);
                 int port = OAuthCallbackServer.start();
                 URI loginUri = new URI("http://localhost:8000/auth/google/login?port=" + port);
                 // @todo
