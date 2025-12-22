@@ -1,99 +1,87 @@
 "use client";
+
 import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
-import { VscMenu } from "react-icons/vsc";
-import DownloadButton from "./DownloadButton";
+import { FaWindows, FaApple } from "react-icons/fa";
 import { useSession } from "../hooks/useSession";
+import { HiOutlineLogout } from "react-icons/hi";
 
 export default function NavigationBar() {
-  const [open, setOpen] = useState(false);
+
   const { user, loading } = useSession();
 
-  const navigationLinks = [
+  const os = "windows"; // @todo replace this with actual os checking
+  const DownloadIcon = os === "windows" ? FaWindows: FaApple;
+
+  const navLinks = [
+
     { name: "Home", href: "/" },
-    { name: "Download", href: "/download" },
+    { name: "Downloads", href: "/download" },
     { name: "Changelog", href: "/changelog" },
+    { name: "Account", href: "/account" },
+
   ];
 
   return (
-    <header className="w-full bg-mainblack text-mainwhite shadow-xl">
-      <nav className="flex items-center justify-between md:justify-center px-4">
-        <Link
-          draggable={false}
-          href="/"
-          className="flex select-none items-center gap-4 p-4 hover:brightness-75 transition duration-200"
-        >
-          <Image
-            draggable={false}
-            src="icon.svg"
-            alt="FileSpark Logo"
-            width={50}
-            height={50}
-          />
-          <h1 className="text-2xl text-mainorange tracking-tight font-medium">
-            FileSpark
-          </h1>
-        </Link>
 
-        <div className="hidden md:flex items-center">
-          {navigationLinks.map((link) => (
-            <Link
-              draggable="false"
-              key={link.href}
-              href={link.href}
-              className="select-none p-4 hover:brightness-75 transition duration-200 text-xl tracking-tight font-medium"
-            >
-              {link.name}
-            </Link>
-          ))}
+    <header className="w-full sticky top-0 z-50 bg-mainblack/70 backdrop-blur-md border-b border-maingrey/60">
+
+      <nav className="mx-auto grid max-w-7xl grid-cols-3 items-center px-6 py-4">
+
+        <div className="flex justify-start">
 
           <Link
-            draggable="false"
-            href="/login"
-            className="text-mainorange select-none p-4 hover:brightness-75 transition duration-200 text-xl tracking-tight font-medium"
+            href="/"
+            className="text-3xl font-semibold tracking-tight text-mainorange hover:text-mainorange/80 transition"
           >
-            Login
+            FileSpark
           </Link>
-          <DownloadButton />
+
         </div>
 
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden p-4 hover:brightness-75 transition duration-200"
-          aria-label="Open menu"
-        >
-          <VscMenu size={28} />
-        </button>
-      </nav>
+        <div className="hidden md:flex justify-center gap-8">
 
-      <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
-      >
-        <div className="flex flex-col px-4 pb-4">
-          {navigationLinks.map((link) => (
+          {navLinks.map((link) => (
+
             <Link
-              key={link.href}
+              key={link.name}
               href={link.href}
-              className="py-3 text-xl tracking-tight font-medium hover:bg-white/10 rounded-md"
-              onClick={() => setOpen(false)}
+              className="font-medium text-mainwhite hover:text-mainwhite/80 transition"
             >
+
               {link.name}
+
             </Link>
+
           ))}
 
-          {!loading &&
-            (user ? (
-              <Link href="/logout" className="text-red-400">
-                Logout
-              </Link>
-            ) : (
-              <Link href="/login" className="text-mainorange">
-                Login
-              </Link>
-            ))}
         </div>
-      </div>
+
+        <div className="hidden md:flex justify-end items-center gap-3">
+
+          <Link
+            href="/download"
+            className="rounded-md flex items-center gap-3 border border-maingrey w-36 justify-center px-4 py-2 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
+          >
+
+            <DownloadIcon size={30}/> Download
+
+          </Link>
+
+          <Link
+            href="/signin"
+            className="rounded-md flex items-center gap-3 border border-maingrey w-36 justify-center px-4 py-2 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
+          >
+
+            <HiOutlineLogout size={30} /> Sign In
+
+          </Link>
+       
+        </div>
+
+      </nav>
+
     </header>
+
   );
+
 }

@@ -1,10 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from s3 import generate_presigned_get_url, generate_presigned_put_url, get_mime_from_s3
 import os
 from dotenv import load_dotenv
 from cuid2 import Cuid
 from routes.auth import router as auth_router
+from routes.auth import get_current_user
+from mongo import db
 
 load_dotenv()
 domain = os.getenv("DOMAIN")
@@ -52,10 +54,12 @@ def get_extension_from_mime(mime: str) -> str:
     return mime_dictionary.get(mime.lower(), "")
 
 @app.get("/presign-upload")
-def presign_upload(filename: str, mime: str):
+def presign_upload(filename: str, mime: str, user = Depends(get_current_user)):
     file_id = cuid.generate()
     file_extension = get_extension_from_mime(mime)
+    user_id = str(user["_id"])
     upload_url = generate_presigned_put_url(file_id, mime)
+    
 
     return {
 
@@ -64,16 +68,24 @@ def presign_upload(filename: str, mime: str):
         "mime": mime,
         "extension": file_extension,
         "uploadUrl": upload_url,
-        "viewUrl": f"http://{domain}/view/{file_id}",
+        "user": user_id,
+        "viewUrl": f"http://{domain}/view/{user_id}/{file_id}",
         "originalFilename": filename
 
     }
     
-@app.get("/api/file/{key}")
-def get_file(key: str):
+@app.get("/api/public/file/{user_id}/{key}")
+def get_file_public(user_id: str, key: str):
 
     url = generate_presigned_get_url(key)
-    mime = get_mime_from_s3(key)
+    file = db.files.find_one({ "fileId": key })
+    if not file:
+        raise HTTPException(404)
+
+    mime = file["mime"]
+    print(mime)
+    url = generate_presigned_get_url(key)
+
     return {
 
         "key": key,

@@ -1,8 +1,14 @@
-"use client";
-
-import Image from "next/image";
-import { useSession } from "./hooks/useSession";
+import Footer from "./components/Footer";
+import { HeroVideoSection } from "./components/HeroVideoSection";
+import { StatsSection } from "./components/StatsSection";
 
 export default function Home() {
-  return <></>;
+  
+  return (
+    <>
+      <HeroVideoSection />
+      <StatsSection />
+      <Footer />
+    </>
+  );
 }

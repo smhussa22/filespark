@@ -4,9 +4,9 @@
 @theme {
   --font-main: "Google Sans Flex", sans-serif; /* main font for most purposes */
 
-  --color-mainblack: #212020;
-  --color-maingrey: #2f2c2c;
-  --color-mainorange: #ba4700;
+  --color-mainblack: #1c1c1c;
+  --color-maingrey: #2a2a2a;
+  --color-mainorange: #d95923;
   --color-mainwhite: #ffffff;
 }
 

@@ -20,7 +20,7 @@ public class FastAPI {
         String fileName = file.getName();
         String url = Config.webDomain + "/presign-upload?filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "&mime=" + URLEncoder.encode(mime, StandardCharsets.UTF_8);
         
-        HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+        HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url)).header("Authorization", "Bearer " + AppSession.getToken()).GET().build();
         HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) throw new RuntimeException("fastapi presign fail" + response.statusCode()); // @todo: maybe make this less harsh

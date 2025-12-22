@@ -15,16 +15,25 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
+
     <html lang="en">
+
       <body>
+
         <Script
           src="https://accounts.google.com/gsi/client"
           async
           strategy="afterInteractive"
         />
+
         <NavigationBar />
+
         {children}
+
       </body>
+
     </html>
+
   );
+  
 }

@@ -2,8 +2,8 @@ import VideoPlayer from "@/app/components/VideoPlayer";
 import React from "react";
 
 export default async function ViewerPage(props: any) {
-  const { key } = await props.params;
-  const response = await fetch(`http://localhost:8000/api/file/${key}`, {
+  const { userid, fileid } = await props.params;
+  const response = await fetch(`http://localhost:8000/api/public/file/${userid}/${fileid}`, {
     cache: "no-store",
   });
 
@@ -23,7 +23,7 @@ export default async function ViewerPage(props: any) {
       {mime.startsWith("video/") && <VideoPlayer src={url} />}
 
       {mime.startsWith("image/") && (
-        <img src={url} alt={key} className="max-w-3xl rounded-xl shadow-lg" />
+        <img src={url} alt={fileid} className="max-w-3xl rounded-xl shadow-lg" />
       )}
     </div>
   );
