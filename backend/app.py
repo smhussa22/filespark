@@ -83,7 +83,6 @@ def get_file_public(user_id: str, key: str):
         raise HTTPException(404)
 
     mime = file["mime"]
-    print(mime)
     url = generate_presigned_get_url(key)
 
     return {
