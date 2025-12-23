@@ -1,5 +1,6 @@
 import Footer from "./components/Footer";
 import { HeroVideoSection } from "./components/HeroVideoSection";
+import LogInCard from "./components/LogInCard";
 import { StatsSection } from "./components/StatsSection";
 
 export default function Home() {

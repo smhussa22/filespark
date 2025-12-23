@@ -116,22 +116,27 @@ def google_callback(payload: dict):
 def get_current_user(authorization: str = Header()):
     
     if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=401, detail="no bearer")
     
     token = authorization.split(" ")[1]
     if not session_secret:
-        raise HTTPException(status_code=500)
+        raise HTTPException(status_code=500, detail="no session secret")
     
-    payload = jwt.decode(token, session_secret, algorithms=["HS256"])
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(status_code=401)
+    try:
+        # Decode and validate the token using the session secret
+        payload = jwt.decode(token, session_secret, algorithms=["HS256"])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Token is invalid")
+        
+        user = db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        
+        return user
     
-    user = db.users.find_one({"_id": ObjectId(user_id)})
-    if not user:
-        raise HTTPException(status_code=401)
-    
-    return user
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Token validation failed")
 
 @router.get("/me")
 def me(user=Depends(get_current_user)):
