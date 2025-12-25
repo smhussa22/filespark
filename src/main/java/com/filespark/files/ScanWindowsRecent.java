@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.*;
 
 import com.filespark.Config;
-import com.filespark.windows.DereferenceWindowsShortcut;
+import com.filespark.os.windows.DereferenceWindowsShortcut;
 
 public class ScanWindowsRecent {
 

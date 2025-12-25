@@ -1,4 +1,4 @@
-package com.filespark.windows;
+package com.filespark.os.windows;
 
 import com.filespark.Config;
 import com.sun.jna.Pointer;

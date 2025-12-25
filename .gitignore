@@ -9,4 +9,3 @@ __pycache__/
 *.pyd
 *.pyo
 venv/
-**/debug/

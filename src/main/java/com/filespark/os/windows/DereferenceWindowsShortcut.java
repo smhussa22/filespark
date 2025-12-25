@@ -1,9 +1,9 @@
-package com.filespark.windows;
+package com.filespark.os.windows;
 
 import com.filespark.Config;
-import com.filespark.windows.IPersistFile;
-import com.filespark.windows.ShellLink;
-import com.filespark.windows.IShellLinkW;
+import com.filespark.os.windows.IPersistFile;
+import com.filespark.os.windows.IShellLinkW;
+import com.filespark.os.windows.ShellLink;
 
 import java.io.File;
 

@@ -5,13 +5,16 @@ package com.filespark;
 import com.filespark.client.AppSession;
 import com.filespark.client.AppStateManager;
 import com.filespark.client.User;
+import com.filespark.os.GlobalHotkeyListener;
 import com.filespark.scenes.Authenticating;
 import com.filespark.scenes.Client;
 import com.filespark.scenes.Login;
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 
-import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -24,13 +27,23 @@ public class App extends Application {
     private Stage primaryStage;
 
     public static void main(String[] args){
-
+        
         launch(args);
 
     }
 
     @Override
     public void start(Stage primaryStage) {
+
+        try { // @Todo: make this only work when logged in
+            GlobalScreen.registerNativeHook();
+            GlobalScreen.addNativeKeyListener(new GlobalHotkeyListener());
+        } 
+        catch (NativeHookException e){
+
+            System.err.println(e.getStackTrace());
+
+        }
 
         this.primaryStage = primaryStage;
         AppStateManager.set(AppState.LOGGED_OUT);

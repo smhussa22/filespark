@@ -1,10 +1,11 @@
-package com.filespark.client;
+package com.filespark.os;
 
 import javafx.application.Platform;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import java.io.File;
 
-public class ClipboardUtil {
+public final class ClipboardUtil {
 
     private ClipboardUtil(){}
     
@@ -20,6 +21,15 @@ public class ClipboardUtil {
 
         });
         
+    }
+
+    public static File getFileFromClipboard() { 
+
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        if (!clipboard.hasFiles()) return null;
+        File file = clipboard.getFiles().get(0);
+        return file;
+
     }
 
 }

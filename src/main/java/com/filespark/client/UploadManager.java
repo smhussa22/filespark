@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import com.filespark.javafx.BaseNotification;
 import com.filespark.javafx.NotificationService;
+import com.filespark.os.ClipboardUtil;
 import com.filespark.Config;
 
 public class UploadManager {

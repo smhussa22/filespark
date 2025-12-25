@@ -18,6 +18,7 @@ public class Sidebar extends VBox {
         setPrefWidth(250);
         setPadding(new Insets(20));
         setSpacing(12);
+        //@todo: sidebar border disappears when out of focus
 
         setStyle(
             "-fx-background-color: " + Config.mainBlack + ";" +
@@ -27,9 +28,7 @@ public class Sidebar extends VBox {
 
         SidebarSection browse = new SidebarSection("Browse");
         SidebarItem downloads = item("default.png", "Downloads");
-        SidebarItem recent = item("default.png", "Recent");
         browse.addItem(downloads);
-        browse.addItem(recent);
 
         SidebarSection settings = new SidebarSection("Settings");
         SidebarItem client = item("default.png", "Client Settings");
