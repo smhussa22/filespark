@@ -48,9 +48,11 @@ public class ScanWindowsDownloads {
             if (isAllowed) {
 
                 downloadsFiles.add(downloadFile);
+
             }
             else {
 
+                // @debug remove in production
                 System.out.println("Skipping: " + downloadFile.getName());
 
             }

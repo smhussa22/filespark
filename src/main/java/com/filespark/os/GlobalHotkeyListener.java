@@ -30,7 +30,7 @@ public class GlobalHotkeyListener implements NativeKeyListener {
 
                 File file = ClipboardUtil.getFileFromClipboard();
                 if (file != null) UploadManager.startUpload(file);
-                else System.out.println("No file exists on the clipboard.");
+                else System.out.println("No file exists on the clipboard."); // @todo: throw notification
 
             });
 

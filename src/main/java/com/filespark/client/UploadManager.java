@@ -28,25 +28,20 @@ public class UploadManager {
 
             uploadTask.setOnSucceeded(e -> {
 
-                System.out.println("Upload complete!");
-                System.out.println("File ID: " + presignResponse.fileId);
-                System.out.println("View URL: " + presignResponse.viewUrl);
                 ClipboardUtil.copyToClipboard(presignResponse.viewUrl);
-                NotificationService.show(new BaseNotification("Upload complete: " + file.getName(), "success.png"));
+                NotificationService.show(new BaseNotification("Upload complete: " + file.getName() + "\nLink copied to clipboard: " + presignResponse.viewUrl, "success.png"));
                 
             });
 
             uploadTask.setOnFailed(e -> {
 
                 Throwable exception = uploadTask.getException();
-                System.err.println("Upload failed: " + uploadTask.getException());
-                NotificationService.show(new BaseNotification("Upload failed: " + file.getName(), "error.png"));
+                NotificationService.show(new BaseNotification("Upload failed: " + file.getName() + "\nError: " + exception.getMessage(), "error.png"));
             
             });
 
             uploadTask.setOnCancelled(e -> {
 
-                System.out.println("Upload cancelled.");
                 NotificationService.show(new BaseNotification("Upload cancelled: " + file.getName(), "cancel.png"));
             
             });

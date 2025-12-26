@@ -32,6 +32,7 @@ public class UserPanel extends HBox {
         userSettings.getStyleClass().add("menu-item");
         logOut.getStyleClass().add("menu-item");
 
+        // @debug placeholder
         userSettings.setOnAction(event -> System.out.println("User Settings"));
         logOut.setOnAction(event -> System.out.println("Log Out"));
 

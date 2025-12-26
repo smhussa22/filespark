@@ -17,7 +17,6 @@ public class UploadFromClipboardDebug {
         catch (NativeHookException e){
 
             System.err.println(e.getStackTrace());
-            System.out.println("========================================");System.out.println("========================================");
             
         }
         

@@ -35,7 +35,7 @@ public class FileTile extends StackPane {
         showItem.getStyleClass().add("menu-item");
 
         uploadItem.setOnAction(event -> { UploadManager.startUpload(file); });
-        showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName));
+        showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName)); //@debug placeholder
 
         Image image = new Image(getClass().getResourceAsStream(path));
         ImageView imageView = new ImageView(image);

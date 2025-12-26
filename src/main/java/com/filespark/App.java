@@ -107,8 +107,6 @@ public class App extends Application {
 
             }
 
-
-            System.out.println("Rendered state → " + AppStateManager.get());
         }
 
         private void onLoginSuccess() {
