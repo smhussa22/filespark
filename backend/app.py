@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from s3 import generate_presigned_get_url, generate_presigned_put_url, get_mime_from_s3
 import os
 from dotenv import load_dotenv
 from cuid2 import Cuid
 from routes.auth import router as auth_router
+from routes.auth import get_current_user
 
 load_dotenv()
 domain = os.getenv("DOMAIN")
@@ -52,11 +53,15 @@ def get_extension_from_mime(mime: str) -> str:
     return mime_dictionary.get(mime.lower(), "")
 
 @app.get("/presign-upload")
-def presign_upload(filename: str, mime: str):
+def presign_upload(filename: str, mime: str, user = Depends(get_current_user)):
     file_id = cuid.generate()
     file_extension = get_extension_from_mime(mime)
     upload_url = generate_presigned_put_url(file_id, mime)
 
+    print("User dict:", user)
+    print("User _id:", user["_id"])
+    print("User id (str):", str(user["_id"]))
+    
     return {
 
         "fileId": file_id,
@@ -64,7 +69,7 @@ def presign_upload(filename: str, mime: str):
         "mime": mime,
         "extension": file_extension,
         "uploadUrl": upload_url,
-        "viewUrl": f"http://{domain}/view/{file_id}",
+        "viewUrl": f"http://{domain}/view/{str(user['_id'])}/{file_id}",
         "originalFilename": filename
 
     }

@@ -25,7 +25,7 @@ public final class AppSession {
 
     public static Optional<User> getUser() { return Optional.ofNullable(user); }
     public static String getToken() { return token; }
+    public static String getUserId() { return user.getId(); }
     public static boolean isLoggedIn() { return (user != null && token != null); }
 
-    
 }

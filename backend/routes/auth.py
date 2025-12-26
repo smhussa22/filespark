@@ -113,7 +113,7 @@ def google_callback(payload: dict):
     
     return exchange_code_for_session(code)
 
-def get_current_user(authorization: str = Header()):
+def get_current_user(authorization: str = Header(..., alias="Authorization")):
     
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401)

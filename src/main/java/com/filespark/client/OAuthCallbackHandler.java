@@ -63,6 +63,7 @@ public class OAuthCallbackHandler {
                     SessionResponse session = mapper.readValue(response.body(), SessionResponse.class);
                     AppSession.login(session.user, session.token);
                     AppStateManager.set(AppState.LOGGED_IN);
+                    
 
                 } 
                 catch (Exception e) {

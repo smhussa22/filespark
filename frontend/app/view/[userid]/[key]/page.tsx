@@ -1,22 +1,16 @@
-"use client";
 import React from "react";
 
 export default async function ViewerPage(props: any) {
-  const { key } = await props.params;
+  const { userId, key } = await props.params;
+
   const response = await fetch(
     `http://localhost:8000/api/file/${key}`,
-
-    {
-      cache: "no-store",
-    },
+    { cache: "no-store" }
   );
 
-  if (!response.ok)
-    return (
-      <>
-        <h1>Failed To Load Response</h1>
-      </>
-    );
+  if (!response.ok) {
+    return <h1>Failed To Load Response</h1>;
+  }
 
   const data = await response.json();
   const mime = data.mime;
@@ -34,7 +28,11 @@ export default async function ViewerPage(props: any) {
       )}
 
       {mime.startsWith("image/") && (
-        <img src={url} alt={key} className="max-w-3xl rounded-xl shadow-lg" />
+        <img
+          src={url}
+          alt={key}
+          className="max-w-3xl rounded-xl shadow-lg"
+        />
       )}
 
       {mime.startsWith("audio/") && (
@@ -49,8 +47,7 @@ export default async function ViewerPage(props: any) {
             className="text-white underline text-xl"
             target="_blank"
           >
-            {" "}
-            Download {key}{" "}
+            Download {key}
           </a>
         )}
     </div>
