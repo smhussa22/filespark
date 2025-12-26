@@ -9,42 +9,25 @@ public final class HotkeyUtil {
 
     public static Hotkey uploadFromClipboard() {
 
-        Hotkey hk;
-
+        int rawMask;
         switch (OperatingSystem.OS) {
 
             case MAC:
-                hk = new Hotkey(NativeKeyEvent.META_MASK | NativeKeyEvent.SHIFT_MASK, NativeKeyEvent.VC_V);
+                rawMask = NativeKeyEvent.META_MASK | NativeKeyEvent.SHIFT_MASK;
                 break;
 
             case LINUX:
             case WINDOWS:
-                hk = new Hotkey(NativeKeyEvent.CTRL_MASK | NativeKeyEvent.SHIFT_MASK, NativeKeyEvent.VC_V);
-                break;
 
             default:
-                hk = null;
+                rawMask = NativeKeyEvent.CTRL_MASK | NativeKeyEvent.SHIFT_MASK;
+                break;
 
         }
 
-        // @debug
-        System.out.println("========================================");
-        System.out.println("HOTKEY CREATED");
-        System.out.println("Detected OS      : " + OperatingSystem.OS);
+        int cleanMask = rawMask & 0x0F; // @todo find a better fix than this
+        return new Hotkey(cleanMask, NativeKeyEvent.VC_U);
 
-        if (hk != null) {
-            System.out.println("Modifier mask    : " + hk.modifierMask());
-            System.out.println("Key code         : " + hk.keyCode());
-            System.out.println("CTRL_MASK        : " + NativeKeyEvent.CTRL_MASK);
-            System.out.println("SHIFT_MASK       : " + NativeKeyEvent.SHIFT_MASK);
-            System.out.println("META_MASK        : " + NativeKeyEvent.META_MASK);
-        } else {
-            System.out.println("Hotkey is NULL");
-        }
-
-        System.out.println("========================================");
-
-        return hk;
     }
 
 }

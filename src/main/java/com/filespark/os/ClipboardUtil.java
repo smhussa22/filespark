@@ -23,7 +23,7 @@ public final class ClipboardUtil {
         
     }
 
-    public static File getFileFromClipboard() { 
+    public static File getFileFromClipboard() { // @todo: make this hav e images too 
 
         Clipboard clipboard = Clipboard.getSystemClipboard();
         if (!clipboard.hasFiles()) return null;
