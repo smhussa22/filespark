@@ -3,6 +3,9 @@
 package com.filespark.javafx;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import com.filespark.Config;
 import com.filespark.client.UploadManager;
 
@@ -24,7 +27,7 @@ public class FileTile extends StackPane {
     public FileTile(File file) {
 
         String fileName = file.getName();
-        String path = getMimeType(fileName);
+        String path = getMimeType(file);
 
         MenuItem uploadItem = new MenuItem("Upload As Embedded Link");
         MenuItem showItem = new MenuItem("Show In Folder");
@@ -102,18 +105,38 @@ public class FileTile extends StackPane {
     private String shortenFileName(String fileName) {
 
         if (fileName.length() <= Config.fileTileNameLength) return fileName;
-        return fileName.substring(0, Config.fileTileNameLength - 3) + "...";
+        
+        int dotExtension = fileName.lastIndexOf('.');
+        if (dotExtension <= 0) return fileName.substring(0, Config.fileTileNameLength - 3) + "...";
+
+        String name = fileName.substring(0, dotExtension);
+        String extension = fileName.substring(dotExtension);
+
+        int allowedNameLength = Config.fileTileNameLength - extension.length() - 3;
+        if (allowedNameLength <= 0) {
+
+            return "..." + extension.substring(extension.length(), (Config.fileTileNameLength - 3));
+
+        }
+
+        return name.substring (0, allowedNameLength) + "..." + extension;
 
     }
 
-    private String getMimeType(String mimeType) { // @todo: doesnt work
+    private String getMimeType(File file) { // @todo: doesnt work
 
-        if (mimeType == null) return "/icons/default.png";
-        mimeType = mimeType.toLowerCase();
+        try {
 
-        if (mimeType.startsWith("image/")) return "/icons/image.png";
-        if (mimeType.startsWith("video/")) return "/icons/video.png";
+            String mimeType = Files.probeContentType(file.toPath());
+            if (mimeType == null) return "/icons/default.png";
+            if (mimeType.startsWith("image/")) return "/icons/image.png";
+            if (mimeType.startsWith("video/")) return "/icons/video.png";
+            if (mimeType.startsWith("application/")) return "/icons/application.png";
+            if (mimeType.startsWith("audio/")) return "/icons/audio.png";
 
+        }
+        catch(IOException ignore) {}
+        
         return "/icons/default.png";
 
     }

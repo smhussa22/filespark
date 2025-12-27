@@ -12,7 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 
-public class FileGrid extends ScrollPane {
+public class FileGrid extends ScrollPane { // @todo: refreshes upon change
 
     private final FlowPane grid = new FlowPane();
 

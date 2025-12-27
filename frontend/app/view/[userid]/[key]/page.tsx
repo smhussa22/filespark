@@ -1,15 +1,27 @@
+import ApplicationViewer from "@/app/components/ApplicationViewer";
+import AudioPlayer from "@/app/components/AudioPlayer";
+import FailedToLoadContent from "@/app/components/FailedToLoadContent";
+import ImageDisplay from "@/app/components/ImageDisplay";
+import UnsupportedContent from "@/app/components/UnsupportedContent";
+import VideoPlayer from "@/app/components/VideoPlayer";
 import React from "react";
 
 export default async function ViewerPage(props: any) {
-  const { userId, key } = await props.params;
+
+  const { key } = await props.params; // @todo make this entire route use fileid and not key
 
   const response = await fetch(
+
     `http://localhost:8000/api/file/${key}`,
     { cache: "no-store" }
+
   );
 
+
   if (!response.ok) {
-    return <h1>Failed To Load Response</h1>;
+
+    return <FailedToLoadContent/>;
+
   }
 
   const data = await response.json();
@@ -17,39 +29,31 @@ export default async function ViewerPage(props: any) {
   const url = data.signedUrl;
 
   return (
+
     <div className="bg-black flex items-center justify-center min-h-screen p-10">
+
       {mime.startsWith("video/") && (
-        <video
-          src={url}
-          controls
-          autoPlay
-          className="w-full max-w-4xl rounded-xl shadow-lg"
-        />
+        <VideoPlayer src={url} />
       )}
 
       {mime.startsWith("image/") && (
-        <img
-          src={url}
-          alt={key}
-          className="max-w-3xl rounded-xl shadow-lg"
-        />
+        <ImageDisplay src={url} fileid={key} />
       )}
 
       {mime.startsWith("audio/") && (
-        <audio controls src={url} className="w-full max-w-lg" />
+        <AudioPlayer src={url} />
       )}
 
-      {!mime.startsWith("video/") &&
-        !mime.startsWith("image/") &&
-        !mime.startsWith("audio/") && (
-          <a
-            href={url}
-            className="text-white underline text-xl"
-            target="_blank"
-          >
-            Download {key}
-          </a>
-        )}
+      {mime.startsWith("application/") && (
+        <ApplicationViewer />
+      )}
+
+      {!mime.startsWith("video/") && !mime.startsWith("image/") && !mime.startsWith("audio/") && !mime.startsWith("application/") && (
+        <UnsupportedContent />
+      )}
+
     </div>
+
   );
+
 }

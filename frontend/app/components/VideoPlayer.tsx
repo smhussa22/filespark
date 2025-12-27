@@ -4,7 +4,9 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import { FaRegShareSquare } from "react-icons/fa";
 
 export default function VideoPlayer({ src }: { src: string }) {
+
   return (
+
     <div className="bg-mainblack w-full max-w-5xl border border-white/10 rounded-md overflow-hidden flex flex-col">
       <video src={src} controls className="w-full bg-black" />
 
