@@ -27,7 +27,6 @@ public class FileTile extends StackPane {
     public FileTile(File file) {
 
         String fileName = file.getName();
-        String path = getMimeType(file);
 
         MenuItem uploadItem = new MenuItem("Upload As Embedded Link");
         MenuItem showItem = new MenuItem("Show In Folder");
@@ -40,21 +39,35 @@ public class FileTile extends StackPane {
         uploadItem.setOnAction(event -> { UploadManager.startUpload(file); });
         showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName)); //@debug placeholder
 
-        Image image = new Image(getClass().getResourceAsStream(path));
-        ImageView imageView = new ImageView(image);
+        ImageView imageView = new ImageView();
+        Image preview = getPreview(file, imageView);
+        if (preview != null) {
 
-        imageView.setFitHeight(60);
-        imageView.setFitWidth(60);
-        imageView.setPreserveRatio(false);
+            imageView.setImage(preview);
+            imageView.setFitHeight(Config.fileTileHeight);
+            imageView.setFitWidth(Config.fileTileWidth);
+            imageView.setPreserveRatio(true);
 
-        Rectangle clip = new Rectangle(145, 105);
+        }
+        else {
 
-        clip.setArcWidth(8);
-        clip.setArcHeight(8);
+            imageView.setImage(getDefaultIcon(file));
+            imageView.setFitWidth(64);
+            imageView.setFitHeight(64);
+            imageView.setOpacity(0.85);
 
-        imageView.setClip(clip);
+        } 
+        
+        imageView.setSmooth(true);
 
-        Rectangle border = new Rectangle(175, 105);
+        Rectangle clip = new Rectangle(Config.fileTileWidth, Config.fileTileHeight);
+
+        clip.setArcWidth(12);
+        clip.setArcHeight(12);
+
+        if (preview != null) imageView.setClip(clip);
+
+        Rectangle border = new Rectangle(Config.fileTileWidth, Config.fileTileHeight);
 
         border.setFill(Color.web(Config.mainBlack));    
         border.setStroke(Color.web(Config.mainGrey)); 
@@ -65,7 +78,7 @@ public class FileTile extends StackPane {
         StackPane imageHolder = new StackPane(border, imageView);
         Label label = new Label(shortenFileName(fileName));
 
-        label.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
+        label.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
         label.setTextFill(Color.WHITE);
 
         VBox layout = new VBox(6, imageHolder, label);
@@ -123,20 +136,68 @@ public class FileTile extends StackPane {
 
     }
 
-    private String getMimeType(File file) { // @todo: doesnt work
+    private Image getPreview(File file, ImageView imageView) {
+
+        String mimeType = null;
+
+        try {
+
+            mimeType = Files.probeContentType(file.toPath());
+
+        } 
+        catch (IOException ignore) {}
+
+        if (mimeType == null) return null;
+
+        if (mimeType.startsWith("image/")) {
+
+            Image preview = new Image(file.toURI().toString(), Config.fileTileWidth, Config.fileTileHeight, true, true, true);
+
+            preview.errorProperty().addListener((obs, old, error) -> {
+
+                if (error) {
+
+                    imageView.setImage(getDefaultIcon(file));
+
+                }
+
+            });
+
+            return preview;
+
+        }
+
+        //@todo these
+        if (mimeType.startsWith("video/")) return null;
+        if (mimeType.startsWith("audio/")) return null;
+        if (mimeType.startsWith("application/")) return null;
+
+        return null;
+
+    }
+
+    private Image getDefaultIcon(File file) {
+
+        String path = getMimeType(file);
+        return new Image(getClass().getResourceAsStream(path));
+
+    }
+
+    private String getMimeType(File file) {
 
         try {
 
             String mimeType = Files.probeContentType(file.toPath());
+
             if (mimeType == null) return "/icons/default.png";
             if (mimeType.startsWith("image/")) return "/icons/image.png";
             if (mimeType.startsWith("video/")) return "/icons/video.png";
             if (mimeType.startsWith("application/")) return "/icons/application.png";
             if (mimeType.startsWith("audio/")) return "/icons/audio.png";
 
-        }
-        catch(IOException ignore) {}
-        
+        } 
+        catch (IOException ignore) {}
+
         return "/icons/default.png";
 
     }

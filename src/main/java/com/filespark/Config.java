@@ -34,6 +34,8 @@ public class Config {
     public static final String mainOrange = "#BA4700";
     public static final String mainGrey = "#2f2c2c";
     public static final int fileTileNameLength = 25;
+    public static final double fileTileWidth = 300;
+    public static final double fileTileHeight = 200;
     public static final String defaultEmail = "filesparkuser@filespark.com";
     public static final String defaultName = "FileSpark User";
     public static final int maxNotifications = 3;
