@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { FaWindows, FaApple } from "react-icons/fa";
+import { FaWindows, FaApple, FaGithub, FaLinux } from "react-icons/fa";
 export function HeroVideoSection() {
   const os = "windows";
   const DownloadIcon = os === "windows" ? FaWindows : FaApple;
@@ -37,13 +37,20 @@ export function HeroVideoSection() {
             Upload, embed, and share files in seconds. No limits. No effort.
           </p>
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex justify-center gap-3">
             <Link
               href="/download"
-              className="bg-mainorange/70 hover:bg-mainorange px-6 py-4 text-lg rounded-md flex items-center gap-3 font-medium text-mainwhite transition"
+              className="w-70 justify-center bg-mainorange/70 hover:bg-mainorange px-6 py-4 text-lg rounded-md flex items-center gap-3 font-medium text-mainwhite transition"
             >
               <DownloadIcon size={36} />
               Download FileSpark
+            </Link>
+            <Link
+              href="https://github.com/smhussa22/filespark"
+              className="w-70 justify-center bg-neutral-600/70 hover:bg-neutral-600 px-6 py-4 text-lg rounded-md flex items-center gap-3 font-medium text-mainwhite transition"
+            >
+              <FaGithub size={36} />
+              View Source Code
             </Link>
           </div>
         </div>

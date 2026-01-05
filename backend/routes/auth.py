@@ -45,7 +45,7 @@ def exchange_code_for_session(code: str, redirect_uri: str) -> dict:
 
     id_token = token_data.get("id_token")
     if not id_token:
-        raise HTTPException(status_code=401, detail="google token none or invalid")
+        raise HTTPException(status_code=401, detail="[filespark/backend/routes/auth.py **exchange_code_for_session**]: Google token does not exist or invalid.")
     
     google_payload = jwt.get_unverified_claims(id_token)
 
@@ -55,7 +55,7 @@ def exchange_code_for_session(code: str, redirect_uri: str) -> dict:
     picture=google_payload.get("picture")
 
     if not google_id or not email:
-        raise HTTPException(status_code=401, detail="google id or email none or invalid")
+        raise HTTPException(status_code=401, detail="[filespark/backend/routes/auth.py **exchange_code_for_session**]: Google id or email does not exist or invalid.")
     
     user = get_or_create_user(google_id=google_id, email=email, name=name, picture=picture)
     now = datetime.now(timezone.utc)
@@ -109,27 +109,27 @@ def google_callback(payload: dict):
 
     code = payload.get("code")
     if not code:
-        raise HTTPException(status_code=400, detail="missing code")
+        raise HTTPException(status_code=400, detail=f"[filespark/backend/routes/auth.py **google_callback**]: Payload is missing code.\\ {dict}")
     
     return exchange_code_for_session(code)
 
 def get_current_user(authorization: str = Header(..., alias="Authorization")):
     
     if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=401, detail = "[filespark/backend/routes/auth.py **get_current_user**]: Authorization NULL or does not start with 'Bearer'.")
     
     token = authorization.split(" ")[1]
     if not session_secret:
-        raise HTTPException(status_code=500)
+        raise HTTPException(status_code=500, detail = "[filespark/backend/routes/auth.py **get_current_user**]: Session secret NULL.")
     
     payload = jwt.decode(token, session_secret, algorithms=["HS256"])
     user_id = payload.get("sub")
     if not user_id:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=401, detail = f"[filespark/backend/routes/auth.py **get_current_user**]: Payload does not contain user_id. \\ {payload}")
     
     user = db.users.find_one({"_id": ObjectId(user_id)})
     if not user:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=401, detail = "[filespark/backend/routes/auth.py **get_current_user**]: User could not be found.")
     
     return user
 
@@ -151,7 +151,7 @@ def google_session(payload: dict):
     redirect_uri = payload.get("redirect_uri")
 
     if not code or not redirect_uri:
-        raise HTTPException(status_code=400)
+        raise HTTPException(status_code=400, detail = f"[filespark/backend/routes/auth.py **google_session**]: Code or redirect URI could not be found. \\ {payload}")
     
     return exchange_code_for_session(code, redirect_uri)
 
