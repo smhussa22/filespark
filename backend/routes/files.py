@@ -46,9 +46,7 @@ def presign_upload(filename: str, mime: str, user = Depends(get_current_user), c
 
     upload_url = generate_presigned_put_url(file_id, mime)
 
-    print("User dict:", user)
-    print("User _id:", user["_id"])
-    print("User id (str):", str(user["_id"]))
+    print(file_extension)
     
     return {
 

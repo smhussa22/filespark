@@ -2,6 +2,7 @@
 import React from "react";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { FaRegShareSquare } from "react-icons/fa";
+import PrivacySwitch from "./PrivacySwitch";
 
 export default function VideoPlayer({ src }: { src: string }) {
 
@@ -66,6 +67,7 @@ export default function VideoPlayer({ src }: { src: string }) {
               <FaRegShareSquare className="text-lg" />
               Share
             </button>
+            <PrivacySwitch/>
           </div>
         </div>
       </div>

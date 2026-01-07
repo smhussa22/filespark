@@ -2,8 +2,8 @@ from bson import ObjectId
 from datetime import datetime, timezone
 from typing import Optional
 
-def create_file_document(*, owner_id: ObjectId, cluster_id: Optional[ObjectId], original_name: str, mime: str, extension: str, bucket: str, key: str, size_bytes: int, region: Optional[str] = None, visibility: str = "private",
-    checksum: Optional[str] = None,) -> dict:
+def create_file_document(*, owner_id: ObjectId, cluster_id: Optional[ObjectId], original_name: str, mime: str, extension: str, bucket: str, 
+                        key: str, size_bytes: int, region: Optional[str] = None, visibility: str = "private", checksum: Optional[str] = None,) -> dict:
 
     return {
 

@@ -25,7 +25,9 @@ def get_extension_from_mime(mime: str) -> str:
     
     if not mime:
         raise HTTPException(400, "[filespark/backend/util/mime.py]: MIME type not found.")
-    
+
     extension = mime_dictionary.get(mime.lower())
     if not extension:
         raise HTTPException(400, f"[filespark/backend/util/mime.py]: {mime} currently unsupported.")
+    
+    return extension
