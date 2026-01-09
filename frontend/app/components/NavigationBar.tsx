@@ -68,7 +68,7 @@ export default function NavigationBar() {
           </Link>
 
           <Link
-            href="/signin"
+            href="/login"
             className="rounded-md flex items-center gap-3 border border-maingrey w-36 justify-center px-4 py-2 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
           >
 

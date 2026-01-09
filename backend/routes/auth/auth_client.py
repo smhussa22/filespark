@@ -9,9 +9,12 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone
 from bson import ObjectId
 import urllib
+from routes.auth.auth_common import (
+    get_or_create_user,
+    get_current_user,
+    session_secret,
+)
 
-
-# @todo sep the web login
 router = APIRouter(prefix="/auth")
 
 db.users.create_index("email", unique=True)
@@ -24,7 +27,7 @@ google_website_redirect_uri = os.getenv("GOOGLE_WEBSITE_REDIRECT_URI")
 google_desktop_client_id = os.getenv("GOOGLE_DESKTOP_CLIENT_ID")
 google_desktop_client_secret = os.getenv("GOOGLE_DESKTOP_CLIENT_SECRET")
 
-session_secret = os.getenv("SESSION_SECRET")
+
 
 def exchange_code_for_session(code: str, redirect_uri: str) -> dict:
     
@@ -113,25 +116,6 @@ def google_callback(payload: dict):
     
     return exchange_code_for_session(code)
 
-def get_current_user(authorization: str = Header(..., alias="Authorization")):
-    
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail = "[filespark/backend/routes/auth.py **get_current_user**]: Authorization NULL or does not start with 'Bearer'.")
-    
-    token = authorization.split(" ")[1]
-    if not session_secret:
-        raise HTTPException(status_code=500, detail = "[filespark/backend/routes/auth.py **get_current_user**]: Session secret NULL.")
-    
-    payload = jwt.decode(token, session_secret, algorithms=["HS256"])
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(status_code=401, detail = f"[filespark/backend/routes/auth.py **get_current_user**]: Payload does not contain user_id. \\ {payload}")
-    
-    user = db.users.find_one({"_id": ObjectId(user_id)})
-    if not user:
-        raise HTTPException(status_code=401, detail = "[filespark/backend/routes/auth.py **get_current_user**]: User could not be found.")
-    
-    return user
 
 @router.get("/me")
 def me(user=Depends(get_current_user)):

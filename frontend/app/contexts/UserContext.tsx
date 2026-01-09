@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useState, useEffect, useContext } from "react";
 
-export default function () {
+export default function UserContext() {
   return <></>;
 }

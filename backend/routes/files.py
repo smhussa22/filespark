@@ -3,7 +3,11 @@ from bson import ObjectId
 from cuid2 import Cuid
 import os
 from mongo import db
-from routes.auth import get_current_user
+from routes.auth.auth_common import (
+
+    get_current_user,
+
+)
 from models.file import create_file_document
 from models.file_cluster import create_file_cluster
 from s3 import generate_presigned_get_url, generate_presigned_put_url, get_mime_from_s3

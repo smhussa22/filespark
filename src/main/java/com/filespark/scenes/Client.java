@@ -20,7 +20,11 @@ public class Client extends StackPane {
     public Client(User user) {
 
         this.user = user;
-        List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
+
+        // main scene
+        /*
+        List<File> downloadedFiles =
+                ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
 
         Sidebar sidebar = new Sidebar(user);
         FileGrid fileGrid = new FileGrid(downloadedFiles);
@@ -28,6 +32,13 @@ public class Client extends StackPane {
         BorderPane mainLayout = new BorderPane();
         mainLayout.setLeft(sidebar);
         mainLayout.setCenter(fileGrid);
+        */
+
+        // temp test of link dashboard
+        LinkDashboard linkDashboard = new LinkDashboard();
+
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setCenter(linkDashboard);
 
         NotificationContainer notifications = new NotificationContainer();
         NotificationService.initialize(notifications);
@@ -36,6 +47,5 @@ public class Client extends StackPane {
         StackPane.setMargin(notifications, new Insets(20));
 
         getChildren().addAll(mainLayout, notifications);
-
     }
 }
