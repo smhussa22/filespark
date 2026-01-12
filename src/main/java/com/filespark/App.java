@@ -8,6 +8,7 @@ import com.filespark.client.User;
 import com.filespark.os.GlobalHotkeyListener;
 import com.filespark.scenes.Authenticating;
 import com.filespark.scenes.Client;
+import com.filespark.scenes.HotkeySettings;
 import com.filespark.scenes.Login;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
@@ -21,20 +22,28 @@ import java.awt.*;
 
 public class App extends Application {
 
+    /* @todo: hidden for hotkey settings development 
     private Client clientScene;
     private final Login logInScene = new Login();
     private final Authenticating authScene = new Authenticating();
     private Stage primaryStage;
-
+    */
     public static void main(String[] args){
         
         launch(args);
 
     }
+    
 
     @Override
     public void start(Stage primaryStage) {
 
+        HotkeySettings hotkeySettings = new HotkeySettings();
+        Scene scene = new Scene(hotkeySettings, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("FileSpark");
+        primaryStage.show();
+        /* @todo: hidden for hotkey settings development 
         try { // @Todo: make this only work when logged in
             GlobalScreen.registerNativeHook();
             GlobalScreen.addNativeKeyListener(new GlobalHotkeyListener());
@@ -82,9 +91,10 @@ public class App extends Application {
 
         render();
         primaryStage.show();
-
+        */
     }
 
+    /* @todo: hidden for hotkey settings development 
     // @todo: move these out of app
     private void render() {
 
@@ -117,5 +127,5 @@ public class App extends Application {
             root.getChildren().add(clientScene);
 
         }
-
+    */
 }

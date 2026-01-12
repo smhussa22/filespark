@@ -21,7 +21,6 @@ public class LinkTile extends HBox {
 
     public LinkTile(File file) {
 
-
         setSpacing(14);
         setPadding(new Insets(10, 16, 10, 16));
         setAlignment(Pos.CENTER_LEFT);
