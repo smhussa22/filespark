@@ -28,32 +28,35 @@ public class App extends Application {
     private final Authenticating authScene = new Authenticating();
     private Stage primaryStage;
     */
-    public static void main(String[] args){
-        
-        launch(args);
 
+    public static void main(String[] args) {
+        launch(args);
     }
-    
 
     @Override
     public void start(Stage primaryStage) {
 
-        HotkeySettings hotkeySettings = new HotkeySettings();
-        Scene scene = new Scene(hotkeySettings, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("FileSpark");
-        primaryStage.show();
-        /* @todo: hidden for hotkey settings development 
+        // ✅ RESTORED: Global hotkey system
         try { // @Todo: make this only work when logged in
             GlobalScreen.registerNativeHook();
             GlobalScreen.addNativeKeyListener(new GlobalHotkeyListener());
-        } 
-        catch (NativeHookException e){
-
+        } catch (NativeHookException e) {
             System.err.println(e.getStackTrace());
-
         }
 
+        // Placeholder scene for HotkeySettings development
+        HotkeySettings hotkeySettings = new HotkeySettings();
+        Scene scene = new Scene(
+            hotkeySettings,
+            Config.WINDOW_WIDTH,
+            Config.WINDOW_HEIGHT
+        );
+
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("FileSpark");
+        primaryStage.show();
+
+        /* @todo: hidden for hotkey settings development 
         this.primaryStage = primaryStage;
         AppStateManager.set(AppState.LOGGED_OUT);
 
@@ -63,30 +66,28 @@ public class App extends Application {
         scene.getStylesheets().add(getClass().getResource("/context-menu.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.setTitle("FileSpark");
-        primaryStage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/icons/icon256.png")));
+        primaryStage.getIcons().add(
+            new javafx.scene.image.Image(
+                getClass().getResourceAsStream("/icons/icon256.png")
+            )
+        );
 
         if (Taskbar.isTaskbarSupported()) {
-
             Taskbar taskbar = Taskbar.getTaskbar();
-
             if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
-
-                taskbar.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/icon256.png")));
-
+                taskbar.setIconImage(
+                    Toolkit.getDefaultToolkit().getImage(
+                        getClass().getResource("/icons/icon256.png")
+                    )
+                );
             }
-
         }
 
         AppStateManager.property().addListener((obs, oldState, newState) -> {
-
             if (newState == AppState.LOGGED_IN) {
-
                 onLoginSuccess();
-
             }
-
             render();
-
         });
 
         render();
@@ -98,34 +99,26 @@ public class App extends Application {
     // @todo: move these out of app
     private void render() {
 
-            logInScene.setVisible(false);
-            authScene.setVisible(false);
-            if (clientScene != null) clientScene.setVisible(false);
+        logInScene.setVisible(false);
+        authScene.setVisible(false);
+        if (clientScene != null) clientScene.setVisible(false);
 
-            switch (AppStateManager.get()) {
-                case LOGGED_OUT -> logInScene.setVisible(true);
-                case AUTHENTICATING -> authScene.setVisible(true);
-                case LOGGED_IN -> {
-                    
-                    if (clientScene != null) {
-
-                        clientScene.setVisible(true);
-
-                    }
-
+        switch (AppStateManager.get()) {
+            case LOGGED_OUT -> logInScene.setVisible(true);
+            case AUTHENTICATING -> authScene.setVisible(true);
+            case LOGGED_IN -> {
+                if (clientScene != null) {
+                    clientScene.setVisible(true);
                 }
-
             }
-
         }
+    }
 
-        private void onLoginSuccess() {
-
-            User user = AppSession.getUser().orElseThrow();
-            clientScene = new Client(user);
-            StackPane root = (StackPane) primaryStage.getScene().getRoot();
-            root.getChildren().add(clientScene);
-
-        }
+    private void onLoginSuccess() {
+        User user = AppSession.getUser().orElseThrow();
+        clientScene = new Client(user);
+        StackPane root = (StackPane) primaryStage.getScene().getRoot();
+        root.getChildren().add(clientScene);
+    }
     */
 }
