@@ -1,5 +1,10 @@
 package com.filespark.scenes;
 
+import com.filespark.Config;
+import com.filespark.javafx.HotkeyTile;
+import com.filespark.os.Hotkey;
+import com.filespark.client.HotkeyManager;
+
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
@@ -7,11 +12,21 @@ public class HotkeySettings extends VBox {
 
     public HotkeySettings() {
 
-        Label placeholder = new Label("Hotkey Settings (Placeholder)");
-        placeholder.setStyle("-fx-font-size: 18px;");
+        setSpacing(12);
+        setStyle("-fx-padding: 20; -fx-background-color: " + Config.mainBlack);
 
-        this.getChildren().add(placeholder);
-        this.setSpacing(10);
-        this.setStyle("-fx-padding: 20;");
+        HotkeyTile uploadTile = new HotkeyTile("Upload Copied Item On Clipboard", HotkeyManager.getUploadFromClipboardHotkey(),
+        
+            newHotkey -> {
+
+                HotkeyManager.setUploadFromClipboardHotkey(newHotkey);
+
+            }
+
+        );
+
+        getChildren().add(uploadTile);
+
     }
+
 }

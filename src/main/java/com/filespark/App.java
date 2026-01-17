@@ -4,6 +4,7 @@ package com.filespark;
 
 import com.filespark.client.AppSession;
 import com.filespark.client.AppStateManager;
+import com.filespark.client.HotkeyManager;
 import com.filespark.client.User;
 import com.filespark.os.GlobalHotkeyListener;
 import com.filespark.scenes.Authenticating;
@@ -22,12 +23,11 @@ import java.awt.*;
 
 public class App extends Application {
 
-    /* @todo: hidden for hotkey settings development 
     private Client clientScene;
     private final Login logInScene = new Login();
     private final Authenticating authScene = new Authenticating();
     private Stage primaryStage;
-    */
+    
 
     public static void main(String[] args) {
         launch(args);
@@ -36,27 +36,19 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        // ✅ RESTORED: Global hotkey system
         try { // @Todo: make this only work when logged in
+
+            HotkeyManager.initDefaults();
             GlobalScreen.registerNativeHook();
             GlobalScreen.addNativeKeyListener(new GlobalHotkeyListener());
-        } catch (NativeHookException e) {
+            
+        } 
+        catch (NativeHookException e) {
+
             System.err.println(e.getStackTrace());
+
         }
 
-        // Placeholder scene for HotkeySettings development
-        HotkeySettings hotkeySettings = new HotkeySettings();
-        Scene scene = new Scene(
-            hotkeySettings,
-            Config.WINDOW_WIDTH,
-            Config.WINDOW_HEIGHT
-        );
-
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("FileSpark");
-        primaryStage.show();
-
-        /* @todo: hidden for hotkey settings development 
         this.primaryStage = primaryStage;
         AppStateManager.set(AppState.LOGGED_OUT);
 
@@ -92,10 +84,9 @@ public class App extends Application {
 
         render();
         primaryStage.show();
-        */
+        
     }
 
-    /* @todo: hidden for hotkey settings development 
     // @todo: move these out of app
     private void render() {
 
@@ -120,5 +111,5 @@ public class App extends Application {
         StackPane root = (StackPane) primaryStage.getScene().getRoot();
         root.getChildren().add(clientScene);
     }
-    */
+    
 }
