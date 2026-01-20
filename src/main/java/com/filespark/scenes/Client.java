@@ -31,7 +31,13 @@ public class Client extends StackPane {
         mainLayout.setLeft(sidebar);
         mainLayout.setCenter(fileGrid);
 
-        getChildren().addAll(mainLayout);
+        NotificationContainer notifications = new NotificationContainer();
+        NotificationService.initialize(notifications);
+
+        StackPane.setAlignment(notifications, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(notifications, new Insets(20));
+
+        getChildren().addAll(mainLayout, notifications);
 
     }
     
