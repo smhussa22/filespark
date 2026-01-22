@@ -6,6 +6,7 @@ import com.filespark.client.AppSession;
 import com.filespark.client.AppStateManager;
 import com.filespark.client.HotkeyManager;
 import com.filespark.client.User;
+import com.filespark.javafx.BottomRightContainer;
 import com.filespark.os.GlobalHotkeyListener;
 import com.filespark.scenes.Authenticating;
 import com.filespark.scenes.Client;
@@ -27,7 +28,7 @@ public class App extends Application {
     private final Login logInScene = new Login();
     private final Authenticating authScene = new Authenticating();
     private Stage primaryStage;
-    
+    private BottomRightContainer bottomRightContainer;
 
     public static void main(String[] args) {
         launch(args);
@@ -84,6 +85,10 @@ public class App extends Application {
 
         render();
         primaryStage.show();
+
+        bottomRightContainer = new BottomRightContainer(primaryStage);
+        bottomRightContainer.show();
+
         
     }
 
