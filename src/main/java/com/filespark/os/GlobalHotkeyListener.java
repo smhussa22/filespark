@@ -2,7 +2,6 @@ package com.filespark.os;
 
 import java.io.File;
 
-import com.filespark.client.HotkeyManager;
 import com.filespark.client.UploadManager;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;

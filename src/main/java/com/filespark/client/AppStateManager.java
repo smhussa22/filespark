@@ -11,7 +11,6 @@ public final class AppStateManager {
     
     private AppStateManager(){}
     private static final ObjectProperty<AppState> state = new SimpleObjectProperty<>(AppState.LOGGED_OUT);
-    private static Runnable onChange;
 
     public static AppState get() { 
 

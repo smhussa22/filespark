@@ -2,10 +2,8 @@ package com.filespark.scenes;
 
 import com.filespark.Config;
 import com.filespark.javafx.HotkeyTile;
-import com.filespark.os.Hotkey;
-import com.filespark.client.HotkeyManager;
+import com.filespark.os.HotkeyManager;
 
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 public class HotkeySettings extends VBox {

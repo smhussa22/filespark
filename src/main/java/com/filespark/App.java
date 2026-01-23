@@ -2,25 +2,32 @@
 
 package com.filespark;
 
+import java.awt.Taskbar;
+import java.awt.Toolkit;
+
 import com.filespark.client.AppSession;
 import com.filespark.client.AppStateManager;
-import com.filespark.client.HotkeyManager;
 import com.filespark.client.User;
-import com.filespark.javafx.BottomRightContainer;
-import com.filespark.os.GlobalHotkeyListener;
+
 import com.filespark.scenes.Authenticating;
 import com.filespark.scenes.Client;
-import com.filespark.scenes.HotkeySettings;
 import com.filespark.scenes.Login;
+
+import com.filespark.os.GlobalHotkeyListener;
+import com.filespark.os.HotkeyManager;
+import com.filespark.os.SystemTrayManager;
+
+import com.filespark.javafx.BottomRightContainer;
+
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.awt.*;
+import javafx.application.Application;
+import javafx.application.Platform;
 
 public class App extends Application {
 
@@ -29,9 +36,12 @@ public class App extends Application {
     private final Authenticating authScene = new Authenticating();
     private Stage primaryStage;
     private BottomRightContainer bottomRightContainer;
+    private SystemTrayManager systemTrayManager;
 
     public static void main(String[] args) {
+
         launch(args);
+
     }
 
     @Override
@@ -60,27 +70,50 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("FileSpark");
         primaryStage.getIcons().add(
+
             new javafx.scene.image.Image(
+
                 getClass().getResourceAsStream("/icons/icon256.png")
+
             )
+
         );
+        primaryStage.setOnCloseRequest(e -> {
+
+            e.consume();
+            primaryStage.hide();
+
+        });
 
         if (Taskbar.isTaskbarSupported()) {
+
             Taskbar taskbar = Taskbar.getTaskbar();
+
             if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+
                 taskbar.setIconImage(
+
                     Toolkit.getDefaultToolkit().getImage(
+
                         getClass().getResource("/icons/icon256.png")
+
                     )
+
                 );
+
             }
+
         }
 
         AppStateManager.property().addListener((obs, oldState, newState) -> {
+
             if (newState == AppState.LOGGED_IN) {
+
                 onLoginSuccess();
+
             }
             render();
+
         });
 
         render();
@@ -89,7 +122,15 @@ public class App extends Application {
         bottomRightContainer = new BottomRightContainer(primaryStage);
         bottomRightContainer.show();
 
-        
+        systemTrayManager = new SystemTrayManager();
+        systemTrayManager.install(primaryStage, () -> {
+
+            systemTrayManager.remove();
+            Platform.exit();
+            System.exit(0);
+
+        });
+
     }
 
     // @todo: move these out of app
@@ -100,21 +141,30 @@ public class App extends Application {
         if (clientScene != null) clientScene.setVisible(false);
 
         switch (AppStateManager.get()) {
+
             case LOGGED_OUT -> logInScene.setVisible(true);
             case AUTHENTICATING -> authScene.setVisible(true);
             case LOGGED_IN -> {
+
                 if (clientScene != null) {
+
                     clientScene.setVisible(true);
+
                 }
+
             }
+
         }
+
     }
 
     private void onLoginSuccess() {
+
         User user = AppSession.getUser().orElseThrow();
         clientScene = new Client(user);
         StackPane root = (StackPane) primaryStage.getScene().getRoot();
         root.getChildren().add(clientScene);
+
     }
     
 }

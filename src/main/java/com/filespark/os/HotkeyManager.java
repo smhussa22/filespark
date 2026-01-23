@@ -1,6 +1,5 @@
-package com.filespark.client;
+package com.filespark.os;
 
-import com.filespark.os.Hotkey;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 
 public class HotkeyManager {

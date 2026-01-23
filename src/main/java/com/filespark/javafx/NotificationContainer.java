@@ -14,11 +14,12 @@ public class NotificationContainer extends VBox {
     public NotificationContainer() {
 
         setSpacing(10);
-        setAlignment(Pos.TOP_RIGHT);
+        setAlignment(Pos.BOTTOM_RIGHT);
         setPadding(new Insets(16, 16, 24, 16));
         setPickOnBounds(false);
         setMaxWidth(340);
         setMinWidth(250);
+
     }
 
     public void show (BaseNotification notification){
@@ -28,7 +29,7 @@ public class NotificationContainer extends VBox {
         notification.setTranslateY(24);
         getChildren().add(notification);
         
-        TranslateTransition slideUp = new TranslateTransition(Duration.millis(160), notification);
+        TranslateTransition slideUp = new TranslateTransition(Duration.millis(200), notification);
         slideUp.setFromY(24);
         slideUp.setToY(0);
         slideUp.play();
@@ -37,7 +38,7 @@ public class NotificationContainer extends VBox {
 
     public void dismiss(BaseNotification notification){
 
-        TranslateTransition slideOut = new TranslateTransition(Duration.millis(80), notification);
+        TranslateTransition slideOut = new TranslateTransition(Duration.millis(200), notification);
         slideOut.setFromX(0);
         slideOut.setToX(500);
         slideOut.setOnFinished(e -> getChildren().remove(notification));

@@ -9,6 +9,7 @@ public final class NotificationOverlay extends StackPane {
     private final NotificationContainer container;
 
     public NotificationOverlay() {
+
         setPickOnBounds(false);
         setMouseTransparent(false);
 
@@ -18,9 +19,13 @@ public final class NotificationOverlay extends StackPane {
         StackPane.setMargin(container, new Insets(20));
 
         getChildren().add(container);
+
     }
 
     public void show(BaseNotification notification) {
+
         container.show(notification);
+
     }
+    
 }

@@ -4,7 +4,6 @@ import com.filespark.AppState;
 import com.filespark.Config;
 import com.filespark.client.AppSession;
 import com.filespark.client.AppStateManager;
-import com.filespark.client.UploadManager;
 import com.filespark.client.User;
 
 import javafx.geometry.Insets;

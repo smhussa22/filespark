@@ -1,6 +1,5 @@
 package com.filespark.javafx;
 
-import java.lang.annotation.Native;
 import java.util.function.Consumer;
 import com.filespark.os.Hotkey;
 import com.github.kwhat.jnativehook.GlobalScreen;

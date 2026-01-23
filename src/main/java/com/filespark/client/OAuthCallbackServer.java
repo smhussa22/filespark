@@ -4,10 +4,8 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import com.filespark.javafx.GoogleLoginButton;
 import com.sun.net.httpserver.HttpServer;
 
-import javafx.scene.Scene;
 
 public final class OAuthCallbackServer {
     

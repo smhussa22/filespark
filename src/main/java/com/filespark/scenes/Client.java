@@ -8,8 +8,6 @@ import com.filespark.client.User;
 import com.filespark.files.ScanWindowsDownloads;
 import com.filespark.javafx.*;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
@@ -21,8 +19,7 @@ public class Client extends StackPane {
 
         this.user = user;
 
-        List<File> downloadedFiles =
-                ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
+        List<File> downloadedFiles = ScanWindowsDownloads.getDownloadsFiles(Config.filesPerFetch);
 
         Sidebar sidebar = new Sidebar(user);
         FileGrid fileGrid = new FileGrid(downloadedFiles);
@@ -31,13 +28,7 @@ public class Client extends StackPane {
         mainLayout.setLeft(sidebar);
         mainLayout.setCenter(fileGrid);
 
-        NotificationContainer notifications = new NotificationContainer();
-        NotificationService.initialize(notifications);
-
-        StackPane.setAlignment(notifications, Pos.BOTTOM_RIGHT);
-        StackPane.setMargin(notifications, new Insets(20));
-
-        getChildren().addAll(mainLayout, notifications);
+        getChildren().addAll(mainLayout);
 
     }
     

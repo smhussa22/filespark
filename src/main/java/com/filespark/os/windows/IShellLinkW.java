@@ -1,12 +1,9 @@
 package com.filespark.os.windows;
 
-import com.filespark.Config;
-
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.platform.win32.COM.Unknown;
 import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinDef;
 
 public class IShellLinkW extends Unknown {
 

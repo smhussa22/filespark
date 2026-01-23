@@ -10,10 +10,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.filespark.AppState;
-import com.filespark.scenes.Client;
-
-import javafx.application.Platform;
-import javafx.scene.Scene;
 
 public class OAuthCallbackHandler {
 
