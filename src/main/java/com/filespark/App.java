@@ -56,7 +56,7 @@ public class App extends Application {
         } 
         catch (NativeHookException e) {
 
-            System.err.println(e.getStackTrace());
+            System.err.println(e.getMessage());
 
         }
 
@@ -159,7 +159,7 @@ public class App extends Application {
     }
 
     private void onLoginSuccess() {
-
+ 
         User user = AppSession.getUser().orElseThrow();
         clientScene = new Client(user);
         StackPane root = (StackPane) primaryStage.getScene().getRoot();

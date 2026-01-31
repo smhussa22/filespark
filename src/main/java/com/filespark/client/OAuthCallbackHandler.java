@@ -32,6 +32,7 @@ public class OAuthCallbackHandler {
     
     }
 
+    // @todo: specify exceptions here
     public static void exchangeCode(String code) {
 
         try {
@@ -64,7 +65,7 @@ public class OAuthCallbackHandler {
                 } 
                 catch (Exception e) {
 
-                    e.printStackTrace();
+                    e.getMessage();
 
                 }
 
@@ -73,7 +74,7 @@ public class OAuthCallbackHandler {
         } 
         catch (Exception e) {
 
-            e.printStackTrace();
+            e.getMessage();
 
         }
 

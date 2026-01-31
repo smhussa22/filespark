@@ -44,10 +44,10 @@ public class ScanWindowsRecent {
                 resolvedPath = DereferenceWindowsShortcut.dereferenceByLiteralPath(shortcut.getAbsolutePath());
 
             }
-            catch (Exception e) {
+            catch (Exception e) { // @todo: specify exception
 
                 System.err.println("Error resolving: " + shortcut.getAbsolutePath());
-                e.printStackTrace();
+                e.getMessage();
                 continue;
 
             }

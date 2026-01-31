@@ -12,6 +12,7 @@ public final class OAuthCallbackServer {
     private static HttpServer server;
     private static int port;
 
+    // @todo: specify exception
     public static synchronized int start() throws Exception {
 
         if (server != null) return port;

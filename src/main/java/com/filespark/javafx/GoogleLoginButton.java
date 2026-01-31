@@ -40,7 +40,7 @@ public class GoogleLoginButton extends Button {
                 Desktop.getDesktop().browse(loginUri);
 
             }
-            catch(Exception ex){
+            catch(Exception ex){ // @todo: specify exception
 
                 setDisable(false);
                 ex.printStackTrace();

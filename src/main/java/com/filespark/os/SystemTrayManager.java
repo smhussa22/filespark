@@ -60,7 +60,7 @@ public class SystemTrayManager {
         }
         catch (AWTException exception) {
 
-            exception.printStackTrace();
+            exception.getMessage();
 
         }
 

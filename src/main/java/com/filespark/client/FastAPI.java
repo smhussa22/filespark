@@ -15,6 +15,7 @@ public class FastAPI {
 
     private static final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
 
+    // @todo: specify exception
     public static PresignResponse getPresignedUploadUrl(File file, String mime) throws Exception {
 
         String fileName = file.getName();

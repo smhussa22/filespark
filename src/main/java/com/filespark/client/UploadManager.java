@@ -49,7 +49,7 @@ public class UploadManager {
             uploadPool.submit(uploadTask);
 
         }
-        catch (Exception exception) {
+        catch (Exception exception) { // @todo: specify exception
 
             System.err.println(exception.getMessage());
             NotificationService.show(new BaseNotification(file.getName() + " Upload error: " + exception.getMessage(), "error.png"));

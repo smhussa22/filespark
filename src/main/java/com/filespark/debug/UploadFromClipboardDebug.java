@@ -14,9 +14,9 @@ public class UploadFromClipboardDebug {
             GlobalScreen.addNativeKeyListener(new GlobalHotkeyListener());
 
         } 
-        catch (NativeHookException e){
+        catch (NativeHookException e){ 
 
-            System.err.println(e.getStackTrace());
+            System.err.println(e.getMessage());
             
         }
         

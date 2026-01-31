@@ -14,7 +14,7 @@ public class RawFile {
     private final double sizeMB;
     private final String mimeType;
 
-    public RawFile(File file) throws Exception {
+    public RawFile(File file) throws Exception { // @todo: specify exception
 
         this.file = file;
         this.path = file.toPath();
