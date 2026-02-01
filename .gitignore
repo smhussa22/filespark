@@ -1,11 +1,3 @@
-target/
-.env
-*.class
-*.log
-.DS_Store
 .vscode/
-__pycache__/
-*.pyc
-*.pyd
-*.pyo
-venv/
+# temp -> migrating to spring boot
+old-backend/

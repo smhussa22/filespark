@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.filespark</groupId>
-	<artifactId>filespark-server</artifactId>
+	<artifactId>filespark_server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>filespark-server</name>
+	<name>filespark_server</name>
 	<description>Backend for FileSpark</description>
 	<url/>
 	<licenses>
