@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-boto3
-python-dotenv
-pymongo
-cuid2
-requests
-jose
