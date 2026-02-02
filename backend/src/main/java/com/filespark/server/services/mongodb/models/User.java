@@ -1,4 +1,4 @@
-package com.filespark.server.models;
+package com.filespark.server.services.mongodb.models;
 
 import java.time.Instant;
 
