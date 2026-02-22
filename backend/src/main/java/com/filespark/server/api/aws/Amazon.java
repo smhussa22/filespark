@@ -1,4 +1,4 @@
-package com.filespark.server.services.aws;
+package com.filespark.server.api.aws;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

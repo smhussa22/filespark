@@ -1,4 +1,4 @@
-package com.filespark.server.services.mongodb.models;
+package com.filespark.server.api.mongodb.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

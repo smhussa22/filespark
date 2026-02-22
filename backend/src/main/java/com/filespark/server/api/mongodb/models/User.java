@@ -1,8 +1,9 @@
-package com.filespark.server.services.mongodb.models;
+package com.filespark.server.api.mongodb.models;
 
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
@@ -13,12 +14,15 @@ public class User {
 
     private String email;
     private String name;
+
+    @Indexed(unique = true)
     private String googleId;
+    
     private String picture;
     private Instant createdAt;
     private Instant updatedAt;
 
-    public User(String email, String name, String googleId, String picture, Instant createdAt, Instant updatedAt) {
+    public User(String email, String name, String googleId, String picture) {
 
         this.email = email;
         this.name = name;

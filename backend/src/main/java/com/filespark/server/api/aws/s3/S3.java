@@ -1,4 +1,4 @@
-package com.filespark.server.services.aws.s3;
+package com.filespark.server.api.aws.s3;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;

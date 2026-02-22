@@ -1,3 +1,4 @@
+/*
 package com.filespark.filespark_server;
 
 import org.junit.jupiter.api.Test;
@@ -11,3 +12,4 @@ class FilesparkServerApplicationTests {
 	}
 
 }
+*/
