@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 
 import com.filespark.client.AppSession;
 import com.filespark.client.AppStateManager;
+import com.filespark.client.LoginCooldown;
 import com.filespark.client.User;
 
 import com.filespark.scenes.Authenticating;
@@ -110,6 +111,7 @@ public class App extends Application {
             if (newState == AppState.LOGGED_IN) {
 
                 onLoginSuccess();
+                LoginCooldown.reset();
 
             }
             render();

@@ -28,28 +28,22 @@ public class Sidebar extends VBox {
 
         SidebarSection browse = new SidebarSection("Browse");
         SidebarItem downloads = item("sitem-downloads.png", "Downloads");
+        SidebarItem dashboard = item("sitem-default.png", "Link Dashboard");
         browse.addItem(downloads);
+        browse.addItem(dashboard);
 
         SidebarSection settings = new SidebarSection("Settings");
         SidebarItem client = item("sitem-default.png", "Client Settings");
         SidebarItem hotkey = item("sitem-default.png", "Hotkey Settings");
         settings.addItem(client);
         settings.addItem(hotkey);
-        
-        SidebarSection other = new SidebarSection("Other");
-        SidebarItem dashboard = item("sitem-default.png", "Link Dashboard");
-        SidebarItem debug = item("sitem-default.png", "Debug");
-        SidebarItem changelog = item("sitem-default.png", "Changelog");
-        other.addItem(dashboard);
-        other.addItem(debug);
-        other.addItem(changelog);
 
         Region space = new Region();
         VBox.setVgrow(space, Priority.ALWAYS);
 
         UserPanel userPanel = new UserPanel(user);
 
-        getChildren().addAll(browse, settings, other, space, userPanel);
+        getChildren().addAll(browse, settings, space, userPanel);
         setSelect(downloads); // default to downloads
 
     }

@@ -60,21 +60,24 @@ public class OAuthCallbackHandler {
                     SessionResponse session = mapper.readValue(response.body(), SessionResponse.class);
                     AppSession.login(session.user, session.token);
                     AppStateManager.set(AppState.LOGGED_IN);
-                    
 
-                } 
+
+                }
                 catch (Exception e) {
 
-                    e.getMessage();
+                    System.err.println("OAuth session parse failed: " + response.body());
+                    e.printStackTrace();
+                    AppStateManager.set(AppState.LOGGED_OUT);
 
                 }
 
             });
 
-        } 
+        }
         catch (Exception e) {
 
-            e.getMessage();
+            e.printStackTrace();
+            AppStateManager.set(AppState.LOGGED_OUT);
 
         }
 
