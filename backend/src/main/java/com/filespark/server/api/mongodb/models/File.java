@@ -171,4 +171,16 @@ public class File {
 
     }
 
+    public void setStatus(String status) {
+
+        this.status = status;
+
+    }
+
+    public void setChecksum(String checksum) {
+
+        this.checksum = checksum;
+
+    }
+
 }

@@ -50,4 +50,10 @@ public class S3 {
 
     }
 
+    public String getBucket() {
+
+        return bucket;
+
+    }
+
 }
