@@ -70,6 +70,16 @@ public class FileService {
 
     }
 
+    public void deleteFile(String userId, String fileId) {
+
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalArgumentException("File not found."));
+        if (!userId.equals(file.getOwnerId())) throw new IllegalArgumentException("File not found.");
+
+        s3.deleteObject(file.getKey());
+        fileRepository.delete(file);
+
+    }
+
     public FileView getFileView(String userId, String fileId) {
 
         File file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalArgumentException("File not found."));

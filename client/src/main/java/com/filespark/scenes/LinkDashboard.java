@@ -5,12 +5,15 @@ import java.util.List;
 import com.filespark.Config;
 import com.filespark.client.FastAPI;
 import com.filespark.client.LinkSummary;
+import com.filespark.javafx.BaseNotification;
 import com.filespark.javafx.LinkTile;
+import com.filespark.javafx.NotificationService;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -71,11 +74,41 @@ public class LinkDashboard extends ScrollPane {
         }
 
         for (LinkSummary summary : links) {
-            LinkTile tile = new LinkTile(summary, () -> {
-                // delete flow lands here later
-            });
+            LinkTile[] tileRef = new LinkTile[1];
+            LinkTile tile = new LinkTile(summary, () -> deleteTile(summary, tileRef[0]));
+            tileRef[0] = tile;
             content.getChildren().add(tile);
         }
+
+    }
+
+    private void deleteTile(LinkSummary summary, Node tile) {
+
+        if (summary == null || summary.id == null || summary.id.isBlank()) return;
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                FastAPI.deleteFile(summary.id);
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(e -> Platform.runLater(() -> {
+            content.getChildren().remove(tile);
+            NotificationService.show(new BaseNotification("Link deleted", "success.png"));
+            if (content.getChildren().isEmpty()) {
+                content.getChildren().add(statusLabel("No uploads yet. Upload a file to see its link here."));
+            }
+        }));
+        task.setOnFailed(e -> Platform.runLater(() -> {
+            Throwable ex = task.getException();
+            NotificationService.show(new BaseNotification("Delete failed: " + (ex == null ? "unknown" : ex.getMessage()), "error.png"));
+        }));
+
+        Thread t = new Thread(task, "LinkDashboard-delete");
+        t.setDaemon(true);
+        t.start();
 
     }
 

@@ -60,4 +60,18 @@ public class FastAPI {
 
     }
 
+    public static void deleteFile(String fileId) throws Exception {
+
+        String url = Config.webDomain + "/files/" + URLEncoder.encode(fileId, StandardCharsets.UTF_8);
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + AppSession.getToken())
+                .DELETE().build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        int code = response.statusCode();
+        if (code != 200 && code != 204) throw new RuntimeException("deleteFile failed: HTTP " + code + " body=" + response.body());
+
+    }
+
 }
