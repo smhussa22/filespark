@@ -1,17 +1,18 @@
 package com.filespark.server.services;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.filespark.server.api.mongodb.models.User;
 import com.filespark.server.api.mongodb.repository.UserRepository;
-import com.mongodb.DuplicateKeyException;
 
 @Service
 public class AuthService {
-    
+
     private final UserRepository userRepository;
 
     @Autowired
@@ -23,10 +24,22 @@ public class AuthService {
 
     public User getOrCreateUser(String email, String name, String googleId, String picture){
 
-        Optional<User> existingUser = userRepository.findByGoogleId(googleId);
-        if (existingUser.isPresent()) {
+        Optional<User> byGoogleId = userRepository.findByGoogleId(googleId);
+        if (byGoogleId.isPresent()) {
 
-            return existingUser.get();
+            return byGoogleId.get();
+
+        }
+
+        Optional<User> byEmail = userRepository.findByEmail(email);
+        if (byEmail.isPresent()) {
+
+            User user = byEmail.get();
+            user.setGoogleId(googleId);
+            user.setName(name);
+            user.setPicture(picture);
+            user.setUpdatedAt(Instant.now());
+            return userRepository.save(user);
 
         }
 
@@ -38,7 +51,9 @@ public class AuthService {
         }
         catch(DuplicateKeyException exception) {
 
-            return userRepository.findByGoogleId(googleId).orElseThrow(() -> new IllegalStateException("User created but not found."));
+            return userRepository.findByGoogleId(googleId)
+                .or(() -> userRepository.findByEmail(email))
+                .orElseThrow(() -> new IllegalStateException("User created but not found."));
 
         }
 

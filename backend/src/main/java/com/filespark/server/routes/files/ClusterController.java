@@ -40,7 +40,7 @@ public class ClusterController {
         String nameFromToken = jwt.getClaim("name");
         String picture = jwt.getClaim("picture");
 
-        FileCluster cluster = fileClusterService.createCluster(ownerId, name);
+        FileCluster cluster = fileClusterService.createCluster(googleId, name);
 
         return new CreateClusterResponse(cluster.getId(), cluster.getName());
         

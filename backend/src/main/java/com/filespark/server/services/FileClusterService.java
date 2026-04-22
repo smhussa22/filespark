@@ -3,6 +3,9 @@ package com.filespark.server.services;
 import com.filespark.server.api.mongodb.models.FileCluster;
 import com.filespark.server.api.mongodb.repository.FileClusterRepository;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class FileClusterService {
 
     private final FileClusterRepository fileClusterRepository;

@@ -80,5 +80,23 @@ public class User {
         this.updatedAt = updatedAt;
 
     }
+
+    public void setGoogleId(String googleId) {
+
+        this.googleId = googleId;
+
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+
+    }
+
+    public void setPicture(String picture) {
+
+        this.picture = picture;
+
+    }
     
 }
