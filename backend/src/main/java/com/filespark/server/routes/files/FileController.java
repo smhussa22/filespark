@@ -1,11 +1,14 @@
 package com.filespark.server.routes.files;
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.filespark.server.responses.FileSummaryResponse;
 import com.filespark.server.responses.PresignUploadResponse;
 import com.filespark.server.services.FileService;
 import com.filespark.server.services.FileService.Presigned;
@@ -32,6 +35,14 @@ public class FileController {
         Presigned p = fileService.createPresignedUpload(userId, filename, mime);
 
         return new PresignUploadResponse(p.fileId(), p.key(), p.mime(), p.extension(), p.uploadUrl(), p.viewUrl(), p.originalFilename());
+
+    }
+
+    @GetMapping("/files")
+    public List<FileSummaryResponse> listFiles(@AuthenticationPrincipal Jwt jwt) {
+
+        String userId = jwt.getSubject();
+        return fileService.listUserFiles(userId);
 
     }
 

@@ -1,5 +1,7 @@
 package com.filespark.javafx;
 
+import java.util.function.Consumer;
+
 import com.filespark.Config;
 import com.filespark.client.User;
 
@@ -10,15 +12,15 @@ import javafx.scene.layout.VBox;
 
 public class Sidebar extends VBox {
 
-    // the one that is currently selected
+    public enum Nav { DOWNLOADS, LINK_DASHBOARD, CLIENT_SETTINGS, HOTKEY_SETTINGS }
+
     private SidebarItem selectedItem = null;
 
-    public Sidebar(User user) {
+    public Sidebar(User user, Consumer<Nav> onNavigate) {
 
         setPrefWidth(250);
         setPadding(new Insets(20));
         setSpacing(12);
-        //@todo: sidebar border disappears when out of focus
 
         setStyle(
             "-fx-background-color: " + Config.mainBlack + ";" +
@@ -27,14 +29,14 @@ public class Sidebar extends VBox {
         );
 
         SidebarSection browse = new SidebarSection("Browse");
-        SidebarItem downloads = item("sitem-downloads.png", "Downloads");
-        SidebarItem dashboard = item("sitem-default.png", "Link Dashboard");
+        SidebarItem downloads = item("sitem-downloads.png", "Downloads", onNavigate, Nav.DOWNLOADS);
+        SidebarItem dashboard = item("sitem-default.png", "Link Dashboard", onNavigate, Nav.LINK_DASHBOARD);
         browse.addItem(downloads);
         browse.addItem(dashboard);
 
         SidebarSection settings = new SidebarSection("Settings");
-        SidebarItem client = item("sitem-default.png", "Client Settings");
-        SidebarItem hotkey = item("sitem-default.png", "Hotkey Settings");
+        SidebarItem client = item("sitem-default.png", "Client Settings", onNavigate, Nav.CLIENT_SETTINGS);
+        SidebarItem hotkey = item("sitem-default.png", "Hotkey Settings", onNavigate, Nav.HOTKEY_SETTINGS);
         settings.addItem(client);
         settings.addItem(hotkey);
 
@@ -44,24 +46,27 @@ public class Sidebar extends VBox {
         UserPanel userPanel = new UserPanel(user);
 
         getChildren().addAll(browse, settings, space, userPanel);
-        setSelect(downloads); // default to downloads
+        setSelect(downloads);
 
     }
 
-    private SidebarItem item (String icon, String label) {
+    private SidebarItem item(String icon, String label, Consumer<Nav> onNavigate, Nav nav) {
 
         SidebarItem item = new SidebarItem(icon, label);
-        item.setOnMouseClicked(e -> setSelect(item));
+        item.setOnMouseClicked(e -> {
+            setSelect(item);
+            if (onNavigate != null) onNavigate.accept(nav);
+        });
         return item;
 
     }
 
-    private void setSelect(SidebarItem item){
+    private void setSelect(SidebarItem item) {
 
         if (selectedItem != null) selectedItem.setSelected(false);
         selectedItem = item;
         item.setSelected(true);
-        
+
     }
 
 }

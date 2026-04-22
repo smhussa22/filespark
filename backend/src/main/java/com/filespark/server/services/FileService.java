@@ -1,6 +1,8 @@
 package com.filespark.server.services;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.filespark.server.api.aws.s3.S3;
 import com.filespark.server.api.mongodb.models.File;
 import com.filespark.server.api.mongodb.repository.FileRepository;
+import com.filespark.server.responses.FileSummaryResponse;
 import com.filespark.server.util.Mime;
 
 @Service
@@ -47,6 +50,23 @@ public class FileService {
         String viewUrl = publicBaseUrl + "/f/" + userId + "/" + file.getId();
 
         return new Presigned(file.getId(), key, mime, extension, uploadUrl, viewUrl, filename);
+
+    }
+
+    public List<FileSummaryResponse> listUserFiles(String userId) {
+
+        List<File> files = fileRepository.findByOwnerIdOrderByCreatedAtDesc(userId);
+        return files.stream()
+                .filter(f -> !f.isDeleted())
+                .map(f -> new FileSummaryResponse(
+                        f.getId(),
+                        f.getOriginalName(),
+                        f.getMime(),
+                        f.getSizeBytes(),
+                        f.getCreatedAt(),
+                        publicBaseUrl + "/f/" + f.getOwnerId() + "/" + f.getId()
+                ))
+                .collect(Collectors.toList());
 
     }
 
