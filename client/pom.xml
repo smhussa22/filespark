@@ -26,6 +26,13 @@
       <version>21</version>
     </dependency>
 
+    <!-- javafx-swing for SwingFXUtils (clipboard image -> BufferedImage) -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>21</version>
+    </dependency>
+
     <!-- junit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

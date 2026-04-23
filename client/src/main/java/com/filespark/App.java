@@ -122,7 +122,6 @@ public class App extends Application {
         primaryStage.show();
 
         bottomRightContainer = new BottomRightContainer(primaryStage);
-        bottomRightContainer.show();
 
         systemTrayManager = new SystemTrayManager();
         systemTrayManager.install(primaryStage, () -> {
