@@ -1,6 +1,7 @@
 package com.filespark.server.services;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,12 @@ public class FileService {
 
     private static final long UPLOAD_URL_SECONDS = 15L * 60;
     private static final long VIEW_URL_SECONDS = 60L * 60;
+
+    public static final String VISIBILITY_PRIVATE = "private";
+    public static final String VISIBILITY_UNLISTED = "unlisted";
+    public static final String VISIBILITY_PUBLIC = "public";
+
+    private static final Set<String> ALLOWED_VISIBILITIES = Set.of(VISIBILITY_PRIVATE, VISIBILITY_UNLISTED, VISIBILITY_PUBLIC);
 
     private final FileRepository fileRepository;
     private final S3 s3;
@@ -43,7 +50,7 @@ public class FileService {
         String extension = Mime.getExtensionFromMime(mime);
         String key = "owners/" + userId + "/" + UUID.randomUUID() + "." + extension;
 
-        File file = new File(userId, null, filename, mime, extension, s3.getBucket(), key, 0L, region, "private", null);
+        File file = new File(userId, null, filename, mime, extension, s3.getBucket(), key, 0L, region, VISIBILITY_PRIVATE, null);
         file = fileRepository.save(file);
 
         String uploadUrl = s3.generatePresignedPutUrl(key, mime, UPLOAD_URL_SECONDS);
@@ -58,13 +65,17 @@ public class FileService {
         List<File> files = fileRepository.findByOwnerIdOrderByCreatedAtDesc(userId);
         return files.stream()
                 .filter(f -> !f.isDeleted())
+                .filter(f -> !VISIBILITY_UNLISTED.equalsIgnoreCase(f.getVisibility()))
                 .map(f -> new FileSummaryResponse(
                         f.getId(),
                         f.getOriginalName(),
                         f.getMime(),
                         f.getSizeBytes(),
                         f.getCreatedAt(),
-                        publicBaseUrl + "/f/" + f.getOwnerId() + "/" + f.getId()
+                        publicBaseUrl + "/f/" + f.getOwnerId() + "/" + f.getId(),
+                        normalizeVisibility(f.getVisibility()),
+                        f.getViewCount(),
+                        f.getDownloadCount()
                 ))
                 .collect(Collectors.toList());
 
@@ -80,13 +91,72 @@ public class FileService {
 
     }
 
-    public FileView getFileView(String userId, String fileId) {
+    public FileView getFileView(String requesterId, String ownerId, String fileId, boolean countView) {
+
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalArgumentException("File not found."));
+        if (file.isDeleted()) throw new IllegalArgumentException("File not found.");
+        if (!ownerId.equals(file.getOwnerId())) throw new IllegalArgumentException("File not found.");
+
+        String visibility = normalizeVisibility(file.getVisibility());
+        boolean isOwner = requesterId != null && requesterId.equals(file.getOwnerId());
+
+        if (VISIBILITY_PRIVATE.equals(visibility) && !isOwner) throw new ForbiddenException("File is private.");
+
+        if (countView && !isOwner) {
+
+            file.incrementViewCount();
+            fileRepository.save(file);
+
+        }
+
+        String signedUrl = s3.generatePresignedGetUrl(file.getKey(), VIEW_URL_SECONDS);
+        return new FileView(file, signedUrl, isOwner);
+
+    }
+
+    public FileView getFileDownload(String requesterId, String ownerId, String fileId) {
+
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalArgumentException("File not found."));
+        if (file.isDeleted()) throw new IllegalArgumentException("File not found.");
+        if (!ownerId.equals(file.getOwnerId())) throw new IllegalArgumentException("File not found.");
+
+        String visibility = normalizeVisibility(file.getVisibility());
+        boolean isOwner = requesterId != null && requesterId.equals(file.getOwnerId());
+
+        if (VISIBILITY_PRIVATE.equals(visibility) && !isOwner) throw new ForbiddenException("File is private.");
+
+        if (!isOwner) {
+
+            file.incrementDownloadCount();
+            fileRepository.save(file);
+
+        }
+
+        String signedUrl = s3.generatePresignedGetUrl(file.getKey(), VIEW_URL_SECONDS);
+        return new FileView(file, signedUrl, isOwner);
+
+    }
+
+    public void setVisibility(String userId, String fileId, String visibility) {
+
+        String normalized = normalizeVisibility(visibility);
+        if (!ALLOWED_VISIBILITIES.contains(normalized)) throw new IllegalArgumentException("Invalid visibility.");
 
         File file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalArgumentException("File not found."));
         if (file.isDeleted()) throw new IllegalArgumentException("File not found.");
         if (!userId.equals(file.getOwnerId())) throw new IllegalArgumentException("File not found.");
-        String signedUrl = s3.generatePresignedGetUrl(file.getKey(), VIEW_URL_SECONDS);
-        return new FileView(file, signedUrl);
+
+        file.setVisibility(normalized);
+        fileRepository.save(file);
+
+    }
+
+    private static String normalizeVisibility(String visibility) {
+
+        if (visibility == null) return VISIBILITY_PRIVATE;
+        String lower = visibility.toLowerCase();
+        if (ALLOWED_VISIBILITIES.contains(lower)) return lower;
+        return VISIBILITY_PRIVATE;
 
     }
 
@@ -99,6 +169,16 @@ public class FileService {
 
     public record Presigned(String fileId, String key, String mime, String extension, String uploadUrl, String viewUrl, String originalFilename) {}
 
-    public record FileView(File file, String signedUrl) {}
+    public record FileView(File file, String signedUrl, boolean isOwner) {}
+
+    public static class ForbiddenException extends RuntimeException {
+
+        public ForbiddenException(String message) {
+
+            super(message);
+
+        }
+
+    }
 
 }

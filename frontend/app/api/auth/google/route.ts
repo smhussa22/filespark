@@ -1,9 +1,25 @@
 import { NextResponse } from "next/server";
 
 export function GET() {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+
+  if (!clientId || !redirectUri) {
+    return NextResponse.json(
+      {
+        error: "oauth_misconfigured",
+        missing: {
+          GOOGLE_CLIENT_ID: !clientId,
+          GOOGLE_REDIRECT_URI: !redirectUri,
+        },
+      },
+      { status: 500 }
+    );
+  }
+
   const params = new URLSearchParams({
-    client_id: process.env.GOOGLE_CLIENT_ID!,
-    redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI!,
+    client_id: clientId,
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: "openid email profile",
     prompt: "consent",

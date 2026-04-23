@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const code = new URL(req.url).searchParams.get("code");
-  if (!code) return NextResponse.redirect("/");
+  const reqUrl = new URL(req.url);
+  const home = new URL("/", reqUrl);
+  const code = reqUrl.searchParams.get("code");
+  if (!code) return NextResponse.redirect(home);
 
   const res = await fetch(
     `${process.env.BACKEND_URL}/auth/google/web/callback`,
@@ -13,11 +15,11 @@ export async function GET(req: Request) {
     }
   );
 
-  if (!res.ok) return NextResponse.redirect("/");
+  if (!res.ok) return NextResponse.redirect(home);
 
   const { token } = await res.json();
 
-  const response = NextResponse.redirect("/");
+  const response = NextResponse.redirect(home);
   response.cookies.set("ga_session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

@@ -1,9 +1,14 @@
 package com.filespark.server.routes.files;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.filespark.server.responses.FileMetaResponse;
 import com.filespark.server.services.FileService;
 import com.filespark.server.services.FileService.FileView;
+import com.filespark.server.services.FileService.ForbiddenException;
 
 @RestController
 @RequestMapping("/f")
@@ -30,14 +36,25 @@ public class PublicFileController {
 
         try {
 
-            FileView view = fileService.getFileView(userId, fileId);
+            String requesterId = currentRequesterId();
+            FileView view = fileService.getFileView(requesterId, userId, fileId, false);
             return ResponseEntity.ok(new FileMetaResponse(
                     view.file().getId(),
+                    view.file().getOwnerId(),
                     view.file().getOriginalName(),
                     view.file().getMime(),
                     view.file().getSizeBytes(),
-                    view.signedUrl()
+                    view.signedUrl(),
+                    view.file().getVisibility(),
+                    view.file().getViewCount(),
+                    view.file().getDownloadCount(),
+                    view.isOwner()
             ));
+
+        }
+        catch (ForbiddenException exception) {
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         }
         catch (IllegalArgumentException exception) {
@@ -53,8 +70,14 @@ public class PublicFileController {
 
         try {
 
-            FileView view = fileService.getFileView(userId, fileId);
+            String requesterId = currentRequesterId();
+            FileView view = fileService.getFileView(requesterId, userId, fileId, true);
             return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(view.signedUrl())).build();
+
+        }
+        catch (ForbiddenException exception) {
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         }
         catch (IllegalArgumentException exception) {
@@ -62,6 +85,48 @@ public class PublicFileController {
             return ResponseEntity.notFound().build();
 
         }
+
+    }
+
+    @GetMapping("/{userId}/{fileId}/download")
+    public ResponseEntity<Void> download(@PathVariable("userId") String userId, @PathVariable("fileId") String fileId) {
+
+        try {
+
+            String requesterId = currentRequesterId();
+            FileView view = fileService.getFileDownload(requesterId, userId, fileId);
+
+            String filename = view.file().getOriginalName() != null ? view.file().getOriginalName() : "download";
+            String encoded = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
+
+            String signedUrl = view.signedUrl();
+            String separator = signedUrl.contains("?") ? "&" : "?";
+            String disposition = "attachment; filename*=UTF-8''" + encoded;
+            String urlWithDisposition = signedUrl + separator + "response-content-disposition=" + URLEncoder.encode(disposition, StandardCharsets.UTF_8);
+
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(urlWithDisposition)).build();
+
+        }
+        catch (ForbiddenException exception) {
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        }
+        catch (IllegalArgumentException exception) {
+
+            return ResponseEntity.notFound().build();
+
+        }
+
+    }
+
+    private static String currentRequesterId() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) return null;
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Jwt jwt) return jwt.getSubject();
+        return null;
 
     }
 

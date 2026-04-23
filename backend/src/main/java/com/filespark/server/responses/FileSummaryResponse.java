@@ -10,8 +10,11 @@ public class FileSummaryResponse {
     private final long sizeBytes;
     private final Instant createdAt;
     private final String viewUrl;
+    private final String visibility;
+    private final long viewCount;
+    private final long downloadCount;
 
-    public FileSummaryResponse(String id, String name, String mime, long sizeBytes, Instant createdAt, String viewUrl) {
+    public FileSummaryResponse(String id, String name, String mime, long sizeBytes, Instant createdAt, String viewUrl, String visibility, long viewCount, long downloadCount) {
 
         this.id = id;
         this.name = name;
@@ -19,6 +22,9 @@ public class FileSummaryResponse {
         this.sizeBytes = sizeBytes;
         this.createdAt = createdAt;
         this.viewUrl = viewUrl;
+        this.visibility = visibility;
+        this.viewCount = viewCount;
+        this.downloadCount = downloadCount;
 
     }
 
@@ -28,5 +34,8 @@ public class FileSummaryResponse {
     public long getSizeBytes() { return sizeBytes; }
     public Instant getCreatedAt() { return createdAt; }
     public String getViewUrl() { return viewUrl; }
+    public String getVisibility() { return visibility; }
+    public long getViewCount() { return viewCount; }
+    public long getDownloadCount() { return downloadCount; }
 
 }

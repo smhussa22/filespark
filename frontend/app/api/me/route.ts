@@ -7,8 +7,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ user: null });
   }
 
-  const backendRes = await fetch(`${process.env.BACKEND_URL}/auth/me`, {
+  const backendRes = await fetch(`${process.env.BACKEND_URL}/users/me`, {
     headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
   });
 
   if (!backendRes.ok) {

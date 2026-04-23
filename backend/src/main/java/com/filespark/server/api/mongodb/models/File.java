@@ -183,4 +183,22 @@ public class File {
 
     }
 
+    public void setVisibility(String visibility) {
+
+        this.visibility = visibility;
+
+    }
+
+    public void incrementViewCount() {
+
+        this.viewCount++;
+
+    }
+
+    public void incrementDownloadCount() {
+
+        this.downloadCount++;
+
+    }
+
 }
