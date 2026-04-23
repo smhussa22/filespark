@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaJava, FaDownload } from "react-icons/fa";
+import { FaDownload } from "react-icons/fa";
 
 export default function DownloadPage() {
   return (
@@ -15,15 +15,15 @@ export default function DownloadPage() {
 
         <section className="rounded-lg border border-maingrey bg-mainblack/60 p-8 flex flex-col items-center text-center gap-4">
 
-          <FaJava size={64} className="text-mainorange" />
+          <FaDownload size={56} className="text-mainorange" />
 
           <div>
             <div className="text-mainwhite text-2xl font-medium">FileSpark Desktop</div>
-            <div className="text-mainwhite/60 text-sm mt-1">Cross-platform · runs anywhere Java does</div>
+            <div className="text-mainwhite/60 text-sm mt-1">Cross-platform · one build for Windows, macOS, and Linux</div>
           </div>
 
           <p className="text-mainwhite/70 max-w-md">
-            One build for Windows, macOS, and Linux. Requires Java 17 or newer.
+            A single self-contained download. Nothing else to install.
           </p>
 
           <button
@@ -41,7 +41,7 @@ export default function DownloadPage() {
 
           <h2 className="text-2xl font-semibold text-mainwhite mb-3">Build from source</h2>
           <p className="text-mainwhite/70 mb-4">
-            The client is open source. Clone the repo and run it locally with Maven and Java 17+.
+            The client is open source. Clone the repo and run it locally with Maven.
           </p>
           <pre className="text-xs text-mainwhite/80 bg-mainblack rounded-md p-3 overflow-x-auto">
 {`git clone https://github.com/yourname/filespark

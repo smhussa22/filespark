@@ -1,6 +1,8 @@
 package com.filespark.server.api.mongodb.models;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -19,6 +21,7 @@ public class User {
     private String googleId;
     
     private String picture;
+    private List<String> browseDirectories;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -98,5 +101,17 @@ public class User {
         this.picture = picture;
 
     }
-    
+
+    public List<String> getBrowseDirectories() {
+
+        return browseDirectories == null ? new ArrayList<>() : browseDirectories;
+
+    }
+
+    public void setBrowseDirectories(List<String> browseDirectories) {
+
+        this.browseDirectories = browseDirectories == null ? new ArrayList<>() : browseDirectories;
+
+    }
+
 }

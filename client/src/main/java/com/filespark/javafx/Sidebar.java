@@ -1,12 +1,20 @@
 package com.filespark.javafx;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.filespark.Config;
+import com.filespark.client.AppSession;
+import com.filespark.client.FastAPI;
 import com.filespark.client.User;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Priority;
@@ -23,6 +31,7 @@ public class Sidebar extends VBox {
     private final Consumer<Nav> onNavigate;
     private final BiConsumer<String, File> onShowDirectory;
     private final Consumer<File> onForgetDirectory;
+    private final Map<String, SidebarItem> directoryItems = new LinkedHashMap<>();
 
     public Sidebar(
         User user,
@@ -52,6 +61,19 @@ public class Sidebar extends VBox {
         SidebarItem downloads = item("sitem-downloads.png", "Downloads", onNavigate, Nav.DOWNLOADS);
         browseSection.addItem(dashboard);
         browseSection.addItem(downloads);
+
+        if (user != null) {
+
+            for (String path : user.getBrowseDirectories()) {
+
+                if (path == null || path.isBlank()) continue;
+                File dir = new File(path);
+                if (!dir.isDirectory()) continue;
+                addDirectoryItem(dir, false);
+
+            }
+
+        }
 
         SidebarSection settings = new SidebarSection("Settings");
         SidebarItem hotkey = item("sitem-default.png", "Hotkey Settings", onNavigate, Nav.HOTKEY_SETTINGS);
@@ -97,16 +119,36 @@ public class Sidebar extends VBox {
         File picked = chooser.showDialog(getScene() != null ? getScene().getWindow() : null);
         if (picked == null || !picked.isDirectory()) return;
 
-        SidebarItem entry = new SidebarItem("sitem-default.png", picked.getName());
-        entry.setOnMouseClicked(e -> {
-            setSelect(entry);
-            if (onShowDirectory != null) onShowDirectory.accept(picked.getName(), picked);
-        });
-        entry.setOnRemove(() -> removeDirectoryEntry(entry, picked));
-        browseSection.addItem(entry);
+        if (directoryItems.containsKey(picked.getAbsolutePath())) {
 
+            SidebarItem existing = directoryItems.get(picked.getAbsolutePath());
+            setSelect(existing);
+            if (onShowDirectory != null) onShowDirectory.accept(picked.getName(), picked);
+            return;
+
+        }
+
+        SidebarItem entry = addDirectoryItem(picked, true);
         setSelect(entry);
         if (onShowDirectory != null) onShowDirectory.accept(picked.getName(), picked);
+
+    }
+
+    private SidebarItem addDirectoryItem(File directory, boolean persist) {
+
+        SidebarItem entry = new SidebarItem("sitem-default.png", directory.getName());
+        entry.setOnMouseClicked(e -> {
+            setSelect(entry);
+            if (onShowDirectory != null) onShowDirectory.accept(directory.getName(), directory);
+        });
+        entry.setOnRemove(() -> removeDirectoryEntry(entry, directory));
+
+        directoryItems.put(directory.getAbsolutePath(), entry);
+        browseSection.addItem(entry);
+
+        if (persist) persistDirectories();
+
+        return entry;
 
     }
 
@@ -114,6 +156,10 @@ public class Sidebar extends VBox {
 
         boolean wasSelected = entry == selectedItem;
         browseSection.getChildren().remove(entry);
+        directoryItems.remove(directory.getAbsolutePath());
+
+        persistDirectories();
+
         if (onForgetDirectory != null) onForgetDirectory.accept(directory);
         if (wasSelected) {
 
@@ -121,6 +167,34 @@ public class Sidebar extends VBox {
             if (onNavigate != null) onNavigate.accept(Nav.LINK_DASHBOARD);
 
         }
+
+    }
+
+    private void persistDirectories() {
+
+        List<String> snapshot = new ArrayList<>(directoryItems.keySet());
+
+        AppSession.getUser().ifPresent(u -> u.setBrowseDirectories(snapshot));
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                FastAPI.setBrowseDirectories(snapshot);
+                return null;
+            }
+        };
+
+        task.setOnFailed(e -> Platform.runLater(() -> {
+            Throwable ex = task.getException();
+            NotificationService.show(new BaseNotification(
+                "Could not save directories: " + (ex == null ? "unknown" : ex.getMessage()),
+                "error.png"
+            ));
+        }));
+
+        Thread t = new Thread(task, "Sidebar-saveDirectories");
+        t.setDaemon(true);
+        t.start();
 
     }
 

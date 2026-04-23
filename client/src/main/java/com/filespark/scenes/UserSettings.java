@@ -59,9 +59,6 @@ public class UserSettings extends VBox {
             "-fx-border-width: 1.5;"
         );
 
-        Label sectionLabel = new Label("Session");
-        sectionLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: white;");
-
         Button logOutButton = new Button("Log Out");
         logOutButton.setStyle(
             "-fx-background-color: transparent;" +
@@ -79,23 +76,6 @@ public class UserSettings extends VBox {
 
         });
 
-        VBox sessionBox = new VBox(10, sectionLabel, logOutButton);
-        sessionBox.setPadding(new Insets(14, 16, 14, 16));
-        sessionBox.setStyle(
-            "-fx-background-color: " + Config.mainBlack + ";" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-radius: 12;" +
-            "-fx-border-color: " + Config.mainGrey + ";" +
-            "-fx-border-width: 1;"
-        );
-
-        Label dangerLabel = new Label("Danger Zone");
-        dangerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #ef4444; -fx-font-weight: bold;");
-
-        Label dangerHint = new Label("Deletes your account and every file you've uploaded. This cannot be undone.");
-        dangerHint.setWrapText(true);
-        dangerHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #cfcfcf;");
-
         Button deleteAccountButton = new Button("Delete Account");
         deleteAccountButton.setStyle(
             "-fx-background-color: rgba(239, 68, 68, 0.15);" +
@@ -108,17 +88,11 @@ public class UserSettings extends VBox {
         );
         deleteAccountButton.setOnAction(e -> handleDeleteAccount(deleteAccountButton));
 
-        VBox dangerBox = new VBox(10, dangerLabel, dangerHint, deleteAccountButton);
-        dangerBox.setPadding(new Insets(14, 16, 14, 16));
-        dangerBox.setStyle(
-            "-fx-background-color: " + Config.mainBlack + ";" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-radius: 12;" +
-            "-fx-border-color: #ef4444;" +
-            "-fx-border-width: 1.5;"
-        );
+        HBox actionsRow = new HBox(10, logOutButton, deleteAccountButton);
+        actionsRow.setAlignment(Pos.CENTER_LEFT);
+        actionsRow.setPadding(new Insets(4, 0, 0, 0));
 
-        getChildren().addAll(heading, profileRow, sessionBox, dangerBox);
+        getChildren().addAll(heading, profileRow, actionsRow);
 
     }
 

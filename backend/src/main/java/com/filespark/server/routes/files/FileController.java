@@ -78,6 +78,28 @@ public class FileController {
 
     }
 
+    @GetMapping("/files/preview-eviction")
+    public ResponseEntity<?> previewEviction(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam("sizeBytes") long sizeBytes
+    ) {
+
+        String userId = jwt.getSubject();
+
+        try {
+
+            FileService.EvictionPlan plan = fileService.planEviction(userId, sizeBytes);
+            return ResponseEntity.ok(plan);
+
+        }
+        catch (IllegalArgumentException exception) {
+
+            return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
+
+        }
+
+    }
+
     @DeleteMapping("/files/{fileId}")
     public void deleteFile(
             @AuthenticationPrincipal Jwt jwt,

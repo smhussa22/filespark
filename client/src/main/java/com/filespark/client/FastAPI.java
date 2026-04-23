@@ -102,6 +102,86 @@ public class FastAPI {
 
     }
 
+    public static void setBrowseDirectories(List<String> directories) throws Exception {
+
+        String url = Config.webDomain + "/users/me/directories";
+        StringBuilder array = new StringBuilder("[");
+        for (int i = 0; i < directories.size(); i++) {
+
+            if (i > 0) array.append(",");
+            array.append(mapper.writeValueAsString(directories.get(i)));
+
+        }
+        array.append("]");
+        String body = "{\"directories\":" + array.toString() + "}";
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + AppSession.getToken())
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        int code = response.statusCode();
+        if (code != 200 && code != 204) throw new RuntimeException("setBrowseDirectories failed: HTTP " + code + " body=" + response.body());
+
+    }
+
+    public static EvictionPlan previewEviction(long sizeBytes) throws Exception {
+
+        String url = Config.webDomain + "/files/preview-eviction?sizeBytes=" + sizeBytes;
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + AppSession.getToken())
+                .GET().build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) throw new RuntimeException("previewEviction failed: HTTP " + response.statusCode() + " body=" + response.body());
+
+        JSONObject json = new JSONObject(response.body());
+        EvictionPlan plan = new EvictionPlan();
+        plan.fits = json.optBoolean("fits", true);
+        plan.tooLargeForLimit = json.optBoolean("tooLargeForLimit", false);
+        plan.currentUsageBytes = json.optLong("currentUsageBytes", 0);
+        plan.maxBytes = json.optLong("maxBytes", 0);
+        plan.incomingBytes = json.optLong("incomingBytes", sizeBytes);
+        plan.evict = new java.util.ArrayList<>();
+
+        org.json.JSONArray arr = json.optJSONArray("evict");
+        if (arr != null) {
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject e = arr.getJSONObject(i);
+                EvictionEntry entry = new EvictionEntry();
+                entry.id = e.optString("id", "");
+                entry.name = e.optString("name", "");
+                entry.sizeBytes = e.optLong("sizeBytes", 0);
+                plan.evict.add(entry);
+            }
+        }
+        return plan;
+
+    }
+
+    public static class EvictionPlan {
+
+        public boolean fits;
+        public boolean tooLargeForLimit;
+        public long currentUsageBytes;
+        public long maxBytes;
+        public long incomingBytes;
+        public java.util.List<EvictionEntry> evict;
+
+    }
+
+    public static class EvictionEntry {
+
+        public String id;
+        public String name;
+        public long sizeBytes;
+
+    }
+
     public static void deleteAccount() throws Exception {
 
         String url = Config.webDomain + "/users/me";

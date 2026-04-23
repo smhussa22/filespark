@@ -26,18 +26,27 @@ public class FileTile extends StackPane {
 
     public FileTile(File file) {
 
+        this(file, null);
+
+    }
+
+    public FileTile(File file, Runnable onDeleted) {
+
         String fileName = file.getName();
 
         MenuItem uploadItem = new MenuItem("Upload As Embedded Link");
         MenuItem showItem = new MenuItem("Show In Folder");
+        MenuItem deleteItem = new MenuItem("Delete From Disk");
 
-        ContextMenu menu = new ContextMenu(uploadItem, showItem);
+        ContextMenu menu = new ContextMenu(uploadItem, showItem, deleteItem);
         menu.getStyleClass().add("context-menu");
         uploadItem.getStyleClass().add("menu-item");
         showItem.getStyleClass().add("menu-item");
+        deleteItem.getStyleClass().add("menu-item");
 
         uploadItem.setOnAction(event -> { UploadManager.startUpload(file); });
         showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName)); //@debug placeholder
+        deleteItem.setOnAction(event -> handleDelete(file, onDeleted));
 
         ImageView imageView = new ImageView();
         Image preview = getPreview(file, imageView);
@@ -112,6 +121,31 @@ public class FileTile extends StackPane {
             layout.setCursor(javafx.scene.Cursor.DEFAULT);
 
         });
+
+    }
+
+    private void handleDelete(File file, Runnable onDeleted) {
+
+        boolean confirmed = ConfirmDialog.show(
+            getScene() != null ? getScene().getWindow() : null,
+            "Delete file from disk?",
+            "This will permanently delete \"" + file.getName() + "\" from your computer. This cannot be undone.",
+            "Delete"
+        );
+        if (!confirmed) return;
+
+        try {
+
+            java.nio.file.Files.delete(file.toPath());
+            NotificationService.show(new BaseNotification("Deleted: " + file.getName(), "success.png"));
+            if (onDeleted != null) onDeleted.run();
+
+        }
+        catch (Exception ex) {
+
+            NotificationService.show(new BaseNotification("Delete failed: " + ex.getMessage(), "error.png"));
+
+        }
 
     }
 

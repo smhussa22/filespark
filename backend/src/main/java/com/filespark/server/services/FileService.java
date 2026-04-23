@@ -1,5 +1,6 @@
 package com.filespark.server.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -20,7 +21,7 @@ public class FileService {
     private static final long UPLOAD_URL_SECONDS = 15L * 60;
     private static final long VIEW_URL_SECONDS = 60L * 60;
 
-    public static final long MAX_TOTAL_BYTES = 1L * 1024 * 1024;
+    public static final long MAX_TOTAL_BYTES = 250L * 1024 * 1024;
     public static final long MAX_FILE_BYTES = MAX_TOTAL_BYTES;
 
     public static final String VISIBILITY_PRIVATE = "private";
@@ -53,7 +54,7 @@ public class FileService {
         if (sizeBytes <= 0) throw new IllegalArgumentException("File size is required.");
         if (sizeBytes > MAX_FILE_BYTES) {
 
-            throw new QuotaExceededException("File exceeds the per-file limit of " + formatBytes(MAX_FILE_BYTES) + ".");
+            throw new QuotaExceededException("The total storage limit is " + formatBytes(MAX_TOTAL_BYTES) + ". This file is larger than that.");
 
         }
 
@@ -72,26 +73,56 @@ public class FileService {
 
     }
 
-    private void evictOldestUntilFits(String userId, long incomingBytes) {
+    public EvictionPlan planEviction(String userId, long incomingBytes) {
 
-        List<File> ascending = fileRepository.findByOwnerIdOrderByCreatedAtAsc(userId);
-        long usage = 0;
-        for (File f : ascending) usage += Math.max(0, f.getSizeBytes());
+        if (incomingBytes <= 0) throw new IllegalArgumentException("File size is required.");
+        if (incomingBytes > MAX_FILE_BYTES) {
 
-        int index = 0;
-        while (usage + incomingBytes > MAX_TOTAL_BYTES && index < ascending.size()) {
-
-            File oldest = ascending.get(index++);
-            try { s3.deleteObject(oldest.getKey()); }
-            catch (Exception ignored) {}
-            fileRepository.delete(oldest);
-            usage -= Math.max(0, oldest.getSizeBytes());
+            return new EvictionPlan(false, true, List.of(), 0, MAX_TOTAL_BYTES, incomingBytes);
 
         }
 
-        if (usage + incomingBytes > MAX_TOTAL_BYTES) {
+        List<File> ascending = fileRepository.findByOwnerIdOrderByCreatedAtAsc(userId);
+        long currentUsage = 0;
+        for (File f : ascending) currentUsage += Math.max(0, f.getSizeBytes());
+
+        long projectedUsage = currentUsage;
+        List<EvictionEntry> evict = new ArrayList<>();
+
+        for (File f : ascending) {
+
+            if (projectedUsage + incomingBytes <= MAX_TOTAL_BYTES) break;
+            evict.add(new EvictionEntry(f.getId(), f.getOriginalName(), f.getSizeBytes()));
+            projectedUsage -= Math.max(0, f.getSizeBytes());
+
+        }
+
+        boolean fits = projectedUsage + incomingBytes <= MAX_TOTAL_BYTES;
+        return new EvictionPlan(fits, false, evict, currentUsage, MAX_TOTAL_BYTES, incomingBytes);
+
+    }
+
+    private void evictOldestUntilFits(String userId, long incomingBytes) {
+
+        EvictionPlan plan = planEviction(userId, incomingBytes);
+        if (plan.tooLargeForLimit()) {
+
+            throw new QuotaExceededException("The total storage limit is " + formatBytes(MAX_TOTAL_BYTES) + ". This file is larger than that.");
+
+        }
+        if (!plan.fits()) {
 
             throw new QuotaExceededException("Upload would exceed the total quota of " + formatBytes(MAX_TOTAL_BYTES) + ".");
+
+        }
+
+        for (EvictionEntry entry : plan.evict()) {
+
+            File oldest = fileRepository.findById(entry.id()).orElse(null);
+            if (oldest == null) continue;
+            try { s3.deleteObject(oldest.getKey()); }
+            catch (Exception ignored) {}
+            fileRepository.delete(oldest);
 
         }
 
@@ -246,6 +277,10 @@ public class FileService {
     public record FileView(File file, String signedUrl, boolean isOwner) {}
 
     public record StorageUsage(long usedBytes, long maxBytes) {}
+
+    public record EvictionEntry(String id, String name, long sizeBytes) {}
+
+    public record EvictionPlan(boolean fits, boolean tooLargeForLimit, List<EvictionEntry> evict, long currentUsageBytes, long maxBytes, long incomingBytes) {}
 
     public static class ForbiddenException extends RuntimeException {
 

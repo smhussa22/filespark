@@ -12,7 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 
-public class FileGrid extends ScrollPane { // @todo: refreshes upon change
+public class FileGrid extends ScrollPane {
 
     private final FlowPane grid = new FlowPane();
 
@@ -26,8 +26,10 @@ public class FileGrid extends ScrollPane { // @todo: refreshes upon change
 
         for (File file : files) {
 
-            FileTile tile = new FileTile(file);
-            grid.getChildren().add(tile); 
+            FileTile[] tileRef = new FileTile[1];
+            FileTile tile = new FileTile(file, () -> grid.getChildren().remove(tileRef[0]));
+            tileRef[0] = tile;
+            grid.getChildren().add(tile);
 
         }
 
@@ -37,5 +39,5 @@ public class FileGrid extends ScrollPane { // @todo: refreshes upon change
 
     }
 
-    
+
 }
