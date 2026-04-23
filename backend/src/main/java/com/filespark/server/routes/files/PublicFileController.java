@@ -37,7 +37,7 @@ public class PublicFileController {
         try {
 
             String requesterId = currentRequesterId();
-            FileView view = fileService.getFileView(requesterId, userId, fileId, false);
+            FileView view = fileService.getFileView(requesterId, userId, fileId, true);
             return ResponseEntity.ok(new FileMetaResponse(
                     view.file().getId(),
                     view.file().getOwnerId(),
@@ -71,7 +71,7 @@ public class PublicFileController {
         try {
 
             String requesterId = currentRequesterId();
-            FileView view = fileService.getFileView(requesterId, userId, fileId, true);
+            FileView view = fileService.getFileView(requesterId, userId, fileId, false);
             return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(view.signedUrl())).build();
 
         }

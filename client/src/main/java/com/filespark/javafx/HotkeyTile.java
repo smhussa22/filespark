@@ -106,11 +106,26 @@ public class HotkeyTile extends HBox {
 
         if (hotkey == null) return "Unassigned";
 
-        String mods = NativeKeyEvent.getModifiersText(hotkey.modifierMask());
-        String key  = NativeKeyEvent.getKeyText(hotkey.keyCode());
+        int mask = hotkey.modifierMask();
+        StringBuilder sb = new StringBuilder();
 
-        if (mods.isBlank()) return key;
-        return mods + "+" + key;
+        if ((mask & NativeKeyEvent.CTRL_MASK) != 0 || (mask & 0x02) != 0) appendPart(sb, "Ctrl");
+        if ((mask & NativeKeyEvent.SHIFT_MASK) != 0 || (mask & 0x01) != 0) appendPart(sb, "Shift");
+        if ((mask & NativeKeyEvent.ALT_MASK) != 0 || (mask & 0x08) != 0) appendPart(sb, "Alt");
+        if ((mask & NativeKeyEvent.META_MASK) != 0 || (mask & 0x04) != 0) appendPart(sb, "Meta");
+
+        String key = NativeKeyEvent.getKeyText(hotkey.keyCode());
+        appendPart(sb, key);
+
+        return sb.toString();
+
+    }
+
+    private static void appendPart(StringBuilder sb, String part) {
+
+        if (part == null || part.isBlank()) return;
+        if (sb.length() > 0) sb.append(" + ");
+        sb.append(part);
 
     }
 

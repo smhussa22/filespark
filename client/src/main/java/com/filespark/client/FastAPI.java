@@ -23,12 +23,30 @@ public class FastAPI {
     public static PresignResponse getPresignedUploadUrl(File file, String mime) throws Exception {
 
         String fileName = file.getName();
-        String url = Config.webDomain + "/presign-upload?filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "&mime=" + URLEncoder.encode(mime, StandardCharsets.UTF_8);
-        
+        long sizeBytes = file.length();
+
+        String url = Config.webDomain + "/presign-upload"
+                + "?filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+                + "&mime=" + URLEncoder.encode(mime, StandardCharsets.UTF_8)
+                + "&sizeBytes=" + sizeBytes;
+
         HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(url)).header("Authorization", "Bearer " + AppSession.getToken()).GET().build();
         HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200) throw new RuntimeException("fastapi presign fail" + response.statusCode()); // @todo: maybe make this less harsh
+        if (response.statusCode() == 413) {
+
+            String message = extractErrorMessage(response.body(), "File exceeds the 250 MB limit.");
+            throw new QuotaExceededException(message);
+
+        }
+
+        if (response.statusCode() != 200) {
+
+            String message = extractErrorMessage(response.body(), "presign failed: HTTP " + response.statusCode());
+            throw new RuntimeException(message);
+
+        }
+
         JSONObject json = new JSONObject(response.body());
 
         PresignResponse presignResponse = new PresignResponse();
@@ -39,8 +57,32 @@ public class FastAPI {
         presignResponse.uploadUrl = json.getString("uploadUrl");
         presignResponse.viewUrl= json.getString("viewUrl");
         presignResponse.originalFilename = json.getString("originalFilename");
-        
+
         return presignResponse;
+
+    }
+
+    private static String extractErrorMessage(String body, String fallback) {
+
+        if (body == null || body.isEmpty()) return fallback;
+        try {
+
+            JSONObject json = new JSONObject(body);
+            if (json.has("error")) return json.getString("error");
+
+        }
+        catch (Exception ignored) {}
+        return fallback;
+
+    }
+
+    public static class QuotaExceededException extends RuntimeException {
+
+        public QuotaExceededException(String message) {
+
+            super(message);
+
+        }
 
     }
 
@@ -57,6 +99,54 @@ public class FastAPI {
 
         LinkSummary[] arr = mapper.readValue(response.body(), LinkSummary[].class);
         return Arrays.asList(arr);
+
+    }
+
+    public static void deleteAccount() throws Exception {
+
+        String url = Config.webDomain + "/users/me";
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + AppSession.getToken())
+                .DELETE().build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        int code = response.statusCode();
+        if (code != 200 && code != 204) throw new RuntimeException("deleteAccount failed: HTTP " + code + " body=" + response.body());
+
+    }
+
+    public static long[] getStorageUsage() throws Exception {
+
+        String url = Config.webDomain + "/storage/usage";
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + AppSession.getToken())
+                .GET().build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) throw new RuntimeException("getStorageUsage failed: HTTP " + response.statusCode() + " body=" + response.body());
+
+        JSONObject json = new JSONObject(response.body());
+        return new long[] { json.getLong("usedBytes"), json.getLong("maxBytes") };
+
+    }
+
+    public static void setVisibility(String fileId, String visibility) throws Exception {
+
+        String url = Config.webDomain + "/files/" + URLEncoder.encode(fileId, StandardCharsets.UTF_8) + "/visibility";
+        String body = "{\"visibility\":\"" + visibility + "\"}";
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + AppSession.getToken())
+                .header("Content-Type", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        int code = response.statusCode();
+        if (code != 200 && code != 204) throw new RuntimeException("setVisibility failed: HTTP " + code + " body=" + response.body());
 
     }
 

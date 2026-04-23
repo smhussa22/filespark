@@ -6,20 +6,23 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.filespark.server.api.mongodb.models.User;
 import com.filespark.server.api.mongodb.repository.UserRepository;
+import com.filespark.server.services.FileService;
 
 @RestController
 public class UserController {
 
     private final UserRepository userRepository;
+    private final FileService fileService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, FileService fileService) {
 
         this.userRepository = userRepository;
+        this.fileService = fileService;
 
     }
 
@@ -40,6 +43,18 @@ public class UserController {
 
             })
             .orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+
+    @DeleteMapping("/users/me")
+    public ResponseEntity<Void> deleteMe(@AuthenticationPrincipal Jwt jwt) {
+
+        String userId = jwt.getSubject();
+
+        fileService.deleteAllForUser(userId);
+        userRepository.deleteById(userId);
+
+        return ResponseEntity.noContent().build();
 
     }
 

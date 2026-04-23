@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FaWindows, FaApple, FaUserCircle } from "react-icons/fa";
+import { FaWindows, FaApple } from "react-icons/fa";
 import { HiOutlineLogout } from "react-icons/hi";
 import { useSession } from "../hooks/useSession";
+import AccountMenu from "./AccountMenu";
 
 export default function NavigationBar() {
 
@@ -40,35 +41,7 @@ export default function NavigationBar() {
 
           </Link>
 
-          {!loading && user && (
-
-            <Link
-              href="/profile"
-              aria-label="Profile"
-              className="rounded-full border border-maingrey hover:border-mainorange transition overflow-hidden w-11 h-11 flex items-center justify-center"
-            >
-
-              {user.picture ? (
-
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={user.picture}
-                  alt={user.name ?? "Account"}
-                  width={44}
-                  height={44}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
-                />
-
-              ) : (
-
-                <FaUserCircle size={36} className="text-mainwhite" />
-
-              )}
-
-            </Link>
-
-          )}
+          {!loading && user && <AccountMenu user={user} />}
 
           {!loading && !user && (
 

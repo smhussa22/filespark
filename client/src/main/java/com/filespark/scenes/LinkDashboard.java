@@ -6,8 +6,10 @@ import com.filespark.Config;
 import com.filespark.client.FastAPI;
 import com.filespark.client.LinkSummary;
 import com.filespark.javafx.BaseNotification;
+import com.filespark.javafx.ConfirmDialog;
 import com.filespark.javafx.LinkTile;
 import com.filespark.javafx.NotificationService;
+import com.filespark.javafx.StorageBar;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -21,12 +23,15 @@ import javafx.scene.layout.VBox;
 public class LinkDashboard extends ScrollPane {
 
     private final VBox content;
+    private final StorageBar storageBar;
 
     public LinkDashboard() {
 
         content = new VBox(10);
         content.setPadding(new Insets(16));
         content.setFillWidth(true);
+
+        storageBar = new StorageBar();
 
         setContent(content);
         setFitToWidth(true);
@@ -43,7 +48,11 @@ public class LinkDashboard extends ScrollPane {
     public void refresh() {
 
         content.getChildren().clear();
+        storageBar.setLoading();
+        content.getChildren().add(storageBar);
         content.getChildren().add(statusLabel("Loading your links..."));
+
+        refreshUsage();
 
         Task<List<LinkSummary>> task = new Task<>() {
             @Override
@@ -55,6 +64,7 @@ public class LinkDashboard extends ScrollPane {
         task.setOnSucceeded(e -> Platform.runLater(() -> render(task.getValue())));
         task.setOnFailed(e -> Platform.runLater(() -> {
             content.getChildren().clear();
+            content.getChildren().add(storageBar);
             Throwable ex = task.getException();
             content.getChildren().add(statusLabel("Failed to load links: " + (ex == null ? "unknown" : ex.getMessage())));
         }));
@@ -65,9 +75,32 @@ public class LinkDashboard extends ScrollPane {
 
     }
 
+    private void refreshUsage() {
+
+        Task<long[]> task = new Task<>() {
+            @Override
+            protected long[] call() throws Exception {
+                return FastAPI.getStorageUsage();
+            }
+        };
+
+        task.setOnSucceeded(e -> Platform.runLater(() -> {
+            long[] usage = task.getValue();
+            storageBar.setUsage(usage[0], usage[1]);
+        }));
+        task.setOnFailed(e -> Platform.runLater(() -> storageBar.setError("unavailable")));
+
+        Thread t = new Thread(task, "LinkDashboard-usage");
+        t.setDaemon(true);
+        t.start();
+
+    }
+
     private void render(List<LinkSummary> links) {
 
         content.getChildren().clear();
+        content.getChildren().add(storageBar);
+
         if (links == null || links.isEmpty()) {
             content.getChildren().add(statusLabel("No uploads yet. Upload a file to see its link here."));
             return;
@@ -75,7 +108,11 @@ public class LinkDashboard extends ScrollPane {
 
         for (LinkSummary summary : links) {
             LinkTile[] tileRef = new LinkTile[1];
-            LinkTile tile = new LinkTile(summary, () -> deleteTile(summary, tileRef[0]));
+            LinkTile tile = new LinkTile(
+                summary,
+                () -> deleteTile(summary, tileRef[0]),
+                visibility -> updateVisibility(summary, visibility)
+            );
             tileRef[0] = tile;
             content.getChildren().add(tile);
         }
@@ -85,6 +122,14 @@ public class LinkDashboard extends ScrollPane {
     private void deleteTile(LinkSummary summary, Node tile) {
 
         if (summary == null || summary.id == null || summary.id.isBlank()) return;
+
+        boolean confirmed = ConfirmDialog.show(
+            getScene() != null ? getScene().getWindow() : null,
+            "Delete upload?",
+            "This will remove \"" + (summary.name == null ? summary.id : summary.name) + "\" permanently. This cannot be undone.",
+            "Delete"
+        );
+        if (!confirmed) return;
 
         Task<Void> task = new Task<>() {
             @Override
@@ -97,9 +142,11 @@ public class LinkDashboard extends ScrollPane {
         task.setOnSucceeded(e -> Platform.runLater(() -> {
             content.getChildren().remove(tile);
             NotificationService.show(new BaseNotification("Link deleted", "success.png"));
-            if (content.getChildren().isEmpty()) {
+            boolean onlyHasStorageBar = content.getChildren().size() == 1 && content.getChildren().get(0) == storageBar;
+            if (onlyHasStorageBar) {
                 content.getChildren().add(statusLabel("No uploads yet. Upload a file to see its link here."));
             }
+            refreshUsage();
         }));
         task.setOnFailed(e -> Platform.runLater(() -> {
             Throwable ex = task.getException();
@@ -107,6 +154,33 @@ public class LinkDashboard extends ScrollPane {
         }));
 
         Thread t = new Thread(task, "LinkDashboard-delete");
+        t.setDaemon(true);
+        t.start();
+
+    }
+
+    private void updateVisibility(LinkSummary summary, String visibility) {
+
+        if (summary == null || summary.id == null || summary.id.isBlank() || visibility == null) return;
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                FastAPI.setVisibility(summary.id, visibility);
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(e -> Platform.runLater(() -> {
+            summary.visibility = visibility;
+            NotificationService.show(new BaseNotification("Visibility set to " + visibility, "success.png"));
+        }));
+        task.setOnFailed(e -> Platform.runLater(() -> {
+            Throwable ex = task.getException();
+            NotificationService.show(new BaseNotification("Visibility update failed: " + (ex == null ? "unknown" : ex.getMessage()), "error.png"));
+        }));
+
+        Thread t = new Thread(task, "LinkDashboard-visibility");
         t.setDaemon(true);
         t.start();
 

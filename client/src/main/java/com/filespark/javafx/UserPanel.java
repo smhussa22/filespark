@@ -23,17 +23,17 @@ public class UserPanel extends HBox {
 
     public UserPanel(User user) {
 
-        MenuItem userSettings = new MenuItem("User Settings");
         MenuItem logOut = new MenuItem("Log Out");
-
-        ContextMenu menu = new ContextMenu(userSettings, logOut);
+        ContextMenu menu = new ContextMenu(logOut);
         menu.getStyleClass().add("context-menu");
-        userSettings.getStyleClass().add("menu-item");
         logOut.getStyleClass().add("menu-item");
 
-        // @debug placeholder
-        userSettings.setOnAction(event -> System.out.println("User Settings"));
-        logOut.setOnAction(event -> System.out.println("Log Out"));
+        logOut.setOnAction(e -> {
+
+            AppSession.logout();
+            AppStateManager.set(AppState.LOGGED_OUT);
+
+        });
 
         setSpacing(10);
         setAlignment(Pos.CENTER_LEFT);
@@ -56,30 +56,16 @@ public class UserPanel extends HBox {
 
         getChildren().addAll(pic, textBox);
 
-        setOnMousePressed(event -> {
+        setOnMouseClicked(event -> {
 
-            if (event.getButton() == javafx.scene.input.MouseButton.SECONDARY) {
-
-                menu.show(this, event.getScreenX(), event.getScreenY());
-
-            } 
-            else {
-
-                menu.hide();
-
-            }
+            if (event.getButton() != javafx.scene.input.MouseButton.PRIMARY) return;
+            if (menu.isShowing()) menu.hide();
+            else menu.show(this, event.getScreenX(), event.getScreenY());
 
         });
 
         setOnMouseEntered(e -> setCursor(javafx.scene.Cursor.HAND));
         setOnMouseExited(e -> setCursor(javafx.scene.Cursor.DEFAULT));
-
-        logOut.setOnAction(e -> { 
-
-            AppSession.logout(); //@todo: make log out observable to re enable button
-            AppStateManager.set(AppState.LOGGED_OUT);
-
-        });
 
         addHoverEffect();
 

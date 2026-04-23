@@ -10,4 +10,6 @@ public interface FileRepository extends MongoRepository<File, String> {
 
     List<File> findByOwnerIdOrderByCreatedAtDesc(String ownerId);
 
+    List<File> findByOwnerIdOrderByCreatedAtAsc(String ownerId);
+
 }

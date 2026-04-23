@@ -11,5 +11,8 @@ public class LinkSummary {
     public long sizeBytes;
     public String createdAt;
     public String viewUrl;
+    public String visibility;
+    public long viewCount;
+    public long downloadCount;
 
 }

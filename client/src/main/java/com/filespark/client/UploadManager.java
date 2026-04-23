@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.filespark.client.FastAPI.QuotaExceededException;
 import com.filespark.javafx.BaseNotification;
 import com.filespark.javafx.NotificationService;
 import com.filespark.os.ClipboardUtil;
@@ -16,14 +17,25 @@ public class UploadManager {
 
     public static void startUpload(File file){
 
-        try { 
+        try {
 
             String mime = Files.probeContentType(file.toPath());
             if (mime == null) mime = "application/octet-stream";
 
             NotificationService.show(new BaseNotification("Uploading: " + file.getName(), "default.png"));
 
-            PresignResponse presignResponse = FastAPI.getPresignedUploadUrl(file, mime);
+            PresignResponse presignResponse;
+            try {
+
+                presignResponse = FastAPI.getPresignedUploadUrl(file, mime);
+
+            }
+            catch (QuotaExceededException quotaException) {
+
+                NotificationService.show(new BaseNotification(file.getName() + ": " + quotaException.getMessage(), "error.png"));
+                return;
+
+            }
             UploadTask uploadTask = new UploadTask(file, presignResponse.uploadUrl, presignResponse.mime);
 
             uploadTask.setOnSucceeded(e -> {

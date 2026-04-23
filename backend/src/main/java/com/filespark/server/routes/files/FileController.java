@@ -3,6 +3,7 @@ package com.filespark.server.routes.files;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -18,6 +19,7 @@ import com.filespark.server.responses.FileSummaryResponse;
 import com.filespark.server.responses.PresignUploadResponse;
 import com.filespark.server.services.FileService;
 import com.filespark.server.services.FileService.Presigned;
+import com.filespark.server.services.FileService.QuotaExceededException;
 
 @RestController
 public class FileController {
@@ -31,16 +33,31 @@ public class FileController {
     }
 
     @GetMapping("/presign-upload")
-    public PresignUploadResponse presignUpload(
+    public ResponseEntity<?> presignUpload(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam("filename") String filename,
-            @RequestParam("mime") String mime
+            @RequestParam("mime") String mime,
+            @RequestParam("sizeBytes") long sizeBytes
     ) {
 
         String userId = jwt.getSubject();
-        Presigned p = fileService.createPresignedUpload(userId, filename, mime);
 
-        return new PresignUploadResponse(p.fileId(), p.key(), p.mime(), p.extension(), p.uploadUrl(), p.viewUrl(), p.originalFilename());
+        try {
+
+            Presigned p = fileService.createPresignedUpload(userId, filename, mime, sizeBytes);
+            return ResponseEntity.ok(new PresignUploadResponse(p.fileId(), p.key(), p.mime(), p.extension(), p.uploadUrl(), p.viewUrl(), p.originalFilename()));
+
+        }
+        catch (QuotaExceededException exception) {
+
+            return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(Map.of("error", exception.getMessage()));
+
+        }
+        catch (IllegalArgumentException exception) {
+
+            return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
+
+        }
 
     }
 
@@ -49,6 +66,15 @@ public class FileController {
 
         String userId = jwt.getSubject();
         return fileService.listUserFiles(userId);
+
+    }
+
+    @GetMapping("/storage/usage")
+    public Map<String, Long> storageUsage(@AuthenticationPrincipal Jwt jwt) {
+
+        String userId = jwt.getSubject();
+        FileService.StorageUsage usage = fileService.getUsage(userId);
+        return Map.of("usedBytes", usage.usedBytes(), "maxBytes", usage.maxBytes());
 
     }
 

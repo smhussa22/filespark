@@ -20,6 +20,9 @@ public class FileService {
     private static final long UPLOAD_URL_SECONDS = 15L * 60;
     private static final long VIEW_URL_SECONDS = 60L * 60;
 
+    public static final long MAX_TOTAL_BYTES = 1L * 1024 * 1024;
+    public static final long MAX_FILE_BYTES = MAX_TOTAL_BYTES;
+
     public static final String VISIBILITY_PRIVATE = "private";
     public static final String VISIBILITY_UNLISTED = "unlisted";
     public static final String VISIBILITY_PUBLIC = "public";
@@ -45,12 +48,21 @@ public class FileService {
 
     }
 
-    public Presigned createPresignedUpload(String userId, String filename, String mime) {
+    public Presigned createPresignedUpload(String userId, String filename, String mime, long sizeBytes) {
+
+        if (sizeBytes <= 0) throw new IllegalArgumentException("File size is required.");
+        if (sizeBytes > MAX_FILE_BYTES) {
+
+            throw new QuotaExceededException("File exceeds the per-file limit of " + formatBytes(MAX_FILE_BYTES) + ".");
+
+        }
+
+        evictOldestUntilFits(userId, sizeBytes);
 
         String extension = Mime.getExtensionFromMime(mime);
         String key = "owners/" + userId + "/" + UUID.randomUUID() + "." + extension;
 
-        File file = new File(userId, null, filename, mime, extension, s3.getBucket(), key, 0L, region, VISIBILITY_PRIVATE, null);
+        File file = new File(userId, null, filename, mime, extension, s3.getBucket(), key, sizeBytes, region, VISIBILITY_PRIVATE, null);
         file = fileRepository.save(file);
 
         String uploadUrl = s3.generatePresignedPutUrl(key, mime, UPLOAD_URL_SECONDS);
@@ -60,12 +72,48 @@ public class FileService {
 
     }
 
+    private void evictOldestUntilFits(String userId, long incomingBytes) {
+
+        List<File> ascending = fileRepository.findByOwnerIdOrderByCreatedAtAsc(userId);
+        long usage = 0;
+        for (File f : ascending) usage += Math.max(0, f.getSizeBytes());
+
+        int index = 0;
+        while (usage + incomingBytes > MAX_TOTAL_BYTES && index < ascending.size()) {
+
+            File oldest = ascending.get(index++);
+            try { s3.deleteObject(oldest.getKey()); }
+            catch (Exception ignored) {}
+            fileRepository.delete(oldest);
+            usage -= Math.max(0, oldest.getSizeBytes());
+
+        }
+
+        if (usage + incomingBytes > MAX_TOTAL_BYTES) {
+
+            throw new QuotaExceededException("Upload would exceed the total quota of " + formatBytes(MAX_TOTAL_BYTES) + ".");
+
+        }
+
+    }
+
+    public StorageUsage getUsage(String userId) {
+
+        long used = 0;
+        for (File f : fileRepository.findByOwnerIdOrderByCreatedAtAsc(userId)) {
+
+            used += Math.max(0, f.getSizeBytes());
+
+        }
+        return new StorageUsage(used, MAX_TOTAL_BYTES);
+
+    }
+
     public List<FileSummaryResponse> listUserFiles(String userId) {
 
         List<File> files = fileRepository.findByOwnerIdOrderByCreatedAtDesc(userId);
         return files.stream()
                 .filter(f -> !f.isDeleted())
-                .filter(f -> !VISIBILITY_UNLISTED.equalsIgnoreCase(f.getVisibility()))
                 .map(f -> new FileSummaryResponse(
                         f.getId(),
                         f.getOriginalName(),
@@ -78,6 +126,19 @@ public class FileService {
                         f.getDownloadCount()
                 ))
                 .collect(Collectors.toList());
+
+    }
+
+    public void deleteAllForUser(String userId) {
+
+        List<File> files = fileRepository.findByOwnerIdOrderByCreatedAtAsc(userId);
+        for (File f : files) {
+
+            try { s3.deleteObject(f.getKey()); }
+            catch (Exception ignored) {}
+            fileRepository.delete(f);
+
+        }
 
     }
 
@@ -102,7 +163,7 @@ public class FileService {
 
         if (VISIBILITY_PRIVATE.equals(visibility) && !isOwner) throw new ForbiddenException("File is private.");
 
-        if (countView && !isOwner) {
+        if (countView) {
 
             file.incrementViewCount();
             fileRepository.save(file);
@@ -125,12 +186,8 @@ public class FileService {
 
         if (VISIBILITY_PRIVATE.equals(visibility) && !isOwner) throw new ForbiddenException("File is private.");
 
-        if (!isOwner) {
-
-            file.incrementDownloadCount();
-            fileRepository.save(file);
-
-        }
+        file.incrementDownloadCount();
+        fileRepository.save(file);
 
         String signedUrl = s3.generatePresignedGetUrl(file.getKey(), VIEW_URL_SECONDS);
         return new FileView(file, signedUrl, isOwner);
@@ -160,6 +217,23 @@ public class FileService {
 
     }
 
+    private static String formatBytes(long bytes) {
+
+        if (bytes < 1024) return bytes + " B";
+        String[] units = { "KB", "MB", "GB", "TB" };
+        double value = bytes / 1024.0;
+        int unit = 0;
+        while (value >= 1024 && unit < units.length - 1) {
+
+            value /= 1024;
+            unit++;
+
+        }
+        if (value >= 10) return String.format("%.0f %s", value, units[unit]);
+        return String.format("%.1f %s", value, units[unit]);
+
+    }
+
     private static String stripTrailingSlash(String url) {
 
         if (url == null) return "";
@@ -171,9 +245,21 @@ public class FileService {
 
     public record FileView(File file, String signedUrl, boolean isOwner) {}
 
+    public record StorageUsage(long usedBytes, long maxBytes) {}
+
     public static class ForbiddenException extends RuntimeException {
 
         public ForbiddenException(String message) {
+
+            super(message);
+
+        }
+
+    }
+
+    public static class QuotaExceededException extends RuntimeException {
+
+        public QuotaExceededException(String message) {
 
             super(message);
 

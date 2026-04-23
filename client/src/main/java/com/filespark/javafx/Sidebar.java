@@ -1,22 +1,39 @@
 package com.filespark.javafx;
 
+import java.io.File;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.filespark.Config;
 import com.filespark.client.User;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 
 public class Sidebar extends VBox {
 
-    public enum Nav { DOWNLOADS, LINK_DASHBOARD, CLIENT_SETTINGS, HOTKEY_SETTINGS }
+    public enum Nav { DOWNLOADS, LINK_DASHBOARD, HOTKEY_SETTINGS, USER_SETTINGS }
 
     private SidebarItem selectedItem = null;
+    private final SidebarSection browseSection;
+    private final Consumer<Nav> onNavigate;
+    private final BiConsumer<String, File> onShowDirectory;
+    private final Consumer<File> onForgetDirectory;
 
-    public Sidebar(User user, Consumer<Nav> onNavigate) {
+    public Sidebar(
+        User user,
+        Consumer<Nav> onNavigate,
+        BiConsumer<String, File> onShowDirectory,
+        Consumer<File> onForgetDirectory
+    ) {
+
+        this.onNavigate = onNavigate;
+        this.onShowDirectory = onShowDirectory;
+        this.onForgetDirectory = onForgetDirectory;
 
         setPrefWidth(250);
         setPadding(new Insets(20));
@@ -28,25 +45,82 @@ public class Sidebar extends VBox {
             "-fx-border-width: 0 1px 0 0;"
         );
 
-        SidebarSection browse = new SidebarSection("Browse");
-        SidebarItem downloads = item("sitem-downloads.png", "Downloads", onNavigate, Nav.DOWNLOADS);
+        browseSection = new SidebarSection("Browse");
+        browseSection.setHeaderAction(buildAddDirectoryButton());
+
         SidebarItem dashboard = item("sitem-default.png", "Link Dashboard", onNavigate, Nav.LINK_DASHBOARD);
-        browse.addItem(downloads);
-        browse.addItem(dashboard);
+        SidebarItem downloads = item("sitem-downloads.png", "Downloads", onNavigate, Nav.DOWNLOADS);
+        browseSection.addItem(dashboard);
+        browseSection.addItem(downloads);
 
         SidebarSection settings = new SidebarSection("Settings");
-        SidebarItem client = item("sitem-default.png", "Client Settings", onNavigate, Nav.CLIENT_SETTINGS);
         SidebarItem hotkey = item("sitem-default.png", "Hotkey Settings", onNavigate, Nav.HOTKEY_SETTINGS);
-        settings.addItem(client);
+        SidebarItem userSettings = item("sitem-default.png", "User Settings", onNavigate, Nav.USER_SETTINGS);
         settings.addItem(hotkey);
+        settings.addItem(userSettings);
 
         Region space = new Region();
         VBox.setVgrow(space, Priority.ALWAYS);
 
         UserPanel userPanel = new UserPanel(user);
 
-        getChildren().addAll(browse, settings, space, userPanel);
-        setSelect(downloads);
+        getChildren().addAll(browseSection, settings, space, userPanel);
+        setSelect(dashboard);
+        if (onNavigate != null) onNavigate.accept(Nav.LINK_DASHBOARD);
+
+    }
+
+    private Button buildAddDirectoryButton() {
+
+        Button add = new Button("+");
+        add.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-text-fill: " + Config.mainOrange + ";" +
+            "-fx-font-size: 22px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-padding: 0 10 0 10;" +
+            "-fx-cursor: hand;" +
+            "-fx-border-color: " + Config.mainOrange + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-background-radius: 6;"
+        );
+        add.setTooltip(new javafx.scene.control.Tooltip("Add a directory to browse"));
+        add.setOnAction(e -> pickAndAddDirectory());
+        return add;
+
+    }
+
+    private void pickAndAddDirectory() {
+
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Choose a directory to browse");
+        File picked = chooser.showDialog(getScene() != null ? getScene().getWindow() : null);
+        if (picked == null || !picked.isDirectory()) return;
+
+        SidebarItem entry = new SidebarItem("sitem-default.png", picked.getName());
+        entry.setOnMouseClicked(e -> {
+            setSelect(entry);
+            if (onShowDirectory != null) onShowDirectory.accept(picked.getName(), picked);
+        });
+        entry.setOnRemove(() -> removeDirectoryEntry(entry, picked));
+        browseSection.addItem(entry);
+
+        setSelect(entry);
+        if (onShowDirectory != null) onShowDirectory.accept(picked.getName(), picked);
+
+    }
+
+    private void removeDirectoryEntry(SidebarItem entry, File directory) {
+
+        boolean wasSelected = entry == selectedItem;
+        browseSection.getChildren().remove(entry);
+        if (onForgetDirectory != null) onForgetDirectory.accept(directory);
+        if (wasSelected) {
+
+            selectedItem = null;
+            if (onNavigate != null) onNavigate.accept(Nav.LINK_DASHBOARD);
+
+        }
 
     }
 

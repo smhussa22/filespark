@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.function.Consumer;
 
 import com.filespark.Config;
 import com.filespark.client.LinkSummary;
@@ -13,6 +14,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,7 +25,7 @@ import javafx.scene.layout.VBox;
 
 public class LinkTile extends HBox {
 
-    public LinkTile(LinkSummary summary, Runnable onDelete) {
+    public LinkTile(LinkSummary summary, Runnable onDelete, Consumer<String> onVisibilityChange) {
 
         setSpacing(14);
         setPadding(new Insets(10, 16, 10, 16));
@@ -47,13 +49,28 @@ public class LinkTile extends HBox {
         nameLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + Config.mainOrange);
 
         Label timeLabel = new Label(formatUploadTime(summary.createdAt));
-        timeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: " + Config.altOrange);
+        timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: " + Config.altOrange);
 
-        VBox textBox = new VBox(1, nameLabel, timeLabel);
+        Label statsLabel = new Label(summary.viewCount + " views · " + summary.downloadCount + " downloads");
+        statsLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+
+        VBox textBox = new VBox(1, nameLabel, timeLabel, statsLabel);
         textBox.setAlignment(Pos.CENTER_LEFT);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        ComboBox<String> visibilityBox = new ComboBox<>();
+        visibilityBox.getItems().addAll("private", "unlisted", "public");
+        visibilityBox.setValue(normalizeVisibility(summary.visibility));
+        visibilityBox.setStyle("-fx-background-color: " + Config.mainBlack + "; -fx-text-fill: white;");
+        visibilityBox.setTooltip(new javafx.scene.control.Tooltip("Visibility"));
+        visibilityBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+
+            if (newValue == null || newValue.equals(oldValue)) return;
+            if (onVisibilityChange != null) onVisibilityChange.accept(newValue);
+
+        });
 
         Button copyButton = buildIconButton("copylink.png", "Copy link");
         copyButton.setOnAction(e -> {
@@ -63,12 +80,21 @@ public class LinkTile extends HBox {
             }
         });
 
-        Button deleteButton = buildIconButton("cancelButton.png", "Delete (coming soon)");
+        Button deleteButton = buildIconButton("cancelButton.png", "Delete");
         deleteButton.setOnAction(e -> {
             if (onDelete != null) onDelete.run();
         });
 
-        getChildren().addAll(iconView, textBox, spacer, copyButton, deleteButton);
+        getChildren().addAll(iconView, textBox, spacer, visibilityBox, copyButton, deleteButton);
+
+    }
+
+    private String normalizeVisibility(String visibility) {
+
+        if (visibility == null) return "private";
+        String lower = visibility.toLowerCase();
+        if (lower.equals("public") || lower.equals("unlisted") || lower.equals("private")) return lower;
+        return "private";
 
     }
 

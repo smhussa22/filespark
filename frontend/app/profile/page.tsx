@@ -12,6 +12,7 @@ import {
   FaFileCode,
   FaFileAlt,
 } from "react-icons/fa";
+import DeleteUploadButton from "../components/DeleteUploadButton";
 
 type UploadedFile = {
   id: string;
@@ -69,6 +70,16 @@ async function getUploads(token: string): Promise<{ files: UploadedFile[]; error
   } catch (err) {
     console.error("[profile] /files threw:", err);
     return { files: [], error: String(err) };
+  }
+}
+
+async function getStorageUsage(token: string): Promise<{ usedBytes: number; maxBytes: number } | null> {
+  try {
+    const res = await backendFetch("/storage/usage", token);
+    if (!res.ok) return null;
+    return (await res.json()) as { usedBytes: number; maxBytes: number };
+  } catch {
+    return null;
   }
 }
 
@@ -149,6 +160,10 @@ export default async function ProfilePage() {
   const picture = backendUser.picture ?? null;
 
   const { files: uploads, error: uploadsError } = await getUploads(token);
+  const usage = await getStorageUsage(token);
+  const usedBytes = usage?.usedBytes ?? 0;
+  const maxBytes = usage?.maxBytes ?? 0;
+  const usedPercent = maxBytes > 0 ? Math.min(100, (usedBytes / maxBytes) * 100) : 0;
 
   return (
     <main className="min-h-[calc(100vh-80px)] flex justify-center px-6 py-12">
@@ -173,12 +188,45 @@ export default async function ProfilePage() {
             )}
           </div>
 
-          <div className="flex flex-col min-w-0">
+          <div className="flex flex-col min-w-0 flex-1">
             <span className="text-2xl font-medium text-mainwhite truncate">{name}</span>
             {email && <span className="text-mainwhite/70 truncate">{email}</span>}
           </div>
 
+          <form action="/api/auth/logout" method="post" className="shrink-0">
+            <button
+              type="submit"
+              className="rounded-md border border-maingrey px-4 py-2 text-mainwhite hover:border-mainorange hover:text-mainorange transition"
+            >
+              Log out
+            </button>
+          </form>
+
         </section>
+
+        {usage && (
+          <section className="rounded-lg border border-maingrey bg-mainblack/60 p-5 mb-6">
+
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="text-lg font-semibold text-mainwhite">Storage</h2>
+              <span className="text-mainwhite/70 text-sm">
+                {formatBytes(usedBytes)} / {formatBytes(maxBytes)}
+                <span className="text-mainwhite/50"> · {usedPercent.toFixed(0)}%</span>
+              </span>
+            </div>
+
+            <div className="w-full h-4 rounded-full bg-maingrey overflow-hidden">
+              <div
+                className={
+                  "h-full transition-all " +
+                  (usedPercent >= 90 ? "bg-red-500" : usedPercent >= 70 ? "bg-yellow-500" : "bg-mainorange")
+                }
+                style={{ width: `${usedPercent}%` }}
+              />
+            </div>
+
+          </section>
+        )}
 
         <section>
 
@@ -196,7 +244,7 @@ export default async function ProfilePage() {
           ) : (
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {uploads.map((file) => (
-                <li key={file.id}>
+                <li key={file.id} className="relative">
                   <a
                     href={file.viewUrl}
                     target="_blank"
@@ -212,6 +260,7 @@ export default async function ProfilePage() {
                       <div className="text-mainwhite/60 text-xs">{formatBytes(file.sizeBytes)}</div>
                     </div>
                   </a>
+                  <DeleteUploadButton fileId={file.id} name={file.name} />
                 </li>
               ))}
             </ul>
