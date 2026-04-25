@@ -79,8 +79,8 @@ public class SidebarItem extends HBox {
             ));
             removeButton.setOnAction(e -> {
                 if (this.onRemove != null) this.onRemove.run();
+                e.consume();
             });
-            removeButton.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, javafx.scene.input.MouseEvent::consume);
             removeButton.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_CLICKED, javafx.scene.input.MouseEvent::consume);
             getChildren().add(removeButton);
 

@@ -28,9 +28,25 @@ public class Config {
     public static final int WIN32_VTABLE_RESOLVE = 19;
     public static final int WIN32_VTABLE_LOAD = 5;
 
-    // api stuff
-    public static final String webDomain = "http://localhost:8000";
-    public static final String frontendDomain = "http://localhost:3000";
+    // api stuff — overridable via -Dfilespark.webDomain=... / FILESPARK_WEB_DOMAIN env var
+    public static final String webDomain = resolve("filespark.webDomain", "FILESPARK_WEB_DOMAIN", "http://localhost:8000");
+    public static final String frontendDomain = resolve("filespark.frontendDomain", "FILESPARK_FRONTEND_DOMAIN", "http://localhost:3000");
+
+    private static String resolve(String sysProp, String envVar, String fallback) {
+
+        String v = System.getProperty(sysProp);
+        if (v != null && !v.isBlank()) return stripTrailingSlash(v);
+        v = System.getenv(envVar);
+        if (v != null && !v.isBlank()) return stripTrailingSlash(v);
+        return fallback;
+
+    }
+
+    private static String stripTrailingSlash(String s) {
+
+        return s.endsWith("/") ? s.substring(0, s.length() - 1) : s;
+
+    }
     
     // javafx stuff
     public static final String mainBlack = "#212020";
