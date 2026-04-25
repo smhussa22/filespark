@@ -30,6 +30,7 @@ public class Config {
 
     // api stuff
     public static final String webDomain = "http://localhost:8000";
+    public static final String frontendDomain = "http://localhost:3000";
     
     // javafx stuff
     public static final String mainBlack = "#212020";

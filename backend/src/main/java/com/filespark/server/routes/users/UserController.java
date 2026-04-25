@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +46,7 @@ public class UserController {
                 body.put("name", user.getName());
                 body.put("picture", user.getPicture());
                 body.put("browseDirectories", user.getBrowseDirectories());
+                body.put("downloadsHidden", user.isDownloadsHidden());
                 return ResponseEntity.ok(body);
 
             })
@@ -74,6 +76,29 @@ public class UserController {
                 user.setBrowseDirectories(directories);
                 User saved = userRepository.save(user);
                 return ResponseEntity.ok(Map.of("browseDirectories", saved.getBrowseDirectories()));
+
+            })
+            .orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+
+    @PatchMapping("/users/me/downloads-hidden")
+    public ResponseEntity<?> setDownloadsHidden(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody Map<String, Object> body
+    ) {
+
+        String userId = jwt.getSubject();
+
+        Object raw = body.get("hidden");
+        boolean hidden = raw instanceof Boolean b ? b : false;
+
+        return userRepository.findById(userId)
+            .<ResponseEntity<?>>map(user -> {
+
+                user.setDownloadsHidden(hidden);
+                User saved = userRepository.save(user);
+                return ResponseEntity.ok(Map.of("downloadsHidden", saved.isDownloadsHidden()));
 
             })
             .orElseGet(() -> ResponseEntity.notFound().build());

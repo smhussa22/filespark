@@ -22,6 +22,7 @@ public class User {
     
     private String picture;
     private List<String> browseDirectories;
+    private boolean downloadsHidden;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -111,6 +112,18 @@ public class User {
     public void setBrowseDirectories(List<String> browseDirectories) {
 
         this.browseDirectories = browseDirectories == null ? new ArrayList<>() : browseDirectories;
+
+    }
+
+    public boolean isDownloadsHidden() {
+
+        return downloadsHidden;
+
+    }
+
+    public void setDownloadsHidden(boolean downloadsHidden) {
+
+        this.downloadsHidden = downloadsHidden;
 
     }
 

@@ -32,6 +32,7 @@ public class Sidebar extends VBox {
     private final BiConsumer<String, File> onShowDirectory;
     private final Consumer<File> onForgetDirectory;
     private final Map<String, SidebarItem> directoryItems = new LinkedHashMap<>();
+    private SidebarItem downloadsItem;
 
     public Sidebar(
         User user,
@@ -58,9 +59,12 @@ public class Sidebar extends VBox {
         browseSection.setHeaderAction(buildAddDirectoryButton());
 
         SidebarItem dashboard = item("sitem-default.png", "Link Dashboard", onNavigate, Nav.LINK_DASHBOARD);
-        SidebarItem downloads = item("sitem-downloads.png", "Downloads", onNavigate, Nav.DOWNLOADS);
+        downloadsItem = item("sitem-downloads.png", "Downloads", onNavigate, Nav.DOWNLOADS);
+        downloadsItem.setOnRemove(this::removeDownloadsEntry);
         browseSection.addItem(dashboard);
-        browseSection.addItem(downloads);
+
+        boolean hideDownloads = user != null && user.isDownloadsHidden();
+        if (!hideDownloads) browseSection.addItem(downloadsItem);
 
         if (user != null) {
 
@@ -149,6 +153,41 @@ public class Sidebar extends VBox {
         if (persist) persistDirectories();
 
         return entry;
+
+    }
+
+    private void removeDownloadsEntry() {
+
+        if (downloadsItem == null) return;
+        boolean wasSelected = downloadsItem == selectedItem;
+        browseSection.getChildren().remove(downloadsItem);
+
+        AppSession.getUser().ifPresent(u -> u.setDownloadsHidden(true));
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                FastAPI.setDownloadsHidden(true);
+                return null;
+            }
+        };
+        task.setOnFailed(e -> Platform.runLater(() -> {
+            Throwable ex = task.getException();
+            NotificationService.show(new BaseNotification(
+                "Could not save change: " + (ex == null ? "unknown" : ex.getMessage()),
+                "error.png"
+            ));
+        }));
+        Thread t = new Thread(task, "Sidebar-hideDownloads");
+        t.setDaemon(true);
+        t.start();
+
+        if (wasSelected) {
+
+            selectedItem = null;
+            if (onNavigate != null) onNavigate.accept(Nav.LINK_DASHBOARD);
+
+        }
 
     }
 

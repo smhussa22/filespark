@@ -11,11 +11,13 @@ import {
   FaFileAudio,
   FaFileCode,
   FaFileAlt,
+  FaDownload,
 } from "react-icons/fa";
 import DeleteUploadButton from "../components/DeleteUploadButton";
 
 type UploadedFile = {
   id: string;
+  ownerId?: string;
   name: string;
   mime: string;
   sizeBytes: number;
@@ -259,6 +261,14 @@ export default async function ProfilePage() {
                       <div className="text-mainwhite text-sm truncate">{file.name}</div>
                       <div className="text-mainwhite/60 text-xs">{formatBytes(file.sizeBytes)}</div>
                     </div>
+                  </a>
+                  <a
+                    href={`${file.viewUrl}/download`}
+                    title="Download"
+                    aria-label="Download"
+                    className="absolute top-1 right-9 rounded-md p-1.5 bg-mainblack/70 border border-maingrey text-mainwhite hover:text-mainorange hover:border-mainorange transition"
+                  >
+                    <FaDownload size={12} />
                   </a>
                   <DeleteUploadButton fileId={file.id} name={file.name} />
                 </li>

@@ -3,6 +3,7 @@ import java.awt.Desktop;
 import java.net.URI;
 
 import com.filespark.AppState;
+import com.filespark.Config;
 import com.filespark.client.AppStateManager;
 import com.filespark.client.LoginCooldown;
 import com.filespark.client.OAuthCallbackServer;
@@ -59,7 +60,7 @@ public class GoogleLoginButton extends Button {
 
                 AppStateManager.set(AppState.AUTHENTICATING);
                 int port = OAuthCallbackServer.start();
-                URI loginUri = new URI("http://localhost:8000/auth/google/login?port=" + port);
+                URI loginUri = new URI(Config.frontendDomain + "/desktop-login?port=" + port);
                 Desktop.getDesktop().browse(loginUri);
 
             }

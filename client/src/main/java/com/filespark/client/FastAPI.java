@@ -128,6 +128,24 @@ public class FastAPI {
 
     }
 
+    public static void setDownloadsHidden(boolean hidden) throws Exception {
+
+        String url = Config.webDomain + "/users/me/downloads-hidden";
+        String body = "{\"hidden\":" + (hidden ? "true" : "false") + "}";
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + AppSession.getToken())
+                .header("Content-Type", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        int code = response.statusCode();
+        if (code != 200 && code != 204) throw new RuntimeException("setDownloadsHidden failed: HTTP " + code + " body=" + response.body());
+
+    }
+
     public static EvictionPlan previewEviction(long sizeBytes) throws Exception {
 
         String url = Config.webDomain + "/files/preview-eviction?sizeBytes=" + sizeBytes;

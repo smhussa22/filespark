@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export function GET() {
+export function GET(req: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const redirectUri = process.env.GOOGLE_REDIRECT_URI;
 
@@ -25,7 +25,20 @@ export function GET() {
     prompt: "consent",
   });
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString()
   );
+
+  const next = req.nextUrl.searchParams.get("next");
+  if (next && next.startsWith("/")) {
+    response.cookies.set("oauth_next", next, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 600,
+    });
+  }
+
+  return response;
 }

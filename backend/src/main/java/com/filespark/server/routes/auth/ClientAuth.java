@@ -103,6 +103,7 @@ public class ClientAuth {
             userDto.put("name", user.getName());
             userDto.put("picture", user.getPicture());
             userDto.put("browseDirectories", user.getBrowseDirectories());
+            userDto.put("downloadsHidden", user.isDownloadsHidden());
 
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("token", sessionToken);

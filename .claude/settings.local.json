@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw -q -DskipTests compile)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

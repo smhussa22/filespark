@@ -1,18 +1,18 @@
 package com.filespark.client;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+import com.filespark.Config;
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 
 public final class OAuthCallbackServer {
-    
+
     private static HttpServer server;
     private static int port;
 
-    // @todo: specify exception
     public static synchronized int start() throws Exception {
 
         if (server != null) return port;
@@ -22,34 +22,72 @@ public final class OAuthCallbackServer {
 
         server.createContext("/callback", exchange -> {
 
+            boolean shouldStop = false;
             try {
 
-                URI uri = exchange.getRequestURI();
-                String code = OAuthCallbackHandler.extract(uri.getQuery(), "code");
+                applyCors(exchange);
 
-                if (code != null) OAuthCallbackHandler.exchangeCode(code);
-                
-                String response = "Login successful. You may return to FileSpark.";
-                exchange.sendResponseHeaders(200, response.getBytes().length);
+                if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
 
-                try (OutputStream os = exchange.getResponseBody()) {
-
-                    os.write(response.getBytes(StandardCharsets.UTF_8));
+                    exchange.sendResponseHeaders(204, -1);
+                    return;
 
                 }
+
+                if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+
+                    sendText(exchange, 405, "Method Not Allowed");
+                    return;
+
+                }
+
+                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                OAuthCallbackHandler.handleHandoff(body);
+                sendText(exchange, 200, "Login successful. You may return to FileSpark.");
+                shouldStop = true;
+
+            }
+            catch (Exception ex) {
+
+                ex.printStackTrace();
+                try { sendText(exchange, 500, "Login failed: " + ex.getMessage()); } catch (Exception ignored) {}
+                shouldStop = true;
 
             }
             finally {
 
-                stop();
+                if (shouldStop) {
+                    new Thread(OAuthCallbackServer::stop).start();
+                }
 
             }
-            
 
         });
 
         server.start();
         return port;
+
+    }
+
+    private static void applyCors(HttpExchange exchange) {
+
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", Config.frontendDomain);
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "POST, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+        exchange.getResponseHeaders().set("Access-Control-Max-Age", "600");
+
+    }
+
+    private static void sendText(HttpExchange exchange, int status, String text) throws java.io.IOException {
+
+        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
+        exchange.sendResponseHeaders(status, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+
+            os.write(bytes);
+
+        }
 
     }
 
