@@ -55,11 +55,7 @@ public class App extends Application {
             GlobalScreen.addNativeKeyListener(new GlobalHotkeyListener());
             
         } 
-        catch (NativeHookException e) {
-
-            System.err.println(e.getMessage());
-
-        }
+        catch (NativeHookException ignored) {}
 
         this.primaryStage = primaryStage;
         AppStateManager.set(AppState.LOGGED_OUT);

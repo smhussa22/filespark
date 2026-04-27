@@ -13,6 +13,7 @@ import com.filespark.client.User;
 import com.filespark.files.ScanWindowsDownloads;
 import com.filespark.javafx.FileGrid;
 import com.filespark.javafx.Sidebar;
+import com.filespark.javafx.TopBar;
 
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
@@ -40,8 +41,11 @@ public class Client extends StackPane {
 
         Sidebar sidebar = new Sidebar(user, this::navigate, this::showDirectory, this::forgetDirectory);
 
+        mainLayout.setTop(new TopBar());
         mainLayout.setLeft(sidebar);
+        mainLayout.setStyle("-fx-background-color: " + Config.bgBase + ";");
 
+        setStyle("-fx-background-color: " + Config.bgBase + ";");
         getChildren().addAll(mainLayout);
 
     }

@@ -18,17 +18,22 @@ public class SidebarSection extends VBox {
 
     public SidebarSection(String title, SidebarItem... items) {
 
-        setSpacing(6);
-        setPadding(new Insets(10, 0, 0, 0));
+        setSpacing(2);
+        setPadding(new Insets(Config.space3, 0, 0, 0));
 
         Label header = new Label(title.toUpperCase());
-        header.setStyle("-fx-font-size: 24px; -fx-text-fill: " + Config.mainOrange + "; -fx-font-weight: bold;");
+        header.setStyle(
+            "-fx-font-size: 11px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: " + Config.textMuted + ";"
+        );
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        headerBox = new HBox(8, header, spacer);
+        headerBox = new HBox(Config.space2, header, spacer);
         headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setPadding(new Insets(Config.space2, Config.space3, Config.space2, Config.space3));
 
         getChildren().add(headerBox);
         getChildren().addAll(items);

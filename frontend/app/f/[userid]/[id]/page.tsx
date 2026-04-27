@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import {
@@ -143,6 +144,105 @@ function Viewer({ meta, rawUrl }: { meta: FileMeta; rawUrl: string }) {
       <p className="text-mainwhite/70 text-sm">No inline preview available for this file type.</p>
     </div>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ userid: string; id: string }>;
+}): Promise<Metadata> {
+
+  const { userid, id } = await params;
+  const { meta } = await fetchMeta(userid, id);
+
+  const headerStore = await import("next/headers").then(m => m.headers()).catch(() => null);
+  let origin = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") ?? "";
+  if (!origin && headerStore) {
+    const h = await headerStore;
+    const host = h.get("x-forwarded-host") ?? h.get("host");
+    const proto = h.get("x-forwarded-proto") ?? "https";
+    if (host) origin = `${proto}://${host}`;
+  }
+  if (!origin) origin = "https://getfilespark.tech";
+
+  const pageUrl = `${origin}/f/${encodeURIComponent(userid)}/${encodeURIComponent(id)}`;
+
+  if (!meta) {
+    const fallbackTitle = "Shared file · FileSpark";
+    const fallbackDescription = "View or download a file shared on FileSpark — fast, free, no size limits, no signup required to view.";
+    return {
+      metadataBase: new URL(origin),
+      title: fallbackTitle,
+      description: fallbackDescription,
+      openGraph: {
+        type: "website",
+        title: fallbackTitle,
+        description: fallbackDescription,
+        siteName: "FileSpark",
+        url: pageUrl,
+      },
+      twitter: {
+        card: "summary",
+        title: fallbackTitle,
+        description: fallbackDescription,
+      },
+    };
+  }
+
+  const isViewable = meta.visibility !== "private";
+  const lower = (meta.mime || "").toLowerCase();
+
+  // Use the signed S3 URL directly as the embed asset so crawlers fetch bytes without
+  // following any redirects.
+  const assetUrl = isViewable ? meta.signedUrl : null;
+
+  const title = meta.name || "Shared file";
+  const sizeText = formatBytes(meta.sizeBytes);
+  const typeText = meta.mime || "file";
+  const description = `${title} — ${sizeText} ${typeText}. Shared via FileSpark, the free, no-signup-required file sharing service. Click to view or download.`;
+
+  const og: NonNullable<Metadata["openGraph"]> = {
+    type: "website",
+    title: `${title} · FileSpark`,
+    description,
+    siteName: "FileSpark",
+    url: pageUrl,
+  };
+  // Loosely typed because Next.js's twitter card is a discriminated union (summary vs
+  // summary_large_image vs player) and we switch between them based on MIME.
+  const twitter: Record<string, unknown> = {
+    title: `${title} · FileSpark`,
+    description,
+    card: "summary",
+  };
+
+  if (assetUrl) {
+    if (lower.startsWith("image/")) {
+      og.images = [{ url: assetUrl, alt: title }];
+      twitter.card = "summary_large_image";
+      twitter.images = [assetUrl];
+    } else if (lower.startsWith("video/")) {
+      og.videos = [{
+        url: assetUrl,
+        secureUrl: assetUrl,
+        type: meta.mime || "video/mp4",
+      }];
+      og.images = [{ url: assetUrl, alt: title }];
+      twitter.card = "player";
+      twitter.images = [assetUrl];
+    } else if (lower.startsWith("audio/")) {
+      og.audio = [{ url: assetUrl, type: meta.mime || "audio/mpeg" }];
+    }
+  }
+
+  return {
+    metadataBase: new URL(origin),
+    title: `${title} · FileSpark`,
+    description,
+    openGraph: og,
+    twitter: twitter as Metadata["twitter"],
+  };
+
 }
 
 export default async function FileViewerPage({

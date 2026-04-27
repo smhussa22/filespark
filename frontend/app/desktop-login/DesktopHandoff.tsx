@@ -24,7 +24,7 @@ export default function DesktopHandoff({ port }: { port: string }) {
         }
         const payload = await handoffRes.json();
 
-        const localRes = await fetch(`http://localhost:${port}/callback`, {
+        const localRes = await fetch(`http://127.0.0.1:${port}/callback`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

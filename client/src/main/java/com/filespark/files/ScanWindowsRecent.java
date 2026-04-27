@@ -11,20 +11,15 @@ import com.filespark.os.windows.DereferenceWindowsShortcut;
 
 public class ScanWindowsRecent {
 
-    private ScanWindowsRecent(){}; 
-    
+    private ScanWindowsRecent(){};
+
     public static List<File> getRecentFiles(int numberOfFilesToFetch){
 
         String recentFilesPath = System.getenv("APPDATA") + "\\Microsoft\\Windows\\Recent";
         File recentFilesDirectory = new File(recentFilesPath);
         List<File> results = new ArrayList<>();
 
-        if (!recentFilesDirectory.exists() || !recentFilesDirectory.isDirectory()){
-
-            System.err.println("Folder DNE or not directory: " + recentFilesPath);
-            return results;
-            
-        }
+        if (!recentFilesDirectory.exists() || !recentFilesDirectory.isDirectory()) return results;
 
         File[] files = recentFilesDirectory.listFiles(File::isFile);
         if (files == null) return results;
@@ -36,7 +31,6 @@ public class ScanWindowsRecent {
 
             if (!shortcut.getName().toLowerCase().endsWith(".lnk")) continue;
 
-            System.out.println("Resolving: " + shortcut.getName());
             String resolvedPath;
 
             try {
@@ -44,52 +38,29 @@ public class ScanWindowsRecent {
                 resolvedPath = DereferenceWindowsShortcut.dereferenceByLiteralPath(shortcut.getAbsolutePath());
 
             }
-            catch (Exception e) { // @todo: specify exception
+            catch (Exception ignored) {
 
-                System.err.println("Error resolving: " + shortcut.getAbsolutePath());
-                e.getMessage();
                 continue;
 
             }
 
-            if (resolvedPath == null || resolvedPath.isBlank()) {
-
-                System.err.println("Could not resolve: " + shortcut.getName());
-                continue;
-
-            }
+            if (resolvedPath == null || resolvedPath.isBlank()) continue;
 
             File target = new File(resolvedPath);
 
-            if (!target.isFile()) {
-
-                System.err.println("Invalid target: " + resolvedPath);
-                continue;
-
-            }
+            if (!target.isFile()) continue;
 
             String name = target.getName().toLowerCase();
             boolean allowed = Config.allowedExtensions.stream().anyMatch(name::endsWith);
 
-            if (!allowed) {
-
-                System.err.println("Rejected by extension: " + name);
-                continue;
-
-            }
+            if (!allowed) continue;
 
             results.add(target);
-            System.out.println("Added: " + target.getName());
 
-            if (results.size() >= numberOfFilesToFetch) {
-
-                break;
-
-            }
+            if (results.size() >= numberOfFilesToFetch) break;
 
         }
 
-        System.out.println("Returning " + results.size() + " real files");
         return results;
 
     }

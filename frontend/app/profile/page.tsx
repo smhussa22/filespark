@@ -25,6 +25,10 @@ type UploadedFile = {
   viewUrl: string;
 };
 
+function viewPath(file: UploadedFile, ownerId: string): string {
+  return `/f/${encodeURIComponent(ownerId)}/${encodeURIComponent(file.id)}`;
+}
+
 type BackendUser = {
   id?: string;
   name?: string;
@@ -119,8 +123,8 @@ function IconForMime({ mime, name }: { mime: string; name: string }) {
   );
 }
 
-function Preview({ file }: { file: UploadedFile }) {
-  const raw = `${file.viewUrl}/raw`;
+function Preview({ file, ownerId }: { file: UploadedFile; ownerId: string }) {
+  const raw = `${viewPath(file, ownerId)}/raw`;
   const mime = file.mime?.toLowerCase() ?? "";
 
   if (mime.startsWith("image/")) {
@@ -155,11 +159,12 @@ export default async function ProfilePage() {
   if (!token) redirect("/api/auth/google");
 
   const backendUser = await getBackendUser(token);
-  if (!backendUser) redirect("/api/auth/google");
+  if (!backendUser || !backendUser.id) redirect("/api/auth/google");
 
   const name = backendUser.name && backendUser.name.length > 0 ? backendUser.name : "FileSpark User";
   const email = backendUser.email ?? "";
   const picture = backendUser.picture ?? null;
+  const ownerId = backendUser.id;
 
   const { files: uploads, error: uploadsError } = await getUploads(token);
   const usage = await getStorageUsage(token);
@@ -248,14 +253,14 @@ export default async function ProfilePage() {
               {uploads.map((file) => (
                 <li key={file.id} className="relative">
                   <a
-                    href={file.viewUrl}
+                    href={viewPath(file, ownerId)}
                     target="_blank"
                     rel="noreferrer"
                     title={file.name}
                     className="block rounded-lg border border-maingrey bg-mainblack/60 overflow-hidden hover:border-mainorange transition"
                   >
                     <div className="aspect-square w-full overflow-hidden bg-mainblack">
-                      <Preview file={file} />
+                      <Preview file={file} ownerId={ownerId} />
                     </div>
                     <div className="p-2">
                       <div className="text-mainwhite text-sm truncate">{file.name}</div>
@@ -263,7 +268,7 @@ export default async function ProfilePage() {
                     </div>
                   </a>
                   <a
-                    href={`${file.viewUrl}/download`}
+                    href={`${viewPath(file, ownerId)}/download`}
                     title="Download"
                     aria-label="Download"
                     className="absolute top-1 right-9 rounded-md p-1.5 bg-mainblack/70 border border-maingrey text-mainwhite hover:text-mainorange hover:border-mainorange transition"

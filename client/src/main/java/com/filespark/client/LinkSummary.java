@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class LinkSummary {
 
     public String id;
+    public String ownerId;
     public String name;
     public String mime;
     public long sizeBytes;

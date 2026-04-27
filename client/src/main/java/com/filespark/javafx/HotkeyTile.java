@@ -7,52 +7,80 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 
 import com.filespark.Config;
+
 public class HotkeyTile extends HBox {
 
     private Hotkey hotkey;
-    private final Label hotkeyLabel;
     private final Label hotkeyString;
+
+    private static final String STYLE_TILE_BASE =
+        "-fx-background-color: " + Config.bgSurface + ";" +
+        "-fx-background-radius: 10;" +
+        "-fx-border-color: " + Config.borderSubtle + ";" +
+        "-fx-border-width: 1;" +
+        "-fx-border-radius: 10;";
+    private static final String STYLE_TILE_HOVER =
+        "-fx-background-color: " + Config.bgElevated + ";" +
+        "-fx-background-radius: 10;" +
+        "-fx-border-color: " + Config.borderStrong + ";" +
+        "-fx-border-width: 1;" +
+        "-fx-border-radius: 10;";
+
+    private static final String STYLE_KBD_BASE =
+        "-fx-background-color: " + Config.bgElevated + ";" +
+        "-fx-background-radius: 6;" +
+        "-fx-border-color: " + Config.borderSubtle + ";" +
+        "-fx-border-width: 1;" +
+        "-fx-border-radius: 6;" +
+        "-fx-text-fill: " + Config.textPrimary + ";" +
+        "-fx-font-size: 12px;" +
+        "-fx-font-weight: 600;" +
+        "-fx-padding: 6 10;";
+    private static final String STYLE_KBD_HOVER =
+        "-fx-background-color: " + Config.bgHover + ";" +
+        "-fx-background-radius: 6;" +
+        "-fx-border-color: " + Config.accent + ";" +
+        "-fx-border-width: 1;" +
+        "-fx-border-radius: 6;" +
+        "-fx-text-fill: " + Config.textPrimary + ";" +
+        "-fx-font-size: 12px;" +
+        "-fx-font-weight: 600;" +
+        "-fx-padding: 6 10;";
 
     public HotkeyTile(String actionText, Hotkey initialHotkey, Consumer<Hotkey> onHotkeyChanged) {
 
         this.hotkey = initialHotkey;
 
-        hotkeyLabel = new Label(actionText);
-        hotkeyLabel.setStyle("-fx-font-size: 18px;" + "-fx-text-fill: " + Config.mainOrange + ";" + "-fx-padding: 10 16;" + "-fx-background-color: " + Config.mainBlack + ";" +
-            "-fx-background-radius: 10;" + "-fx-border-radius: 10;" + "-fx-border-color: " + Config.mainOrange + ";" + "-fx-border-width: 1.5;"
-        );
+        Label actionLabel = new Label(actionText);
+        actionLabel.setTextFill(Color.web(Config.textPrimary));
+        actionLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 500;");
 
         hotkeyString = new Label(formatHotkey(initialHotkey));
-        hotkeyString.setStyle("-fx-font-size: 18px;" + "-fx-text-fill: " + Config.mainOrange + ";" + "-fx-padding: 10 16;" + "-fx-background-color: " + Config.mainBlack + ";"
-            + "-fx-background-radius: 10;" + "-fx-border-radius: 10;" + "-fx-border-color: " + Config.mainOrange + ";" + "-fx-border-width: 1.5;"
-        );
-
+        hotkeyString.setStyle(STYLE_KBD_BASE);
         hotkeyString.setCursor(javafx.scene.Cursor.HAND);
+        hotkeyString.setOnMouseEntered(e -> hotkeyString.setStyle(STYLE_KBD_HOVER));
+        hotkeyString.setOnMouseExited(e -> hotkeyString.setStyle(STYLE_KBD_BASE));
 
-        hotkeyString.setOnMouseEntered(e ->
-
-            hotkeyString.setStyle(hotkeyString.getStyle() + "-fx-background-color: " + Config.mainGrey + ";")
-
-        );
-
-        hotkeyString.setOnMouseExited(e ->
-
-            hotkeyString.setStyle(hotkeyString.getStyle().replace("-fx-background-color: " + Config.mainGrey + ";" , "-fx-background-color: " + Config.mainBlack + ";"))
-
-        );
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
         setAlignment(Pos.CENTER_LEFT);
-        setSpacing(12);
+        setSpacing(Config.space3);
+        setPadding(new Insets(Config.space3, Config.space4, Config.space3, Config.space4));
+        setStyle(STYLE_TILE_BASE);
+        setOnMouseEntered(e -> setStyle(STYLE_TILE_HOVER));
+        setOnMouseExited(e -> setStyle(STYLE_TILE_BASE));
 
-        HBox.setHgrow(hotkeyLabel, Priority.ALWAYS);
-
-        getChildren().addAll(hotkeyLabel, hotkeyString);
+        getChildren().addAll(actionLabel, spacer, hotkeyString);
 
         hotkeyString.setOnMouseClicked(e -> beginRecording(onHotkeyChanged));
 
@@ -63,13 +91,13 @@ public class HotkeyTile extends HBox {
         hotkeyString.setText("Press keys…");
 
         NativeKeyListener recorder = new NativeKeyListener() {
-            
+
             @Override
             public void nativeKeyPressed(NativeKeyEvent e) {
 
                 int keyCode = e.getKeyCode();
 
-                if (isModifierKey(keyCode)) return; 
+                if (isModifierKey(keyCode)) return;
 
                 int cleanMask = e.getModifiers() & 0x0F;
                 Hotkey newHotkey = new Hotkey(cleanMask, keyCode);
@@ -94,12 +122,12 @@ public class HotkeyTile extends HBox {
 
     private static boolean isModifierKey(int keyCode) {
 
-        return keyCode == NativeKeyEvent.VC_SHIFT 
-        || keyCode == NativeKeyEvent.VC_CONTROL 
-        || keyCode == NativeKeyEvent.VC_ALT 
+        return keyCode == NativeKeyEvent.VC_SHIFT
+        || keyCode == NativeKeyEvent.VC_CONTROL
+        || keyCode == NativeKeyEvent.VC_ALT
         || keyCode == NativeKeyEvent.VC_META
         || keyCode == NativeKeyEvent.VC_TAB;
-        
+
     }
 
     private static String formatHotkey(Hotkey hotkey) {

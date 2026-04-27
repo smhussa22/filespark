@@ -24,16 +24,7 @@ public class RawFile {
 
     }
 
-    public void printDebugInfo(){
-
-        System.out.println("File Name: " + name);
-        System.out.println("Full Path: " + path.toAbsolutePath());
-        System.out.println("File Size: " + String.format("%.2f MB", sizeMB));
-        System.out.println("MIME Type: " + (mimeType != null ? mimeType : "Unknown"));
-
-    }
-
-    public File getFile() { 
+    public File getFile() {
         
         return this.file;
     

@@ -14,22 +14,43 @@ export async function GET(req: NextRequest) {
     return r;
   }
 
-  const res = await fetch(
-    `${process.env.BACKEND_URL}/auth/google/web/callback`,
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ code }),
-    }
-  );
-
-  if (!res.ok) {
-    const r = NextResponse.redirect(home);
+  const backendUrl = process.env.BACKEND_URL;
+  if (!backendUrl) {
+    console.error("[oauth-callback] BACKEND_URL env var is not set");
+    const r = NextResponse.redirect(new URL("/?auth_error=backend_unset", reqUrl));
     r.cookies.delete("oauth_next");
     return r;
   }
 
-  const { token } = await res.json();
+  let token: string | undefined;
+  try {
+    const res = await fetch(`${backendUrl}/auth/google/web/callback`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error("[oauth-callback] backend returned non-OK", res.status, text);
+      const r = NextResponse.redirect(new URL("/?auth_error=backend_error", reqUrl));
+      r.cookies.delete("oauth_next");
+      return r;
+    }
+
+    ({ token } = await res.json());
+  } catch (err) {
+    console.error("[oauth-callback] backend fetch threw", err);
+    const r = NextResponse.redirect(new URL("/?auth_error=backend_unreachable", reqUrl));
+    r.cookies.delete("oauth_next");
+    return r;
+  }
+
+  if (!token) {
+    const r = NextResponse.redirect(new URL("/?auth_error=missing_token", reqUrl));
+    r.cookies.delete("oauth_next");
+    return r;
+  }
 
   const response = NextResponse.redirect(destination);
   response.cookies.set("ga_session", token, {

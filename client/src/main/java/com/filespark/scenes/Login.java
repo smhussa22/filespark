@@ -14,28 +14,43 @@ public class Login extends VBox {
     public Login() {
 
         setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
-        setStyle("-fx-background-color: " + Config.mainBlack + ";");
+        setStyle("-fx-background-color: " + Config.bgBase + ";");
 
         TopBar topBar = new TopBar();
 
-        Label title = new Label("Welcome Back!");
-        title.setStyle("-fx-text-fill: white;" + "-fx-font-size: 24px;" + "-fx-font-weight: bold;");
+        Label title = new Label("Welcome back");
+        title.setStyle(
+            "-fx-text-fill: " + Config.textPrimary + ";" +
+            "-fx-font-size: 22px;" +
+            "-fx-font-weight: 600;"
+        );
 
         Label subtitle = new Label("Sign in to access your files and manage your uploads.");
-        subtitle.setStyle("-fx-text-fill: #9ca3af;" + "-fx-font-size: 13px;");
+        subtitle.setStyle(
+            "-fx-text-fill: " + Config.textSecondary + ";" +
+            "-fx-font-size: 13px;"
+        );
 
         GoogleLoginButton googleLoginButton = new GoogleLoginButton();
 
         Label footer = new Label("FileSpark currently only supports Google accounts");
-        footer.setStyle("-fx-text-fill: #6b7280;" + "-fx-font-size: 11px;");
+        footer.setStyle(
+            "-fx-text-fill: " + Config.textMuted + ";" +
+            "-fx-font-size: 11px;"
+        );
 
-        VBox card = new VBox(14, title, subtitle, googleLoginButton, footer); 
+        VBox card = new VBox(Config.space4, title, subtitle, googleLoginButton, footer);
         card.setAlignment(Pos.CENTER);
-        card.setPadding(new Insets(32));
-        card.setStyle("-fx-background-color: " + Config.mainGrey + ";" + "-fx-background-radius: 10;");
+        card.setPadding(new Insets(Config.space6 + Config.space2));
+        card.setStyle(
+            "-fx-background-color: " + Config.bgSurface + ";" +
+            "-fx-background-radius: 12;" +
+            "-fx-border-color: " + Config.borderSubtle + ";" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 12;"
+        );
 
         card.setPrefWidth(380);
-        card.setPrefHeight(260);
         card.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
         StackPane centerWrapper = new StackPane(card);

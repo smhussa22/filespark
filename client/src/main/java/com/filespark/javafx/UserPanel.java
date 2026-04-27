@@ -19,7 +19,17 @@ public class UserPanel extends HBox {
 
     private static final String defaultName = "FileSpark User";
     private static final String defaultEmail = "filesparkuser@filespark.github.io";
-    private boolean isSelected = false;
+
+    private static final String STYLE_BASE =
+        "-fx-background-color: transparent;" +
+        "-fx-background-radius: 8;" +
+        "-fx-border-color: " + Config.borderSubtle + " transparent transparent transparent;" +
+        "-fx-border-width: 1 0 0 0;";
+    private static final String STYLE_HOVER =
+        "-fx-background-color: " + Config.bgHover + ";" +
+        "-fx-background-radius: 8;" +
+        "-fx-border-color: " + Config.borderSubtle + " transparent transparent transparent;" +
+        "-fx-border-width: 1 0 0 0;";
 
     public UserPanel(User user) {
 
@@ -29,15 +39,14 @@ public class UserPanel extends HBox {
         logOut.getStyleClass().add("menu-item");
 
         logOut.setOnAction(e -> {
-
             AppSession.logout();
             AppStateManager.set(AppState.LOGGED_OUT);
-
         });
 
-        setSpacing(10);
+        setSpacing(Config.space3);
         setAlignment(Pos.CENTER_LEFT);
-        setPadding(new Insets(10, 10, 0, 0));
+        setPadding(new Insets(Config.space3, Config.space3, Config.space3, Config.space3));
+        setStyle(STYLE_BASE);
 
         String name  = user != null && user.getName()  != null ? user.getName()  : defaultName;
         String email = user != null && user.getEmail() != null ? user.getEmail() : defaultEmail;
@@ -45,13 +54,14 @@ public class UserPanel extends HBox {
         ProfilePicture pic = new ProfilePicture(user != null ? user.getPicture() : null);
 
         Label nameLabel = new Label(name);
-        nameLabel.setTextFill(Color.WHITE);
+        nameLabel.setTextFill(Color.web(Config.textPrimary));
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600;");
 
         Label emailLabel = new Label(email);
-        emailLabel.setTextFill(Color.GRAY);
-        emailLabel.setStyle("-fx-font-size: 12px;");
+        emailLabel.setTextFill(Color.web(Config.textMuted));
+        emailLabel.setStyle("-fx-font-size: 11px;");
 
-        VBox textBox = new VBox(nameLabel, emailLabel);
+        VBox textBox = new VBox(1, nameLabel, emailLabel);
         textBox.setAlignment(Pos.CENTER_LEFT);
 
         getChildren().addAll(pic, textBox);
@@ -64,36 +74,14 @@ public class UserPanel extends HBox {
 
         });
 
-        setOnMouseEntered(e -> setCursor(javafx.scene.Cursor.HAND));
-        setOnMouseExited(e -> setCursor(javafx.scene.Cursor.DEFAULT));
-
-        addHoverEffect();
-
-    }
-
-    private void addHoverEffect(){
-
         setOnMouseEntered(e -> {
-
-            setStyle("-fx-background-color: " + Config.mainGrey + ";");
-
+            setCursor(javafx.scene.Cursor.HAND);
+            setStyle(STYLE_HOVER);
         });
-
         setOnMouseExited(e -> {
-
-            setStyle("-fx-background-color: transparent;");
-
+            setCursor(javafx.scene.Cursor.DEFAULT);
+            setStyle(STYLE_BASE);
         });
-
-    }
-
-    // @todo: stay grey when in settings menu
-    public void setSelected(boolean value) {
-
-        this.isSelected = value;
-
-        if (this.isSelected) setStyle("-fx-background-color: #3a3737;");
-        else setStyle("-fx-background-color: transparent;");
 
     }
 

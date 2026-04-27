@@ -33,6 +33,13 @@
       <version>21</version>
     </dependency>
 
+    <!-- javafx-media for video previews -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>21</version>
+    </dependency>
+
     <!-- junit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -88,6 +95,10 @@
         <version>0.0.8</version>
         <configuration>
           <mainClass>com.filespark.App</mainClass>
+          <options>
+            <option>--add-modules</option>
+            <option>javafx.controls,javafx.graphics,javafx.swing,javafx.media</option>
+          </options>
         </configuration>
       </plugin>
 
@@ -136,6 +147,49 @@
                   </excludes>
                 </filter>
               </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- jpackage: bundle a custom JRE + the fat JAR into a Windows installer (target/dist/FileSpark-1.0.0.exe) -->
+      <plugin>
+        <groupId>org.panteleyev</groupId>
+        <artifactId>jpackage-maven-plugin</artifactId>
+        <version>1.6.5</version>
+        <executions>
+          <execution>
+            <id>installer</id>
+            <phase>verify</phase>
+            <goals><goal>jpackage</goal></goals>
+            <configuration>
+              <name>FileSpark</name>
+              <appVersion>1.0.0</appVersion>
+              <vendor>FileSpark</vendor>
+              <input>${project.build.directory}</input>
+              <mainJar>filespark.jar</mainJar>
+              <mainClass>com.filespark.Launcher</mainClass>
+              <destination>${project.build.directory}/dist</destination>
+              <icon>${project.basedir}/src/main/resources/icons/icon.ico</icon>
+              <type>EXE</type>
+              <winMenu>true</winMenu>
+              <winShortcut>true</winShortcut>
+              <winDirChooser>true</winDirChooser>
+              <winPerUserInstall>true</winPerUserInstall>
+              <addModules>
+                <module>java.base</module>
+                <module>java.desktop</module>
+                <module>java.logging</module>
+                <module>java.management</module>
+                <module>java.naming</module>
+                <module>java.net.http</module>
+                <module>java.scripting</module>
+                <module>java.sql</module>
+                <module>java.xml</module>
+                <module>jdk.crypto.ec</module>
+                <module>jdk.unsupported</module>
+                <module>javafx.media</module>
+              </addModules>
             </configuration>
           </execution>
         </executions>

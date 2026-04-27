@@ -1,8 +1,6 @@
 package com.filespark.server.routes.files;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,15 +94,7 @@ public class PublicFileController {
             String requesterId = currentRequesterId();
             FileView view = fileService.getFileDownload(requesterId, userId, fileId);
 
-            String filename = view.file().getOriginalName() != null ? view.file().getOriginalName() : "download";
-            String encoded = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
-
-            String signedUrl = view.signedUrl();
-            String separator = signedUrl.contains("?") ? "&" : "?";
-            String disposition = "attachment; filename*=UTF-8''" + encoded;
-            String urlWithDisposition = signedUrl + separator + "response-content-disposition=" + URLEncoder.encode(disposition, StandardCharsets.UTF_8);
-
-            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(urlWithDisposition)).build();
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(view.signedUrl())).build();
 
         }
         catch (ForbiddenException exception) {

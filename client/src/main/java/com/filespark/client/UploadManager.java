@@ -102,8 +102,9 @@ public class UploadManager {
 
             uploadTask.setOnSucceeded(e -> {
 
-                ClipboardUtil.copyToClipboard(presignResponse.viewUrl);
-                NotificationService.show(new BaseNotification("Upload complete: " + file.getName() + "\nLink copied to clipboard: " + presignResponse.viewUrl, "success.png"));
+                String link = buildShareLink(presignResponse.fileId);
+                ClipboardUtil.copyToClipboard(link);
+                NotificationService.show(new BaseNotification("Upload complete: " + file.getName() + "\nLink copied to clipboard", "success.png"));
 
             });
 
@@ -125,10 +126,17 @@ public class UploadManager {
         }
         catch (Exception exception) {
 
-            System.err.println(exception.getMessage());
             NotificationService.show(new BaseNotification(file.getName() + " Upload error: " + exception.getMessage(), "error.png"));
 
         }
+
+    }
+
+    private static String buildShareLink(String fileId) {
+
+        String userId = AppSession.getUser().map(User::getId).orElse(null);
+        if (userId == null || fileId == null) return Config.frontendDomain;
+        return Config.frontendDomain + "/f/" + userId + "/" + fileId;
 
     }
 

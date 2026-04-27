@@ -18,17 +18,11 @@ public class ScanWindowsDownloads {
         File downloadsFolderDirectory = new File(downloadsFilesPath);
         List<File> downloadsFiles = new ArrayList<>();
 
-        if (!downloadsFolderDirectory.exists() || !downloadsFolderDirectory.isDirectory()) {
-            System.err.println("[ScanWindowsDownloads]: DNE/!directory " + downloadsFilesPath);
-            return downloadsFiles;
-        }
+        if (!downloadsFolderDirectory.exists() || !downloadsFolderDirectory.isDirectory()) return downloadsFiles;
 
         File[] files = downloadsFolderDirectory.listFiles(File::isFile);
 
-        if (files == null) {
-            System.err.println("[ScanWindowsDownloads]: Files NULL");
-            return downloadsFiles;
-        }
+        if (files == null) return downloadsFiles;
 
         // newest → oldest
         Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
@@ -45,21 +39,10 @@ public class ScanWindowsDownloads {
                     .stream()
                     .anyMatch(targetFileName::endsWith);
 
-            if (isAllowed) {
-
-                downloadsFiles.add(downloadFile);
-
-            }
-            else {
-
-                // @debug remove in production
-                System.out.println("Skipping: " + downloadFile.getName());
-
-            }
+            if (isAllowed) downloadsFiles.add(downloadFile);
 
         }
 
-        System.out.println("[ScanWindowsDownloads]: Returning " + downloadsFiles.size() + " real files");
         return downloadsFiles;
     }
 }

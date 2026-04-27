@@ -25,12 +25,24 @@ public class UserSettings extends VBox {
 
     public UserSettings(User user) {
 
-        setSpacing(16);
-        setPadding(new Insets(20));
-        setStyle("-fx-background-color: " + Config.mainBlack + ";");
+        setSpacing(Config.space4);
+        setPadding(new Insets(Config.space5));
+        setStyle("-fx-background-color: " + Config.bgBase + ";");
 
         Label heading = new Label("User Settings");
-        heading.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " + Config.mainOrange + ";");
+        heading.setStyle(
+            "-fx-font-size: 18px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-text-fill: " + Config.textPrimary + ";"
+        );
+
+        Label subtitle = new Label("Manage your account.");
+        subtitle.setStyle(
+            "-fx-font-size: 12px;" +
+            "-fx-text-fill: " + Config.textMuted + ";"
+        );
+
+        VBox header = new VBox(2, heading, subtitle);
 
         ProfilePicture pic = new ProfilePicture(user != null ? user.getPicture() : null);
 
@@ -38,61 +50,100 @@ public class UserSettings extends VBox {
         String email = user != null && user.getEmail() != null ? user.getEmail() : "";
 
         Label nameLabel = new Label(name);
-        nameLabel.setTextFill(Color.WHITE);
-        nameLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        nameLabel.setTextFill(Color.web(Config.textPrimary));
+        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600;");
 
         Label emailLabel = new Label(email);
-        emailLabel.setTextFill(Color.GRAY);
-        emailLabel.setStyle("-fx-font-size: 13px;");
+        emailLabel.setTextFill(Color.web(Config.textMuted));
+        emailLabel.setStyle("-fx-font-size: 12px;");
 
         VBox textBox = new VBox(2, nameLabel, emailLabel);
         textBox.setAlignment(Pos.CENTER_LEFT);
 
-        HBox profileRow = new HBox(16, pic, textBox);
+        HBox profileRow = new HBox(Config.space3, pic, textBox);
         profileRow.setAlignment(Pos.CENTER_LEFT);
-        profileRow.setPadding(new Insets(14, 16, 14, 16));
+        profileRow.setPadding(new Insets(Config.space3, Config.space4, Config.space3, Config.space4));
         profileRow.setStyle(
-            "-fx-background-color: " + Config.mainBlack + ";" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-radius: 12;" +
-            "-fx-border-color: " + Config.mainOrange + ";" +
-            "-fx-border-width: 1.5;"
+            "-fx-background-color: " + Config.bgSurface + ";" +
+            "-fx-background-radius: 10;" +
+            "-fx-border-radius: 10;" +
+            "-fx-border-color: " + Config.borderSubtle + ";" +
+            "-fx-border-width: 1;"
         );
 
-        Button logOutButton = new Button("Log Out");
-        logOutButton.setStyle(
-            "-fx-background-color: transparent;" +
-            "-fx-border-color: " + Config.mainGrey + ";" +
-            "-fx-border-radius: 6;" +
-            "-fx-background-radius: 6;" +
-            "-fx-text-fill: white;" +
-            "-fx-padding: 8 18;" +
-            "-fx-cursor: hand;"
-        );
+        Button logOutButton = secondaryButton("Log Out");
         logOutButton.setOnAction(e -> {
-
             AppSession.logout();
             AppStateManager.set(AppState.LOGGED_OUT);
-
         });
 
-        Button deleteAccountButton = new Button("Delete Account");
-        deleteAccountButton.setStyle(
-            "-fx-background-color: rgba(239, 68, 68, 0.15);" +
-            "-fx-border-color: #ef4444;" +
-            "-fx-border-radius: 6;" +
-            "-fx-background-radius: 6;" +
-            "-fx-text-fill: #ef4444;" +
-            "-fx-padding: 8 18;" +
-            "-fx-cursor: hand;"
-        );
+        Button deleteAccountButton = dangerButton("Delete Account");
         deleteAccountButton.setOnAction(e -> handleDeleteAccount(deleteAccountButton));
 
-        HBox actionsRow = new HBox(10, logOutButton, deleteAccountButton);
+        HBox actionsRow = new HBox(Config.space2, logOutButton, deleteAccountButton);
         actionsRow.setAlignment(Pos.CENTER_LEFT);
-        actionsRow.setPadding(new Insets(4, 0, 0, 0));
 
-        getChildren().addAll(heading, profileRow, actionsRow);
+        getChildren().addAll(header, profileRow, actionsRow);
+
+    }
+
+    private static Button secondaryButton(String text) {
+
+        Button b = new Button(text);
+        String base =
+            "-fx-background-color: " + Config.bgSurface + ";" +
+            "-fx-text-fill: " + Config.textPrimary + ";" +
+            "-fx-border-color: " + Config.borderSubtle + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-background-radius: 6;" +
+            "-fx-padding: 6 14;" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-cursor: hand;";
+        String hover =
+            "-fx-background-color: " + Config.bgElevated + ";" +
+            "-fx-text-fill: " + Config.textPrimary + ";" +
+            "-fx-border-color: " + Config.borderStrong + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-background-radius: 6;" +
+            "-fx-padding: 6 14;" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-cursor: hand;";
+        b.setStyle(base);
+        b.setOnMouseEntered(e -> b.setStyle(hover));
+        b.setOnMouseExited(e -> b.setStyle(base));
+        return b;
+
+    }
+
+    private static Button dangerButton(String text) {
+
+        Button b = new Button(text);
+        String base =
+            "-fx-background-color: transparent;" +
+            "-fx-text-fill: " + Config.danger + ";" +
+            "-fx-border-color: rgba(239,68,68,0.4);" +
+            "-fx-border-radius: 6;" +
+            "-fx-background-radius: 6;" +
+            "-fx-padding: 6 14;" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-cursor: hand;";
+        String hover =
+            "-fx-background-color: rgba(239,68,68,0.14);" +
+            "-fx-text-fill: " + Config.danger + ";" +
+            "-fx-border-color: " + Config.danger + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-background-radius: 6;" +
+            "-fx-padding: 6 14;" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-cursor: hand;";
+        b.setStyle(base);
+        b.setOnMouseEntered(e -> b.setStyle(hover));
+        b.setOnMouseExited(e -> b.setStyle(base));
+        return b;
 
     }
 

@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class StorageBar extends VBox {
 
@@ -18,32 +19,35 @@ public class StorageBar extends VBox {
 
     public StorageBar() {
 
-        setSpacing(8);
-        setPadding(new Insets(14, 16, 14, 16));
+        setSpacing(Config.space2);
+        setPadding(new Insets(Config.space3, Config.space4, Config.space3, Config.space4));
         setStyle(
-            "-fx-background-color: " + Config.mainBlack + ";" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-radius: 12;" +
-            "-fx-border-color: " + Config.mainOrange + ";" +
-            "-fx-border-width: 1.5;"
+            "-fx-background-color: " + Config.bgSurface + ";" +
+            "-fx-background-radius: 10;" +
+            "-fx-border-radius: 10;" +
+            "-fx-border-color: " + Config.borderSubtle + ";" +
+            "-fx-border-width: 1;"
         );
 
         Label title = new Label("Storage");
-        title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + Config.mainOrange + ";");
+        title.setTextFill(Color.web(Config.textSecondary));
+        title.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
 
         usageLabel = new Label("...");
-        usageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: white;");
+        usageLabel.setTextFill(Color.web(Config.textPrimary));
+        usageLabel.setStyle("-fx-font-size: 12px;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox header = new HBox(8, title, spacer, usageLabel);
+        HBox header = new HBox(Config.space2, title, spacer, usageLabel);
         header.setAlignment(Pos.CENTER_LEFT);
 
         progressBar = new ProgressBar(0);
         progressBar.setMaxWidth(Double.MAX_VALUE);
-        progressBar.setPrefHeight(14);
-        progressBar.setStyle("-fx-accent: " + Config.mainOrange + ";");
+        progressBar.setPrefHeight(8);
+        progressBar.getStyleClass().add("fs-progress-bar");
+        progressBar.setStyle("-fx-accent: " + Config.accent + ";");
 
         getChildren().addAll(header, progressBar);
 
@@ -69,9 +73,9 @@ public class StorageBar extends VBox {
         progressBar.setProgress(ratio);
 
         String accent;
-        if (ratio >= 0.9) accent = "#ef4444";
-        else if (ratio >= 0.7) accent = "#eab308";
-        else accent = Config.mainOrange;
+        if (ratio >= 0.9) accent = Config.danger;
+        else if (ratio >= 0.7) accent = Config.warning;
+        else accent = Config.accent;
         progressBar.setStyle("-fx-accent: " + accent + ";");
 
         usageLabel.setText(formatBytes(usedBytes) + " / " + formatBytes(maxBytes) + "  ·  " + Math.round(ratio * 100) + "%");

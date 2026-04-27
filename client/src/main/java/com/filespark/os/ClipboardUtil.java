@@ -62,9 +62,8 @@ public final class ClipboardUtil {
                 return out;
 
             }
-            catch (Exception exception) {
+            catch (Exception ignored) {
 
-                System.err.println("Failed to write clipboard image: " + exception.getMessage());
                 return null;
 
             }

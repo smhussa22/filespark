@@ -27,8 +27,8 @@ public class LinkDashboard extends ScrollPane {
 
     public LinkDashboard() {
 
-        content = new VBox(10);
-        content.setPadding(new Insets(16));
+        content = new VBox(Config.space2);
+        content.setPadding(new Insets(Config.space5, Config.space5, Config.space5, Config.space5));
         content.setFillWidth(true);
 
         storageBar = new StorageBar();
@@ -39,7 +39,7 @@ public class LinkDashboard extends ScrollPane {
         setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
         setPannable(true);
 
-        setStyle("-fx-background: transparent; -fx-background-color: " + Config.mainBlack + ";");
+        setStyle("-fx-background: transparent; -fx-background-color: " + Config.bgBase + ";");
 
         refresh();
 
@@ -189,7 +189,11 @@ public class LinkDashboard extends ScrollPane {
     private Label statusLabel(String text) {
 
         Label label = new Label(text);
-        label.setStyle("-fx-text-fill: " + Config.altOrange + "; -fx-font-size: 14px;");
+        label.setStyle(
+            "-fx-text-fill: " + Config.textSecondary + ";" +
+            "-fx-font-size: 13px;" +
+            "-fx-padding: " + Config.space3 + " 0 0 " + Config.space2 + ";"
+        );
         label.setAlignment(Pos.CENTER);
         return label;
 

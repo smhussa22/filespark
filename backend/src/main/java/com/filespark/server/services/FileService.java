@@ -147,6 +147,7 @@ public class FileService {
                 .filter(f -> !f.isDeleted())
                 .map(f -> new FileSummaryResponse(
                         f.getId(),
+                        f.getOwnerId(),
                         f.getOriginalName(),
                         f.getMime(),
                         f.getSizeBytes(),
@@ -220,7 +221,11 @@ public class FileService {
         file.incrementDownloadCount();
         fileRepository.save(file);
 
-        String signedUrl = s3.generatePresignedGetUrl(file.getKey(), VIEW_URL_SECONDS);
+        String filename = file.getOriginalName() != null ? file.getOriginalName() : "download";
+        String encoded = java.net.URLEncoder.encode(filename, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+        String disposition = "attachment; filename*=UTF-8''" + encoded;
+
+        String signedUrl = s3.generatePresignedDownloadUrl(file.getKey(), VIEW_URL_SECONDS, disposition);
         return new FileView(file, signedUrl, isOwner);
 
     }

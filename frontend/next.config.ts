@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const backend = process.env.BACKEND_URL?.replace(/\/$/, "") ?? "http://localhost:8000";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -12,6 +14,13 @@ const nextConfig: NextConfig = {
         hostname: "profiles.google.com",
       },
     ],
+  },
+  async rewrites() {
+    return [
+      { source: "/f/:userid/:id/raw", destination: `${backend}/f/:userid/:id/raw` },
+      { source: "/f/:userid/:id/download", destination: `${backend}/f/:userid/:id/download` },
+      { source: "/f/:userid/:id/meta", destination: `${backend}/f/:userid/:id/meta` },
+    ];
   },
 };
 

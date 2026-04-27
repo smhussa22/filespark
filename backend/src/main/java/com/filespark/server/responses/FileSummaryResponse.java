@@ -5,6 +5,7 @@ import java.time.Instant;
 public class FileSummaryResponse {
 
     private final String id;
+    private final String ownerId;
     private final String name;
     private final String mime;
     private final long sizeBytes;
@@ -14,9 +15,10 @@ public class FileSummaryResponse {
     private final long viewCount;
     private final long downloadCount;
 
-    public FileSummaryResponse(String id, String name, String mime, long sizeBytes, Instant createdAt, String viewUrl, String visibility, long viewCount, long downloadCount) {
+    public FileSummaryResponse(String id, String ownerId, String name, String mime, long sizeBytes, Instant createdAt, String viewUrl, String visibility, long viewCount, long downloadCount) {
 
         this.id = id;
+        this.ownerId = ownerId;
         this.name = name;
         this.mime = mime;
         this.sizeBytes = sizeBytes;
@@ -29,6 +31,7 @@ public class FileSummaryResponse {
     }
 
     public String getId() { return id; }
+    public String getOwnerId() { return ownerId; }
     public String getName() { return name; }
     public String getMime() { return mime; }
     public long getSizeBytes() { return sizeBytes; }

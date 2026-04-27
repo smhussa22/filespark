@@ -38,6 +38,23 @@ public class S3 {
 
     }
 
+    public String generatePresignedDownloadUrl(String key, long expiresSeconds, String contentDisposition){
+
+        GetObjectRequest request = GetObjectRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .responseContentDisposition(contentDisposition)
+            .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+            .getObjectRequest(request)
+            .signatureDuration(Duration.ofSeconds(expiresSeconds))
+            .build();
+
+        return presigner.presignGetObject(presignRequest).url().toString();
+
+    }
+
     public String generatePresignedPutUrl(String key, String mime, long expiresSeconds){
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder().putObjectRequest(builder -> builder.bucket(bucket).key(key).contentType(mime)).signatureDuration(Duration.ofSeconds(expiresSeconds)).build();

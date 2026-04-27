@@ -45,14 +45,15 @@ public class Sidebar extends VBox {
         this.onShowDirectory = onShowDirectory;
         this.onForgetDirectory = onForgetDirectory;
 
-        setPrefWidth(250);
-        setPadding(new Insets(20));
-        setSpacing(12);
+        setPrefWidth(248);
+        setMinWidth(248);
+        setPadding(new Insets(Config.space3, Config.space2, Config.space3, Config.space2));
+        setSpacing(Config.space2);
 
         setStyle(
-            "-fx-background-color: " + Config.mainBlack + ";" +
-            "-fx-border-color: transparent " + Config.mainGrey + " transparent transparent;" +
-            "-fx-border-width: 0 1px 0 0;"
+            "-fx-background-color: " + Config.bgSurface + ";" +
+            "-fx-border-color: transparent " + Config.borderSubtle + " transparent transparent;" +
+            "-fx-border-width: 0 1 0 0;"
         );
 
         browseSection = new SidebarSection("Browse");
@@ -99,17 +100,28 @@ public class Sidebar extends VBox {
     private Button buildAddDirectoryButton() {
 
         Button add = new Button("+");
-        add.setStyle(
+        String base =
             "-fx-background-color: transparent;" +
-            "-fx-text-fill: " + Config.mainOrange + ";" +
-            "-fx-font-size: 22px;" +
+            "-fx-text-fill: " + Config.textSecondary + ";" +
+            "-fx-font-size: 14px;" +
             "-fx-font-weight: bold;" +
-            "-fx-padding: 0 10 0 10;" +
+            "-fx-padding: 0;" +
             "-fx-cursor: hand;" +
-            "-fx-border-color: " + Config.mainOrange + ";" +
-            "-fx-border-radius: 6;" +
-            "-fx-background-radius: 6;"
-        );
+            "-fx-background-radius: 4;";
+        String hover =
+            "-fx-background-color: " + Config.bgElevated + ";" +
+            "-fx-text-fill: " + Config.textPrimary + ";" +
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-padding: 0;" +
+            "-fx-cursor: hand;" +
+            "-fx-background-radius: 4;";
+        add.setMinSize(20, 20);
+        add.setPrefSize(20, 20);
+        add.setMaxSize(20, 20);
+        add.setStyle(base);
+        add.setOnMouseEntered(e -> add.setStyle(hover));
+        add.setOnMouseExited(e -> add.setStyle(base));
         add.setTooltip(new javafx.scene.control.Tooltip("Add a directory to browse"));
         add.setOnAction(e -> pickAndAddDirectory());
         return add;

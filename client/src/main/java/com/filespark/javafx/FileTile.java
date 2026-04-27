@@ -10,6 +10,7 @@ import com.filespark.Config;
 import com.filespark.client.UploadManager;
 
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -17,12 +18,19 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 
 public class FileTile extends StackPane {
+
+    private MediaPlayer mediaPlayer;
+    private MediaView mediaView;
+    private Node videoPoster;
 
     public FileTile(File file) {
 
@@ -45,53 +53,31 @@ public class FileTile extends StackPane {
         deleteItem.getStyleClass().add("menu-item");
 
         uploadItem.setOnAction(event -> { UploadManager.startUpload(file); });
-        showItem.setOnAction(event -> System.out.println("Show In Folder: " + fileName)); //@debug placeholder
+        showItem.setOnAction(event -> showInFolder(file));
         deleteItem.setOnAction(event -> handleDelete(file, onDeleted));
 
-        ImageView imageView = new ImageView();
-        Image preview = getPreview(file, imageView);
-        if (preview != null) {
-
-            imageView.setImage(preview);
-            imageView.setFitHeight(Config.fileTileHeight);
-            imageView.setFitWidth(Config.fileTileWidth);
-            imageView.setPreserveRatio(true);
-
-        }
-        else {
-
-            imageView.setImage(getDefaultIcon(file));
-            imageView.setFitWidth(64);
-            imageView.setFitHeight(64);
-            imageView.setOpacity(0.85);
-
-        } 
-        
-        imageView.setSmooth(true);
-
         Rectangle clip = new Rectangle(Config.fileTileWidth, Config.fileTileHeight);
-
-        clip.setArcWidth(12);
-        clip.setArcHeight(12);
-
-        if (preview != null) imageView.setClip(clip);
+        clip.setArcWidth(10);
+        clip.setArcHeight(10);
 
         Rectangle border = new Rectangle(Config.fileTileWidth, Config.fileTileHeight);
-
-        border.setFill(Color.web(Config.mainBlack));    
-        border.setStroke(Color.web(Config.mainGrey)); 
+        border.setFill(Color.web(Config.bgSurface));
+        border.setStroke(Color.web(Config.borderSubtle));
         border.setStrokeWidth(1);
-        border.setArcWidth(8);
-        border.setArcHeight(8);
+        border.setArcWidth(10);
+        border.setArcHeight(10);
 
-        StackPane imageHolder = new StackPane(border, imageView);
+        String mimeType = probeMime(file);
+        Node previewNode = buildPreview(file, mimeType, clip);
+
+        StackPane imageHolder = new StackPane(border, previewNode);
         Label label = new Label(shortenFileName(fileName));
 
-        label.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-        label.setTextFill(Color.WHITE);
+        label.setStyle("-fx-font-size: 12px; -fx-font-weight: 500;");
+        label.setTextFill(Color.web(Config.textPrimary));
 
-        VBox layout = new VBox(6, imageHolder, label);
-        
+        VBox layout = new VBox(Config.space2, imageHolder, label);
+
         layout.setAlignment(Pos.CENTER);
         getChildren().add(layout);
 
@@ -113,14 +99,163 @@ public class FileTile extends StackPane {
         layout.setOnMouseEntered(event -> {
 
             layout.setCursor(javafx.scene.Cursor.HAND);
+            border.setStroke(Color.web(Config.borderStrong));
+            startVideo();
 
         });
 
         layout.setOnMouseExited(event -> {
 
             layout.setCursor(javafx.scene.Cursor.DEFAULT);
+            border.setStroke(Color.web(Config.borderSubtle));
+            stopVideo();
 
         });
+
+    }
+
+    private Node buildPreview(File file, String mimeType, Rectangle clip) {
+
+        if (mimeType != null && mimeType.startsWith("image/")) {
+
+            ImageView imageView = new ImageView();
+            Image preview = new Image(file.toURI().toString(), Config.fileTileWidth, Config.fileTileHeight, true, true, true);
+            preview.errorProperty().addListener((obs, old, error) -> {
+                if (error) imageView.setImage(getDefaultIcon(file));
+            });
+            imageView.setImage(preview);
+            imageView.setFitWidth(Config.fileTileWidth);
+            imageView.setFitHeight(Config.fileTileHeight);
+            imageView.setPreserveRatio(true);
+            imageView.setSmooth(true);
+            imageView.setClip(clip);
+            return imageView;
+
+        }
+
+        if (mimeType != null && mimeType.startsWith("video/")) {
+
+            try {
+
+                Media media = new Media(file.toURI().toString());
+                mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setMute(true);
+                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+                final boolean[] posterCaptured = { false };
+
+                // play briefly on READY so the first frame renders into MediaView, then pause.
+                // After that flag is set, subsequent play()/pause() calls behave normally for hover.
+                mediaPlayer.setOnReady(() -> mediaPlayer.play());
+                mediaPlayer.setOnPlaying(() -> {
+                    if (!posterCaptured[0]) {
+                        posterCaptured[0] = true;
+                        // small delay so a frame is actually rendered before pausing
+                        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(80));
+                        delay.setOnFinished(ev -> {
+                            mediaPlayer.pause();
+                            mediaPlayer.seek(javafx.util.Duration.ZERO);
+                        });
+                        delay.play();
+                    }
+                });
+
+                mediaPlayer.setOnError(() -> {
+                    if (mediaView != null) mediaView.setVisible(false);
+                    if (videoPoster != null) videoPoster.setVisible(true);
+                });
+
+                mediaView = new MediaView(mediaPlayer);
+                mediaView.setFitWidth(Config.fileTileWidth);
+                mediaView.setFitHeight(Config.fileTileHeight);
+                mediaView.setPreserveRatio(true);
+                mediaView.setSmooth(true);
+                mediaView.setClip(clip);
+                mediaView.setVisible(true);
+
+                // fallback shown only if MediaPlayer errors (codec unsupported)
+                videoPoster = iconNode(file);
+                videoPoster.setVisible(false);
+
+                StackPane wrap = new StackPane(mediaView, videoPoster);
+                wrap.setMinSize(Config.fileTileWidth, Config.fileTileHeight);
+                wrap.setPrefSize(Config.fileTileWidth, Config.fileTileHeight);
+                wrap.setMaxSize(Config.fileTileWidth, Config.fileTileHeight);
+                return wrap;
+
+            }
+            catch (Exception ignored) {
+
+                // fall through to icon
+
+            }
+
+        }
+
+        return iconNode(file);
+
+    }
+
+    private Node iconNode(File file) {
+
+        ImageView iv = new ImageView(getDefaultIcon(file));
+        iv.setFitWidth(64);
+        iv.setFitHeight(64);
+        iv.setPreserveRatio(true);
+        iv.setSmooth(true);
+        iv.setOpacity(0.85);
+        return iv;
+
+    }
+
+    private void startVideo() {
+
+        if (mediaPlayer == null) return;
+        try {
+            mediaPlayer.seek(javafx.util.Duration.ZERO);
+            mediaPlayer.play();
+        } catch (Exception ignored) {}
+
+    }
+
+    private void stopVideo() {
+
+        if (mediaPlayer == null) return;
+        try {
+            mediaPlayer.pause();
+            mediaPlayer.seek(javafx.util.Duration.ZERO);
+        } catch (Exception ignored) {}
+
+    }
+
+    public void disposePreview() {
+
+        if (mediaPlayer != null) {
+            try { mediaPlayer.stop(); } catch (Exception ignored) {}
+            try { mediaPlayer.dispose(); } catch (Exception ignored) {}
+            mediaPlayer = null;
+        }
+
+    }
+
+    private String probeMime(File file) {
+
+        try {
+            return Files.probeContentType(file.toPath());
+        } catch (IOException ignore) {
+            return null;
+        }
+
+    }
+
+    private void showInFolder(File file) {
+
+        try {
+
+            new ProcessBuilder("explorer.exe", "/select,", file.getAbsolutePath()).start();
+
+        }
+        catch (Exception ignored) {}
 
     }
 
@@ -137,6 +272,7 @@ public class FileTile extends StackPane {
         try {
 
             java.nio.file.Files.delete(file.toPath());
+            disposePreview();
             NotificationService.show(new BaseNotification("Deleted: " + file.getName(), "success.png"));
             if (onDeleted != null) onDeleted.run();
 
@@ -152,7 +288,7 @@ public class FileTile extends StackPane {
     private String shortenFileName(String fileName) {
 
         if (fileName.length() <= Config.fileTileNameLength) return fileName;
-        
+
         int dotExtension = fileName.lastIndexOf('.');
         if (dotExtension <= 0) return fileName.substring(0, Config.fileTileNameLength - 3) + "...";
 
@@ -170,54 +306,14 @@ public class FileTile extends StackPane {
 
     }
 
-    private Image getPreview(File file, ImageView imageView) {
-
-        String mimeType = null;
-
-        try {
-
-            mimeType = Files.probeContentType(file.toPath());
-
-        } 
-        catch (IOException ignore) {}
-
-        if (mimeType == null) return null;
-
-        if (mimeType.startsWith("image/")) {
-
-            Image preview = new Image(file.toURI().toString(), Config.fileTileWidth, Config.fileTileHeight, true, true, true);
-
-            preview.errorProperty().addListener((obs, old, error) -> {
-
-                if (error) {
-
-                    imageView.setImage(getDefaultIcon(file));
-
-                }
-
-            });
-
-            return preview;
-
-        }
-
-        //@todo these
-        if (mimeType.startsWith("video/")) return null;
-        if (mimeType.startsWith("audio/")) return null;
-        if (mimeType.startsWith("application/")) return null;
-
-        return null;
-
-    }
-
     private Image getDefaultIcon(File file) {
 
-        String path = getMimeType(file);
+        String path = getMimeIconPath(file);
         return new Image(getClass().getResourceAsStream(path));
 
     }
 
-    private String getMimeType(File file) {
+    private String getMimeIconPath(File file) {
 
         try {
 
@@ -229,12 +325,12 @@ public class FileTile extends StackPane {
             if (mimeType.startsWith("application/")) return "/icons/application.png";
             if (mimeType.startsWith("audio/")) return "/icons/audio.png";
 
-        } 
+        }
         catch (IOException ignore) {}
 
         return "/icons/default.png";
 
     }
 
-    
+
 }

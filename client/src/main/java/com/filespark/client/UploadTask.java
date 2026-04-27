@@ -38,10 +38,6 @@ public class UploadTask extends Task<Void>{
         // 200 : ok 204: success no content
         if(response.statusCode() != 200 && response.statusCode() != 204) {
 
-            System.err.println("S3 PUT failed HTTP " + response.statusCode());
-            System.err.println("Presigned URL: " + presignedUrl);
-            System.err.println("Content-Type sent: " + mime);
-            System.err.println("Response body: " + response.body());
             throw new IOException("upload task failed: HTTP " + response.statusCode() + " body=" + response.body());
 
         }

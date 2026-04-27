@@ -21,40 +21,68 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class LinkTile extends HBox {
 
+    private static final double BUTTON_HEIGHT = 28;
+    private static final double BUTTON_PAD_X = 12;
+
+    private static final String STYLE_BASE =
+        "-fx-background-color: " + Config.bgSurface + ";" +
+        "-fx-background-radius: 10;" +
+        "-fx-border-radius: 10;" +
+        "-fx-border-color: " + Config.borderSubtle + ";" +
+        "-fx-border-width: 1;";
+    private static final String STYLE_HOVER =
+        "-fx-background-color: " + Config.bgElevated + ";" +
+        "-fx-background-radius: 10;" +
+        "-fx-border-radius: 10;" +
+        "-fx-border-color: " + Config.borderStrong + ";" +
+        "-fx-border-width: 1;";
+
     public LinkTile(LinkSummary summary, Runnable onDelete, Consumer<String> onVisibilityChange) {
 
-        setSpacing(14);
-        setPadding(new Insets(10, 16, 10, 16));
+        setSpacing(Config.space3);
+        setPadding(new Insets(Config.space3, Config.space4, Config.space3, Config.space3));
         setAlignment(Pos.CENTER_LEFT);
-        setCursor(Cursor.HAND);
-        setStyle(
-            "-fx-background-color: " + Config.mainBlack + ";" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-radius: 12;" +
-            "-fx-border-color: " + Config.mainOrange + ";" +
-            "-fx-border-width: 1.5;"
-        );
+        setCursor(Cursor.DEFAULT);
+        setStyle(STYLE_BASE);
+
+        setOnMouseEntered(e -> setStyle(STYLE_HOVER));
+        setOnMouseExited(e -> setStyle(STYLE_BASE));
 
         ImageView iconView = new ImageView(new Image(getClass().getResourceAsStream("/icons/copylink.png")));
-        iconView.setFitWidth(56);
-        iconView.setFitHeight(44);
+        iconView.setFitWidth(20);
+        iconView.setFitHeight(20);
         iconView.setPreserveRatio(true);
+        iconView.setSmooth(true);
+
+        StackPane iconWrap = new StackPane(iconView);
+        iconWrap.setMinSize(40, 40);
+        iconWrap.setPrefSize(40, 40);
+        iconWrap.setMaxSize(40, 40);
+        iconWrap.setStyle(
+            "-fx-background-color: " + Config.bgElevated + ";" +
+            "-fx-background-radius: 8;"
+        );
 
         String displayName = shortenFileName(summary.name == null ? "" : summary.name);
         Label nameLabel = new Label(displayName);
-        nameLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + Config.mainOrange);
+        nameLabel.setTextFill(Color.web(Config.textPrimary));
+        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600;");
 
         Label timeLabel = new Label(formatUploadTime(summary.createdAt));
-        timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: " + Config.altOrange);
+        timeLabel.setTextFill(Color.web(Config.textMuted));
+        timeLabel.setStyle("-fx-font-size: 11px;");
 
         Label statsLabel = new Label(summary.viewCount + " views · " + summary.downloadCount + " downloads");
-        statsLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+        statsLabel.setTextFill(Color.web(Config.textSecondary));
+        statsLabel.setStyle("-fx-font-size: 11px;");
 
-        VBox textBox = new VBox(1, nameLabel, timeLabel, statsLabel);
+        VBox textBox = new VBox(2, nameLabel, statsLabel, timeLabel);
         textBox.setAlignment(Pos.CENTER_LEFT);
 
         Region spacer = new Region();
@@ -63,7 +91,9 @@ public class LinkTile extends HBox {
         ComboBox<String> visibilityBox = new ComboBox<>();
         visibilityBox.getItems().addAll("private", "unlisted", "public");
         visibilityBox.setValue(normalizeVisibility(summary.visibility));
-        visibilityBox.setStyle("-fx-background-color: " + Config.mainBlack + "; -fx-text-fill: white;");
+        visibilityBox.getStyleClass().add("fs-combo");
+        visibilityBox.setPrefHeight(BUTTON_HEIGHT);
+        visibilityBox.setMinHeight(BUTTON_HEIGHT);
         visibilityBox.setTooltip(new javafx.scene.control.Tooltip("Visibility"));
         visibilityBox.valueProperty().addListener((obs, oldValue, newValue) -> {
 
@@ -72,20 +102,31 @@ public class LinkTile extends HBox {
 
         });
 
-        Button copyButton = buildIconButton("copylink.png", "Copy link");
+        Button copyButton = textButton("Copy link");
         copyButton.setOnAction(e -> {
-            if (summary.viewUrl != null && !summary.viewUrl.isBlank()) {
-                ClipboardUtil.copyToClipboard(summary.viewUrl);
-                NotificationService.show(new BaseNotification("Link copied: " + summary.viewUrl, "success.png"));
+            String url = buildViewUrl(summary);
+            if (url != null && !url.isBlank()) {
+                ClipboardUtil.copyToClipboard(url);
+                NotificationService.show(new BaseNotification("Link copied to clipboard", "success.png"));
             }
         });
 
-        Button deleteButton = buildIconButton("cancelButton.png", "Delete");
+        Button deleteButton = dangerButton("Delete");
         deleteButton.setOnAction(e -> {
             if (onDelete != null) onDelete.run();
         });
 
-        getChildren().addAll(iconView, textBox, spacer, visibilityBox, copyButton, deleteButton);
+        getChildren().addAll(iconWrap, textBox, spacer, visibilityBox, copyButton, deleteButton);
+
+    }
+
+    private static String buildViewUrl(LinkSummary summary) {
+
+        if (summary == null) return null;
+        if (summary.ownerId != null && summary.id != null) {
+            return Config.frontendDomain + "/f/" + summary.ownerId + "/" + summary.id;
+        }
+        return summary.viewUrl;
 
     }
 
@@ -98,24 +139,73 @@ public class LinkTile extends HBox {
 
     }
 
-    private Button buildIconButton(String iconName, String tooltip) {
+    private static Button textButton(String text) {
 
-        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/icons/" + iconName)));
-        iv.setFitWidth(22);
-        iv.setFitHeight(22);
-        iv.setPreserveRatio(true);
+        Button b = new Button(text);
+        b.setMinHeight(BUTTON_HEIGHT);
+        b.setPrefHeight(BUTTON_HEIGHT);
 
-        Button button = new Button();
-        button.setGraphic(iv);
-        button.setStyle(
-            "-fx-background-color: transparent;" +
-            "-fx-cursor: hand;" +
-            "-fx-padding: 6;"
-        );
-        if (tooltip != null && !tooltip.isBlank()) {
-            button.setTooltip(new javafx.scene.control.Tooltip(tooltip));
-        }
-        return button;
+        String base =
+            "-fx-background-color: " + Config.bgElevated + ";" +
+            "-fx-background-radius: 6;" +
+            "-fx-border-color: " + Config.borderSubtle + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-border-width: 1;" +
+            "-fx-text-fill: " + Config.textPrimary + ";" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-padding: 0 " + BUTTON_PAD_X + ";" +
+            "-fx-cursor: hand;";
+        String hover =
+            "-fx-background-color: " + Config.bgHover + ";" +
+            "-fx-background-radius: 6;" +
+            "-fx-border-color: " + Config.borderStrong + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-border-width: 1;" +
+            "-fx-text-fill: " + Config.textPrimary + ";" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-padding: 0 " + BUTTON_PAD_X + ";" +
+            "-fx-cursor: hand;";
+        b.setStyle(base);
+        b.setOnMouseEntered(e -> b.setStyle(hover));
+        b.setOnMouseExited(e -> b.setStyle(base));
+        return b;
+
+    }
+
+    private static Button dangerButton(String text) {
+
+        Button b = new Button(text);
+        b.setMinHeight(BUTTON_HEIGHT);
+        b.setPrefHeight(BUTTON_HEIGHT);
+
+        String base =
+            "-fx-background-color: " + Config.bgElevated + ";" +
+            "-fx-background-radius: 6;" +
+            "-fx-border-color: " + Config.borderSubtle + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-border-width: 1;" +
+            "-fx-text-fill: " + Config.textSecondary + ";" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-padding: 0 " + BUTTON_PAD_X + ";" +
+            "-fx-cursor: hand;";
+        String hover =
+            "-fx-background-color: rgba(239,68,68,0.14);" +
+            "-fx-background-radius: 6;" +
+            "-fx-border-color: " + Config.danger + ";" +
+            "-fx-border-radius: 6;" +
+            "-fx-border-width: 1;" +
+            "-fx-text-fill: " + Config.danger + ";" +
+            "-fx-font-size: 12px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-padding: 0 " + BUTTON_PAD_X + ";" +
+            "-fx-cursor: hand;";
+        b.setStyle(base);
+        b.setOnMouseEntered(e -> b.setStyle(hover));
+        b.setOnMouseExited(e -> b.setStyle(base));
+        return b;
 
     }
 
@@ -142,9 +232,9 @@ public class LinkTile extends HBox {
         try {
             Instant instant = Instant.parse(isoCreatedAt);
             DateTimeFormatter formatter = DateTimeFormatter
-                    .ofPattern("MMMM dd, yyyy @ HH:mm")
+                    .ofPattern("MMM d, yyyy · HH:mm")
                     .withZone(ZoneId.systemDefault());
-            return "Uploaded on " + formatter.format(instant);
+            return formatter.format(instant);
         } catch (DateTimeParseException e) {
             return "Uploaded recently";
         }

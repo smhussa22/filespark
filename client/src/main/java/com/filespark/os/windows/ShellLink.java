@@ -23,12 +23,7 @@ public class ShellLink {
         WinNT.HRESULT hres = Ole32.INSTANCE.CoCreateInstance(CLSID_SHELL_LINK, null, WTypes.CLSCTX_INPROC_SERVER, IID_SHELL_LINK_W, ppv);
         Pointer ptr = ppv.getValue();
 
-        if (ptr == null || COMUtils.FAILED(hres)) {
-
-            System.err.printf("CoCreateInstance failed: 0x%08X%n", hres.intValue());
-            return null;
-
-        }
+        if (ptr == null || COMUtils.FAILED(hres)) return null;
 
         return new IShellLinkW(ptr);
 

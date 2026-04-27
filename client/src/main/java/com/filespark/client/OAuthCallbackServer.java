@@ -1,7 +1,9 @@
 package com.filespark.client;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 import com.filespark.Config;
 import com.sun.net.httpserver.HttpExchange;
@@ -69,11 +71,40 @@ public final class OAuthCallbackServer {
 
     }
 
+    private static final Set<String> ALLOWED_ORIGINS = buildAllowedOrigins();
+
+    private static Set<String> buildAllowedOrigins() {
+
+        String base = Config.frontendDomain;
+        try {
+
+            URI u = URI.create(base);
+            String host = u.getHost();
+            String scheme = u.getScheme();
+            String withWww = host.startsWith("www.") ? host : "www." + host;
+            String withoutWww = host.startsWith("www.") ? host.substring(4) : host;
+            return Set.of(
+                scheme + "://" + withoutWww,
+                scheme + "://" + withWww
+            );
+
+        } catch (Exception e) {
+
+            return Set.of(base);
+
+        }
+
+    }
+
     private static void applyCors(HttpExchange exchange) {
 
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", Config.frontendDomain);
+        String origin = exchange.getRequestHeaders().getFirst("Origin");
+        String allowed = (origin != null && ALLOWED_ORIGINS.contains(origin)) ? origin : Config.frontendDomain;
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", allowed);
+        exchange.getResponseHeaders().set("Vary", "Origin");
         exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "POST, OPTIONS");
         exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Private-Network", "true");
         exchange.getResponseHeaders().set("Access-Control-Max-Age", "600");
 
     }
