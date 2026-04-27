@@ -14,11 +14,13 @@ import com.filespark.server.api.mongodb.repository.UserRepository;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final StatsService statsService;
 
     @Autowired
-    public AuthService(UserRepository userRepository){
+    public AuthService(UserRepository userRepository, StatsService statsService){
 
         this.userRepository = userRepository;
+        this.statsService = statsService;
 
     }
 
@@ -46,7 +48,9 @@ public class AuthService {
         try {
 
             User newUser = new User(email, name, googleId, picture);
-            return userRepository.save(newUser);
+            User saved = userRepository.save(newUser);
+            statsService.incrementUsers();
+            return saved;
 
         }
         catch(DuplicateKeyException exception) {

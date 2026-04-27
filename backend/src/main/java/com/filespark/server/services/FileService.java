@@ -32,18 +32,21 @@ public class FileService {
 
     private final FileRepository fileRepository;
     private final S3 s3;
+    private final StatsService statsService;
     private final String region;
     private final String publicBaseUrl;
 
     public FileService(
             FileRepository fileRepository,
             S3 s3,
+            StatsService statsService,
             @Value("${spring.data.aws.region}") String region,
             @Value("${spring.data.public.base.url}") String publicBaseUrl
     ) {
 
         this.fileRepository = fileRepository;
         this.s3 = s3;
+        this.statsService = statsService;
         this.region = region;
         this.publicBaseUrl = stripTrailingSlash(publicBaseUrl);
 
@@ -65,6 +68,7 @@ public class FileService {
 
         File file = new File(userId, null, filename, mime, extension, s3.getBucket(), key, sizeBytes, region, VISIBILITY_PRIVATE, null);
         file = fileRepository.save(file);
+        statsService.incrementUploads();
 
         String uploadUrl = s3.generatePresignedPutUrl(key, mime, UPLOAD_URL_SECONDS);
         String viewUrl = publicBaseUrl + "/f/" + userId + "/" + file.getId();

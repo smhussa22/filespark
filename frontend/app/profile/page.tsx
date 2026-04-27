@@ -269,6 +269,7 @@ export default async function ProfilePage() {
                   </a>
                   <a
                     href={`${viewPath(file, ownerId)}/download`}
+                    download={file.name}
                     title="Download"
                     aria-label="Download"
                     className="absolute top-1 right-9 rounded-md p-1.5 bg-mainblack/70 border border-maingrey text-mainwhite hover:text-mainorange hover:border-mainorange transition"

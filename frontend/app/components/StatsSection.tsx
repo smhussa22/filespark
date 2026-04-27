@@ -1,4 +1,28 @@
-export function StatsSection() {
+type Stats = { totalUsers: number; totalUploads: number };
+
+async function getStats(): Promise<Stats> {
+
+  const fallback: Stats = { totalUsers: 0, totalUploads: 0 };
+  const backend = process.env.BACKEND_URL?.replace(/\/$/, "");
+  if (!backend) return fallback;
+
+  try {
+    const res = await fetch(`${backend}/stats`, { next: { revalidate: 60 } });
+    if (!res.ok) return fallback;
+    const json = (await res.json()) as Partial<Stats>;
+    return {
+      totalUsers: typeof json.totalUsers === "number" ? json.totalUsers : 0,
+      totalUploads: typeof json.totalUploads === "number" ? json.totalUploads : 0,
+    };
+  } catch {
+    return fallback;
+  }
+
+}
+
+export async function StatsSection() {
+
+  const stats = await getStats();
 
   return (
 
@@ -7,12 +31,12 @@ export function StatsSection() {
       <div className="mx-auto max-w-7xl px-6 py-16">
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-          
+
           <div>
 
             <div className="text-3xl font-bold text-white">
 
-              56
+              {stats.totalUploads.toLocaleString()}
 
             </div>
 
@@ -27,7 +51,7 @@ export function StatsSection() {
           <div>
 
             <div className="text-3xl font-bold text-white">
-              6
+              {stats.totalUsers.toLocaleString()}
             </div>
 
             <div className="mt-2 text-sm text-mainorange">
