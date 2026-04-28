@@ -18,7 +18,10 @@ export async function GET(
   const headers: Record<string, string> = {};
   if (token) headers.authorization = `Bearer ${token}`;
 
-  const upstream = `${backend.replace(/\/$/, "")}/f/${encodeURIComponent(userid)}/${encodeURIComponent(id)}/raw`;
+  // Hit /download (not /raw) so the backend's download counter increments. The 302
+  // it returns points at a signed S3 URL; we follow it server-side and stream the
+  // bytes back through this proxy with our own Content-Disposition.
+  const upstream = `${backend.replace(/\/$/, "")}/f/${encodeURIComponent(userid)}/${encodeURIComponent(id)}/download`;
 
   const upstreamRes = await fetch(upstream, {
     headers,
