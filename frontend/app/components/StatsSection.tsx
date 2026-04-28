@@ -7,7 +7,7 @@ async function getStats(): Promise<Stats> {
   if (!backend) return fallback;
 
   try {
-    const res = await fetch(`${backend}/stats`, { next: { revalidate: 60 } });
+    const res = await fetch(`${backend}/stats`, { cache: "no-store" });
     if (!res.ok) return fallback;
     const json = (await res.json()) as Partial<Stats>;
     return {

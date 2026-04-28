@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from "react";
 type Status =
   | { kind: "pending"; message: string }
   | { kind: "success"; message: string }
-  | { kind: "error"; message: string };
+  | { kind: "error"; message: string }
+  | { kind: "needs_auth" };
 
 export default function DesktopHandoff({ port }: { port: string }) {
   const [status, setStatus] = useState<Status>({ kind: "pending", message: "Connecting to FileSpark Desktop..." });
@@ -19,6 +20,10 @@ export default function DesktopHandoff({ port }: { port: string }) {
     (async () => {
       try {
         const handoffRes = await fetch("/api/desktop-handoff", { method: "GET", cache: "no-store" });
+        if (handoffRes.status === 401) {
+          setStatus({ kind: "needs_auth" });
+          return;
+        }
         if (!handoffRes.ok) {
           throw new Error(`Could not load session (HTTP ${handoffRes.status})`);
         }
@@ -45,6 +50,29 @@ export default function DesktopHandoff({ port }: { port: string }) {
       }
     })();
   }, [port]);
+
+  if (status.kind === "needs_auth") {
+    const next = encodeURIComponent(`/desktop-login?port=${port}`);
+    return (
+      <main className="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-12">
+        <div className="max-w-md text-center">
+          <h1 className="text-2xl font-semibold text-mainwhite mb-3">FileSpark Desktop</h1>
+          <p className="text-mainwhite/80 mb-6">
+            Sign in to FileSpark to finish connecting the desktop app.
+          </p>
+          <Link
+            href={`/api/auth/google?next=${next}`}
+            className="inline-flex items-center justify-center bg-mainorange/70 hover:bg-mainorange px-6 py-3 rounded-md font-medium text-mainwhite transition"
+          >
+            Continue with Google
+          </Link>
+          <p className="mt-6 text-sm text-mainwhite/50">
+            After signing in you&apos;ll be returned here automatically.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   const colour =
     status.kind === "success"

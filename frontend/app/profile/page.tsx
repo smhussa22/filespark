@@ -268,7 +268,7 @@ export default async function ProfilePage() {
                     </div>
                   </a>
                   <a
-                    href={`${viewPath(file, ownerId)}/download`}
+                    href={`/api/download/${encodeURIComponent(ownerId)}/${encodeURIComponent(file.id)}?filename=${encodeURIComponent(file.name)}`}
                     download={file.name}
                     title="Download"
                     aria-label="Download"

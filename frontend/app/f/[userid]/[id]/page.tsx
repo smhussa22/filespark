@@ -282,7 +282,7 @@ export default async function FileViewerPage({
   }
 
   const rawUrl = `/f/${encodeURIComponent(userid)}/${encodeURIComponent(id)}/raw`;
-  const downloadUrl = `/f/${encodeURIComponent(userid)}/${encodeURIComponent(id)}/download`;
+  const downloadUrl = `/api/download/${encodeURIComponent(userid)}/${encodeURIComponent(id)}?filename=${encodeURIComponent(meta.name)}`;
 
   return (
     <main className="min-h-[calc(100vh-80px)] flex justify-center px-6 py-8">
