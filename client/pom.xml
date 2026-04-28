@@ -15,6 +15,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <!-- jpackage app-version on Windows must be N.N.N (no SNAPSHOT). -->
+    <project.version.short>1.0.0</project.version.short>
+    <!-- APP_IMAGE = app-image folder (no WiX). Override to EXE via -Pinstaller for an installer. -->
+    <jpackage.type>APP_IMAGE</jpackage.type>
   </properties>
 
   <dependencies>
@@ -117,6 +121,32 @@
         <version>3.1.2</version>
       </plugin>
 
+      <!-- Stage just filespark.jar into a clean dir for jpackage to consume.
+           Bound to verify (before jpackage's verify execution) so it runs AFTER
+           shade has produced filespark.jar in the package phase. -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>stage-for-jpackage</id>
+            <phase>verify</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <target>
+                <delete dir="${project.build.directory}/jpackage-input" failonerror="false"/>
+                <delete dir="${project.build.directory}/dist" failonerror="false" includeemptydirs="true"/>
+                <fail message="target/dist still exists — a FileSpark.exe is probably running. Close it then re-run the build.">
+                  <condition><available file="${project.build.directory}/dist" type="dir"/></condition>
+                </fail>
+                <mkdir dir="${project.build.directory}/jpackage-input"/>
+                <copy file="${project.build.directory}/filespark.jar" todir="${project.build.directory}/jpackage-input"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Shade plugin: produce a single runnable fat JAR (target/filespark.jar) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -152,30 +182,34 @@
         </executions>
       </plugin>
 
-      <!-- jpackage: bundle a custom JRE + the fat JAR into a Windows installer (target/dist/FileSpark-1.0.0.exe) -->
+      <!--
+        jpackage: bundle a JRE plus the fat JAR into a runnable app folder.
+        Default profile builds an app-image (a directory with FileSpark.exe and
+        a bundled runtime). No external toolchain needed.
+        To build an EXE installer, install WiX 3.x then run mvn -Pinstaller clean verify.
+        We do not include javafx.* in addModules because openjfx is not a JDK module.
+        JavaFX is shaded into filespark.jar and loaded via the Launcher main class.
+      -->
       <plugin>
         <groupId>org.panteleyev</groupId>
         <artifactId>jpackage-maven-plugin</artifactId>
         <version>1.6.5</version>
         <executions>
           <execution>
-            <id>installer</id>
+            <id>app-image</id>
             <phase>verify</phase>
             <goals><goal>jpackage</goal></goals>
             <configuration>
               <name>FileSpark</name>
-              <appVersion>1.0.0</appVersion>
+              <appVersion>${project.version.short}</appVersion>
               <vendor>FileSpark</vendor>
-              <input>${project.build.directory}</input>
+              <input>${project.build.directory}/jpackage-input</input>
               <mainJar>filespark.jar</mainJar>
+              <icon>${project.basedir}/src/main/resources/icons/icon.ico</icon>
               <mainClass>com.filespark.Launcher</mainClass>
               <destination>${project.build.directory}/dist</destination>
-              <icon>${project.basedir}/src/main/resources/icons/icon.ico</icon>
-              <type>EXE</type>
-              <winMenu>true</winMenu>
-              <winShortcut>true</winShortcut>
-              <winDirChooser>true</winDirChooser>
-              <winPerUserInstall>true</winPerUserInstall>
+              <type>${jpackage.type}</type>
+              <winConsole>false</winConsole>
               <addModules>
                 <module>java.base</module>
                 <module>java.desktop</module>
@@ -183,12 +217,12 @@
                 <module>java.management</module>
                 <module>java.naming</module>
                 <module>java.net.http</module>
+                <module>java.prefs</module>
                 <module>java.scripting</module>
                 <module>java.sql</module>
                 <module>java.xml</module>
                 <module>jdk.crypto.ec</module>
                 <module>jdk.unsupported</module>
-                <module>javafx.media</module>
               </addModules>
             </configuration>
           </execution>
@@ -198,5 +232,34 @@
     </plugins>
 
   </build>
+
+  <profiles>
+    <!-- Activate with: mvn -Pinstaller clean verify  (requires WiX 3.x on PATH) -->
+    <profile>
+      <id>installer</id>
+      <properties>
+        <jpackage.type>EXE</jpackage.type>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.panteleyev</groupId>
+            <artifactId>jpackage-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>app-image</id>
+                <configuration>
+                  <winMenu>true</winMenu>
+                  <winShortcut>true</winShortcut>
+                  <winDirChooser>true</winDirChooser>
+                  <winPerUserInstall>true</winPerUserInstall>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

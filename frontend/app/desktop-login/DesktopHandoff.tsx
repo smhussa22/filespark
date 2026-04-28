@@ -25,7 +25,13 @@ export default function DesktopHandoff({ port }: { port: string }) {
           return;
         }
         if (!handoffRes.ok) {
-          throw new Error(`Could not load session (HTTP ${handoffRes.status})`);
+          let info = `HTTP ${handoffRes.status}`;
+          try {
+            const body = await handoffRes.json();
+            if (body?.error) info += ` · ${body.error}`;
+            if (body?.detail) info += ` · ${String(body.detail).slice(0, 200)}`;
+          } catch {}
+          throw new Error(`Could not load session (${info})`);
         }
         const payload = await handoffRes.json();
 

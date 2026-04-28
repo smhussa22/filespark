@@ -1,10 +1,10 @@
 package com.filespark.javafx;
-import java.awt.Desktop;
 import java.net.URI;
 
 import com.filespark.AppState;
 import com.filespark.Config;
 import com.filespark.client.AppStateManager;
+import com.filespark.client.BrowserLauncher;
 import com.filespark.client.LoginCooldown;
 import com.filespark.client.OAuthCallbackServer;
 
@@ -61,14 +61,18 @@ public class GoogleLoginButton extends Button {
                 AppStateManager.set(AppState.AUTHENTICATING);
                 int port = OAuthCallbackServer.start();
                 URI loginUri = new URI(Config.frontendDomain + "/desktop-login?port=" + port);
-                Desktop.getDesktop().browse(loginUri);
+                boolean opened = BrowserLauncher.open(loginUri);
+                if (!opened) {
+
+                    NotificationService.show(new BaseNotification(
+                        "Could not open browser. Visit " + loginUri + " manually.",
+                        "error.png"
+                    ));
+
+                }
 
             }
-            catch (Exception ex) {
-
-                ex.printStackTrace();
-
-            }
+            catch (Exception ignored) {}
 
             refreshCooldownUi();
 

@@ -32,6 +32,12 @@ import javafx.application.Platform;
 
 public class App extends Application {
 
+    private static volatile javafx.application.HostServices HOST_SERVICES;
+
+    public static javafx.application.HostServices hostServicesRef() {
+        return HOST_SERVICES;
+    }
+
     private Client clientScene;
     private final Login logInScene = new Login();
     private final Authenticating authScene = new Authenticating();
@@ -58,6 +64,7 @@ public class App extends Application {
         catch (NativeHookException ignored) {}
 
         this.primaryStage = primaryStage;
+        HOST_SERVICES = getHostServices();
         AppStateManager.set(AppState.LOGGED_OUT);
 
         StackPane root = new StackPane(logInScene, authScene);
