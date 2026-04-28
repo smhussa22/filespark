@@ -49,7 +49,8 @@ public class AuthService {
 
             User newUser = new User(email, name, googleId, picture);
             User saved = userRepository.save(newUser);
-            statsService.incrementUsers();
+            try { statsService.incrementUsers(); }
+            catch (Exception ignored) {}
             return saved;
 
         }

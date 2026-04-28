@@ -1,7 +1,6 @@
 package com.filespark.server.services;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -26,7 +25,8 @@ public class StatsService {
         if (stats == null) {
 
             stats = new Stats();
-            mongoTemplate.save(stats);
+            try { mongoTemplate.save(stats); }
+            catch (Exception ignored) {}
 
         }
         return stats;
@@ -47,10 +47,18 @@ public class StatsService {
 
     private void increment(String field) {
 
-        Query query = new Query(Criteria.where("_id").is(Stats.SINGLETON_ID));
-        Update update = new Update().inc(field, 1);
-        FindAndModifyOptions options = FindAndModifyOptions.options().upsert(true).returnNew(true);
-        mongoTemplate.findAndModify(query, update, options, Stats.class);
+        try {
+
+            Query query = new Query(Criteria.where("_id").is(Stats.SINGLETON_ID));
+            Update update = new Update().inc(field, 1L);
+            mongoTemplate.upsert(query, update, Stats.class);
+
+        }
+        catch (Exception ignored) {
+
+            // never let stats bookkeeping break the upload/signup path
+
+        }
 
     }
 

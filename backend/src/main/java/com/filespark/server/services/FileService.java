@@ -68,7 +68,8 @@ public class FileService {
 
         File file = new File(userId, null, filename, mime, extension, s3.getBucket(), key, sizeBytes, region, VISIBILITY_PRIVATE, null);
         file = fileRepository.save(file);
-        statsService.incrementUploads();
+        try { statsService.incrementUploads(); }
+        catch (Exception ignored) {}
 
         String uploadUrl = s3.generatePresignedPutUrl(key, mime, UPLOAD_URL_SECONDS);
         String viewUrl = publicBaseUrl + "/f/" + userId + "/" + file.getId();
