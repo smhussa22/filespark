@@ -1,10 +1,7 @@
 "use client";
 import Link from "next/link";
-import { FaWindows, FaApple, FaGithub, FaLinux } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
 export function HeroVideoSection() {
-  const os = "windows";
-  const DownloadIcon = os === "windows" ? FaWindows : FaApple;
-
   return (
     <section className="relative h-[75vh] w-full overflow-hidden">
       <video
@@ -42,8 +39,7 @@ export function HeroVideoSection() {
               href="/download"
               className="w-70 justify-center bg-mainorange/70 hover:bg-mainorange px-6 py-4 text-lg rounded-md flex items-center gap-3 font-medium text-mainwhite transition"
             >
-              <DownloadIcon size={36} />
-              Download FileSpark
+              Download
             </Link>
             <Link
               href="https://github.com/smhussa22/filespark"

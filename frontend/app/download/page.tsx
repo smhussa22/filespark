@@ -66,7 +66,7 @@ export default function DownloadPage() {
             download="filespark.jar"
             className="mt-1 rounded-md border border-maingrey px-5 py-2.5 text-mainwhite hover:border-mainorange hover:text-mainorange transition flex items-center gap-2 text-sm"
           >
-            <FaDownload /> Download filespark.jar (~16 MB)
+            <FaDownload /> Download filespark.jar (~20 MB)
           </a>
 
         </section>

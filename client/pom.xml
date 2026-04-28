@@ -44,6 +44,60 @@
       <version>21</version>
     </dependency>
 
+    <!--
+      Cross-platform JavaFX natives. The default openjfx artifacts only resolve
+      the host classifier (e.g. "win" on a Windows build host), so the shaded
+      fat JAR ends up Windows-only. Pulling each platform's classifier jar
+      explicitly bundles the .dylib / .so libraries needed for the JAR to run
+      on macOS (Apple Silicon) and Linux (x86_64).
+
+      We can't ship multiple native arches in one shaded JAR — the .dylib /
+      .so files live at the JAR root and would clobber each other during
+      shade. So we target the dominant arch per OS:
+        - macOS: Apple Silicon (mac-aarch64). Intel Mac users can fall back
+          to a JDK with JavaFX bundled (e.g. Azul Zulu FX).
+        - Linux: x86_64. aarch64 Linux users likewise fall back to a JDK
+          with JavaFX bundled.
+    -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>21</version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>21</version>
+      <classifier>linux</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>21</version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>21</version>
+      <classifier>linux</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>21</version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>21</version>
+      <classifier>linux</classifier>
+    </dependency>
+
     <!-- junit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

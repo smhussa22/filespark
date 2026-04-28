@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { FaWindows, FaApple } from "react-icons/fa";
 import { HiOutlineLogout } from "react-icons/hi";
 import { useSession } from "../hooks/useSession";
 import AccountMenu from "./AccountMenu";
@@ -9,9 +8,6 @@ import AccountMenu from "./AccountMenu";
 export default function NavigationBar() {
 
   const { user, loading } = useSession();
-
-  const os = "windows"; // @todo replace this with actual os checking
-  const DownloadIcon = os === "windows" ? FaWindows : FaApple;
 
   return (
 
@@ -37,7 +33,7 @@ export default function NavigationBar() {
             className="rounded-md flex items-center gap-3 border border-maingrey w-36 justify-center px-4 py-2 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
           >
 
-            <DownloadIcon size={30} /> Download
+            Download
 
           </Link>
 
