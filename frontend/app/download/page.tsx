@@ -13,10 +13,36 @@ export default function DownloadPage() {
       <div className="w-full max-w-3xl">
 
         <h1 className="text-4xl font-semibold text-mainwhite mb-2">Download FileSpark</h1>
-        <p className="text-mainwhite/70 mb-10">
+        <p className="text-mainwhite/70 mb-6">
           Install the desktop client to upload from anywhere with a global hotkey, watch folders for new files, and
           drop screenshots straight into a sharable link.
         </p>
+
+        <section className="mb-10 rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-5">
+
+          <div className="text-yellow-300 text-sm font-semibold uppercase tracking-wide mb-2">
+            Open Issues
+          </div>
+          <ul className="text-mainwhite/80 text-sm space-y-1.5 list-disc pl-5">
+            <li>
+              <span className="font-medium">Graceful close on Apple Silicon Macs:</span>{" "}
+              the app may not close properly on Apple Silicon macOS.
+            </li>
+            <li>
+              <span className="font-medium">No installation for Intel Macs:</span>{" "}
+              there is currently no build available for Intel Mac chips.
+            </li>
+            <li>
+              <span className="font-medium">No icon on Mac:</span>{" "}
+              the macOS version lacks the FileSpark logo.
+            </li>
+            <li>
+              <span className="font-medium">Easier installation on Mac:</span>{" "}
+              the Windows version is currently easier for users to install and run.
+            </li>
+          </ul>
+
+        </section>
 
         {/* Primary: bundled Windows zip — no Java install required */}
         <section className="rounded-lg border border-mainorange/40 bg-mainblack/60 p-8 flex flex-col items-center text-center gap-4">
