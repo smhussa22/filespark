@@ -198,6 +198,50 @@
               </target>
             </configuration>
           </execution>
+
+          <!--
+            Assemble a macOS .app bundle around filespark.jar and zip it.
+            We run from a Windows build host so we can't invoke jpackage for
+            mac, but a script-launched .app is enough to (a) live in the
+            user's Applications folder and (b) have its own bundle identity
+            so macOS Accessibility lists it as "FileSpark" instead of
+            "java". The launcher script's executable bit is set in the zip
+            via filemode="755" because Windows filesystems don't preserve
+            it on disk.
+          -->
+          <execution>
+            <id>package-macos-app</id>
+            <phase>package</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <target>
+                <property name="macapp.dir" value="${project.build.directory}/macos-app/FileSpark.app"/>
+                <delete dir="${project.build.directory}/macos-app" failonerror="false"/>
+                <mkdir dir="${macapp.dir}/Contents/MacOS"/>
+                <mkdir dir="${macapp.dir}/Contents/Resources"/>
+
+                <copy file="${project.basedir}/src/main/macos/Info.plist"
+                      todir="${macapp.dir}/Contents"/>
+                <copy file="${project.basedir}/src/main/macos/filespark"
+                      todir="${macapp.dir}/Contents/MacOS"/>
+                <copy file="${project.build.directory}/filespark.jar"
+                      todir="${macapp.dir}/Contents/Resources"/>
+
+                <!-- LF line endings on the launcher; CRLF would break bash on macOS. -->
+                <fixcrlf file="${macapp.dir}/Contents/MacOS/filespark" eol="lf"/>
+
+                <zip destfile="${project.build.directory}/filespark-macos.zip">
+                  <zipfileset dir="${project.build.directory}/macos-app"
+                              prefix=""
+                              excludes="FileSpark.app/Contents/MacOS/filespark"/>
+                  <zipfileset dir="${project.build.directory}/macos-app"
+                              prefix=""
+                              includes="FileSpark.app/Contents/MacOS/filespark"
+                              filemode="755"/>
+                </zip>
+              </target>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 

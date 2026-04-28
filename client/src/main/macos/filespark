@@ -1,0 +1,36 @@
+#!/bin/bash
+# Launcher inside FileSpark.app/Contents/MacOS/. Locates a Java 17+ runtime
+# (preferring one with JavaFX, e.g. Azul Zulu FX) and execs it against the
+# bundled fat JAR.  exec is important: the resulting java process inherits
+# our argv[0] path inside the .app, which is what macOS uses to scope
+# Accessibility permissions to the FileSpark bundle rather than to a
+# generic "java" entry the user can't identify.
+set -e
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+APP_CONTENTS="$(cd "$DIR/.." && pwd)"
+JAR="$APP_CONTENTS/Resources/filespark.jar"
+
+JAVA=""
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+elif [ -x "/usr/libexec/java_home" ]; then
+    JH="$(/usr/libexec/java_home -v 17+ 2>/dev/null || /usr/libexec/java_home 2>/dev/null || true)"
+    if [ -n "$JH" ] && [ -x "$JH/bin/java" ]; then
+        JAVA="$JH/bin/java"
+    fi
+fi
+if [ -z "$JAVA" ] && command -v java >/dev/null 2>&1; then
+    JAVA="$(command -v java)"
+fi
+
+if [ -z "$JAVA" ]; then
+    osascript -e 'display alert "FileSpark requires Java 17+" message "Install Azul Zulu FX (or any JDK 17 or newer) and reopen FileSpark."' >/dev/null 2>&1 || true
+    exit 1
+fi
+
+exec "$JAVA" \
+    -Xdock:name=FileSpark \
+    -Dapple.awt.application.name=FileSpark \
+    -Dcom.apple.mrj.application.apple.menu.about.name=FileSpark \
+    -jar "$JAR" "$@"

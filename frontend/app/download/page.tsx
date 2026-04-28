@@ -48,14 +48,39 @@ export default function DownloadPage() {
 
         </section>
 
-        {/* Secondary: cross-platform jar for users who already have Java */}
+        {/* macOS .app bundle — drag to Applications, shows up as FileSpark in
+            Accessibility settings (the bare jar gets listed as "java"). */}
+        <section className="mt-10 rounded-lg border border-maingrey bg-mainblack/60 p-6 flex flex-col items-center text-center gap-3">
+
+          <div className="text-mainwhite text-lg font-medium">FileSpark for macOS</div>
+          <p className="text-mainwhite/60 text-sm max-w-md">
+            Unzip and drag <code className="text-mainorange">FileSpark.app</code> into your Applications folder.
+            Requires Java 17 or newer with JavaFX (e.g.{" "}
+            <a className="text-mainorange hover:underline" href="https://www.azul.com/downloads/?package=jdk-fx" target="_blank" rel="noreferrer">
+              Azul Zulu FX
+            </a>).
+            On first launch, grant FileSpark Accessibility permission in
+            System Settings → Privacy &amp; Security → Accessibility so global hotkeys work.
+          </p>
+
+          <a
+            href="/downloads/filespark-macos.zip"
+            download="filespark-macos.zip"
+            className="mt-1 rounded-md border border-maingrey px-5 py-2.5 text-mainwhite hover:border-mainorange hover:text-mainorange transition flex items-center gap-2 text-sm"
+          >
+            <FaDownload /> Download for macOS
+          </a>
+
+        </section>
+
+        {/* Plain cross-platform jar for Linux / advanced users */}
         <section className="mt-10 rounded-lg border border-maingrey bg-mainblack/60 p-6 flex flex-col items-center text-center gap-3">
 
           <FaJava size={36} className="text-mainwhite/70" />
 
-          <div className="text-mainwhite text-lg font-medium">macOS, Linux, or other platforms</div>
+          <div className="text-mainwhite text-lg font-medium">Linux or other platforms</div>
           <p className="text-mainwhite/60 text-sm max-w-md">
-            Run the cross-platform JAR. Requires Java 17 or newer with JavaFX (e.g.{" "}
+            Run the cross-platform JAR directly. Requires Java 17 or newer with JavaFX (e.g.{" "}
             <a className="text-mainorange hover:underline" href="https://www.azul.com/downloads/?package=jdk-fx" target="_blank" rel="noreferrer">
               Azul Zulu FX
             </a>).
