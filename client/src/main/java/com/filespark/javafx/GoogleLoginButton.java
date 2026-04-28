@@ -72,7 +72,13 @@ public class GoogleLoginButton extends Button {
                 }
 
             }
-            catch (Exception ignored) {}
+            catch (Throwable ex) {
+
+                AppStateManager.set(AppState.LOGGED_OUT);
+                String msg = ex.getClass().getSimpleName() + ": " + (ex.getMessage() == null ? "(no message)" : ex.getMessage());
+                NotificationService.show(new BaseNotification("Login failed to start — " + msg, "error.png"));
+
+            }
 
             refreshCooldownUi();
 

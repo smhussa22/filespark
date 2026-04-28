@@ -43,7 +43,7 @@ export default function DownloadPage() {
           </a>
 
           <p className="text-mainwhite/40 text-xs">
-            ~40 MB · zip · contains FileSpark.exe and a bundled JRE
+            ~50 MB · zip · contains FileSpark.exe and a bundled JRE
           </p>
 
         </section>

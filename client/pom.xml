@@ -223,6 +223,9 @@
                 <module>java.xml</module>
                 <module>jdk.crypto.ec</module>
                 <module>jdk.unsupported</module>
+                <module>jdk.httpserver</module>
+                <module>jdk.localedata</module>
+                <module>jdk.zipfs</module>
               </addModules>
             </configuration>
           </execution>
