@@ -57,3 +57,9 @@ The backend is responsible for authentication, file metadata management, and gen
 
 ### Build & Dependency Management
 - **Maven** – Dependency management and build lifecycle for backend services
+
+### OPEN ISSUES
+- **Graceful close on MacOS Silicon**: app won't close properly on Silicon MacOS
+- **Installation for Intel Mac**: no installation available for this chip
+- **No icon on Mac**: Mac version lacks the FileSpark logo
+- **Easier installation on Mac**: Windows version is currently easier for users to use
