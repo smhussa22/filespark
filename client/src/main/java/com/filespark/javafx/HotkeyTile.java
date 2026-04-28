@@ -1,8 +1,11 @@
 package com.filespark.javafx;
 
 import java.util.function.Consumer;
+import com.filespark.OperatingSystem;
 import com.filespark.os.Hotkey;
+import com.filespark.os.HotkeyManager;
 import com.filespark.os.HotkeyUtil;
+import com.filespark.os.OperatingSystems;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
@@ -88,6 +91,19 @@ public class HotkeyTile extends HBox {
     }
 
     private void beginRecording(Consumer<Hotkey> onHotkeyChanged) {
+
+        if (!HotkeyManager.isNativeHookActive()) {
+
+            // Without the global key hook, no native key events ever reach
+            // a recorder — clicks would just sit on "Press keys…" forever.
+            // Tell the user what's wrong and bail out.
+            String msg = OperatingSystem.OS == OperatingSystems.MAC
+                ? "Grant Accessibility permission first"
+                : "Hotkeys unavailable";
+            hotkeyString.setText(msg);
+            return;
+
+        }
 
         hotkeyString.setText("Press up to " + HotkeyUtil.MAX_KEYS + " keys…");
 

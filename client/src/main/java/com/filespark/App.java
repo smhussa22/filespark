@@ -16,9 +16,12 @@ import com.filespark.scenes.Login;
 
 import com.filespark.os.GlobalHotkeyListener;
 import com.filespark.os.HotkeyManager;
+import com.filespark.os.OperatingSystems;
 import com.filespark.os.SystemTrayManager;
 
+import com.filespark.javafx.BaseNotification;
 import com.filespark.javafx.BottomRightContainer;
+import com.filespark.javafx.NotificationService;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
@@ -44,6 +47,8 @@ public class App extends Application {
     private Stage primaryStage;
     private BottomRightContainer bottomRightContainer;
     private SystemTrayManager systemTrayManager;
+    private boolean nativeHookRegistered;
+    private volatile boolean shutdownRan;
 
     public static void main(String[] args) {
 
@@ -54,14 +59,30 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
 
+        HotkeyManager.initDefaults();
+
         try { // @Todo: make this only work when logged in
 
-            HotkeyManager.initDefaults();
             GlobalScreen.registerNativeHook();
             GlobalScreen.addNativeKeyListener(new GlobalHotkeyListener());
-            
-        } 
-        catch (NativeHookException ignored) {}
+            nativeHookRegistered = true;
+            HotkeyManager.setNativeHookActive(true);
+
+        }
+        catch (NativeHookException ex) {
+
+            // Most common cause on macOS: the process running this JAR
+            // doesn't have Accessibility permission, so jnativehook can't
+            // capture global key events. Without registration, both the
+            // default hotkey AND the recording UI in HotkeySettings stay
+            // dead. Surface a notification once the UI is up so the user
+            // knows what to fix instead of staring at a silent app.
+            Platform.runLater(() -> NotificationService.show(new BaseNotification(
+                hotkeyPermissionMessage(),
+                "error.png"
+            )));
+
+        }
 
         this.primaryStage = primaryStage;
         HOST_SERVICES = getHostServices();
@@ -82,17 +103,7 @@ public class App extends Application {
             )
 
         );
-        primaryStage.setOnCloseRequest(e -> {
-
-            // Closing the window quits the app entirely. The system tray's Exit menu
-            // does the same — both paths must terminate every non-daemon thread
-            // (jnativehook spawns one) so System.exit doesn't block.
-            try { GlobalScreen.unregisterNativeHook(); } catch (Exception ignored) {}
-            if (systemTrayManager != null) systemTrayManager.remove();
-            Platform.exit();
-            System.exit(0);
-
-        });
+        primaryStage.setOnCloseRequest(e -> shutdown());
 
         if (Taskbar.isTaskbarSupported()) {
 
@@ -132,14 +143,42 @@ public class App extends Application {
         bottomRightContainer = new BottomRightContainer(primaryStage);
 
         systemTrayManager = new SystemTrayManager();
-        systemTrayManager.install(primaryStage, () -> {
+        systemTrayManager.install(primaryStage, this::shutdown);
 
+    }
+
+    @Override
+    public void stop() {
+
+        // JavaFX calls stop() on Cmd+Q (macOS app menu Quit), on the dock
+        // Quit item, and on normal Platform.exit(). Without cleanup here
+        // jnativehook's non-daemon thread keeps the JVM alive after the
+        // window closes — macOS shows the app as "not responding".
+        shutdown();
+
+    }
+
+    private synchronized void shutdown() {
+
+        if (shutdownRan) return;
+        shutdownRan = true;
+
+        if (nativeHookRegistered) {
             try { GlobalScreen.unregisterNativeHook(); } catch (Exception ignored) {}
-            systemTrayManager.remove();
-            Platform.exit();
-            System.exit(0);
+        }
+        if (systemTrayManager != null) systemTrayManager.remove();
+        Platform.exit();
+        System.exit(0);
 
-        });
+    }
+
+    private static String hotkeyPermissionMessage() {
+
+        if (OperatingSystem.OS == OperatingSystems.MAC) {
+            return "Global hotkeys disabled. Grant FileSpark Accessibility permission in "
+                 + "System Settings → Privacy & Security → Accessibility, then reopen the app.";
+        }
+        return "Global hotkeys could not be registered. Try running the app with elevated permissions.";
 
     }
 
