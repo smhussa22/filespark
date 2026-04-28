@@ -84,8 +84,13 @@ public class App extends Application {
         );
         primaryStage.setOnCloseRequest(e -> {
 
-            e.consume();
-            primaryStage.hide();
+            // Closing the window quits the app entirely. The system tray's Exit menu
+            // does the same — both paths must terminate every non-daemon thread
+            // (jnativehook spawns one) so System.exit doesn't block.
+            try { GlobalScreen.unregisterNativeHook(); } catch (Exception ignored) {}
+            if (systemTrayManager != null) systemTrayManager.remove();
+            Platform.exit();
+            System.exit(0);
 
         });
 
@@ -129,6 +134,7 @@ public class App extends Application {
         systemTrayManager = new SystemTrayManager();
         systemTrayManager.install(primaryStage, () -> {
 
+            try { GlobalScreen.unregisterNativeHook(); } catch (Exception ignored) {}
             systemTrayManager.remove();
             Platform.exit();
             System.exit(0);

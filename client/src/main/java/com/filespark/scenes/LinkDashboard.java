@@ -10,6 +10,7 @@ import com.filespark.javafx.ConfirmDialog;
 import com.filespark.javafx.LinkTile;
 import com.filespark.javafx.NotificationService;
 import com.filespark.javafx.StorageBar;
+import com.filespark.javafx.TipsBanner;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -24,6 +25,7 @@ public class LinkDashboard extends ScrollPane {
 
     private final VBox content;
     private final StorageBar storageBar;
+    private final TipsBanner tipsBanner;
 
     public LinkDashboard() {
 
@@ -32,6 +34,7 @@ public class LinkDashboard extends ScrollPane {
         content.setFillWidth(true);
 
         storageBar = new StorageBar();
+        tipsBanner = new TipsBanner();
 
         setContent(content);
         setFitToWidth(true);
@@ -50,6 +53,7 @@ public class LinkDashboard extends ScrollPane {
         content.getChildren().clear();
         storageBar.setLoading();
         content.getChildren().add(storageBar);
+        content.getChildren().add(tipsBanner);
         content.getChildren().add(statusLabel("Loading your links..."));
 
         refreshUsage();
@@ -65,6 +69,7 @@ public class LinkDashboard extends ScrollPane {
         task.setOnFailed(e -> Platform.runLater(() -> {
             content.getChildren().clear();
             content.getChildren().add(storageBar);
+            content.getChildren().add(tipsBanner);
             Throwable ex = task.getException();
             content.getChildren().add(statusLabel("Failed to load links: " + (ex == null ? "unknown" : ex.getMessage())));
         }));
@@ -100,6 +105,7 @@ public class LinkDashboard extends ScrollPane {
 
         content.getChildren().clear();
         content.getChildren().add(storageBar);
+        content.getChildren().add(tipsBanner);
 
         if (links == null || links.isEmpty()) {
             content.getChildren().add(statusLabel("No uploads yet. Upload a file to see its link here."));
@@ -142,8 +148,8 @@ public class LinkDashboard extends ScrollPane {
         task.setOnSucceeded(e -> Platform.runLater(() -> {
             content.getChildren().remove(tile);
             NotificationService.show(new BaseNotification("Link deleted", "success.png"));
-            boolean onlyHasStorageBar = content.getChildren().size() == 1 && content.getChildren().get(0) == storageBar;
-            if (onlyHasStorageBar) {
+            boolean noLinksLeft = content.getChildren().stream().noneMatch(n -> n instanceof LinkTile);
+            if (noLinksLeft) {
                 content.getChildren().add(statusLabel("No uploads yet. Upload a file to see its link here."));
             }
             refreshUsage();
