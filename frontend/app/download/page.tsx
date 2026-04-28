@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaDownload, FaJava } from "react-icons/fa";
+import { FaDownload, FaWindows, FaJava } from "react-icons/fa";
 
 export const metadata = {
   title: "Download · FileSpark",
@@ -18,57 +18,56 @@ export default function DownloadPage() {
           drop screenshots straight into a sharable link.
         </p>
 
-        <section className="rounded-lg border border-maingrey bg-mainblack/60 p-8 flex flex-col items-center text-center gap-4">
+        {/* Primary: bundled Windows zip — no Java install required */}
+        <section className="rounded-lg border border-mainorange/40 bg-mainblack/60 p-8 flex flex-col items-center text-center gap-4">
 
-          <FaJava size={56} className="text-mainorange" />
+          <FaWindows size={56} className="text-mainorange" />
 
           <div>
-            <div className="text-mainwhite text-2xl font-medium">FileSpark Desktop</div>
+            <div className="text-mainwhite text-2xl font-medium">FileSpark for Windows</div>
             <div className="text-mainwhite/60 text-sm mt-1">
-              Cross-platform · Windows, macOS, Linux · requires Java 17+
+              Self-contained · no Java installation required
             </div>
           </div>
 
           <p className="text-mainwhite/70 max-w-md">
-            A single self-contained JAR. Download it and double-click, or run{" "}
-            <code className="text-mainorange">java -jar filespark.jar</code>.
+            Bundled with its own runtime. Unzip and run <code className="text-mainorange">FileSpark.exe</code>.
+          </p>
+
+          <a
+            href="/downloads/filespark-windows.zip"
+            download="filespark-windows.zip"
+            className="mt-2 rounded-md bg-mainorange/80 hover:bg-mainorange px-6 py-3 text-mainwhite font-medium flex items-center gap-2 transition"
+          >
+            <FaDownload /> Download for Windows
+          </a>
+
+          <p className="text-mainwhite/40 text-xs">
+            ~40 MB · zip · contains FileSpark.exe and a bundled JRE
+          </p>
+
+        </section>
+
+        {/* Secondary: cross-platform jar for users who already have Java */}
+        <section className="mt-10 rounded-lg border border-maingrey bg-mainblack/60 p-6 flex flex-col items-center text-center gap-3">
+
+          <FaJava size={36} className="text-mainwhite/70" />
+
+          <div className="text-mainwhite text-lg font-medium">macOS, Linux, or other platforms</div>
+          <p className="text-mainwhite/60 text-sm max-w-md">
+            Run the cross-platform JAR. Requires Java 17 or newer with JavaFX (e.g.{" "}
+            <a className="text-mainorange hover:underline" href="https://www.azul.com/downloads/?package=jdk-fx" target="_blank" rel="noreferrer">
+              Azul Zulu FX
+            </a>).
           </p>
 
           <a
             href="/downloads/filespark.jar"
             download="filespark.jar"
-            className="mt-2 rounded-md bg-mainorange/80 hover:bg-mainorange px-6 py-3 text-mainwhite font-medium flex items-center gap-2 transition"
+            className="mt-1 rounded-md border border-maingrey px-5 py-2.5 text-mainwhite hover:border-mainorange hover:text-mainorange transition flex items-center gap-2 text-sm"
           >
-            <FaDownload /> Download filespark.jar
+            <FaDownload /> Download filespark.jar (~16 MB)
           </a>
-
-          <p className="text-mainwhite/40 text-xs">
-            ~16 MB · SHA-256 published in release notes
-          </p>
-
-        </section>
-
-        <section className="mt-10 rounded-lg border border-maingrey bg-mainblack/60 p-6">
-
-          <h2 className="text-2xl font-semibold text-mainwhite mb-3">Don&apos;t have Java?</h2>
-          <p className="text-mainwhite/70 mb-3">
-            Install a JDK (any vendor, version 17 or newer):
-          </p>
-          <ul className="text-mainwhite/80 text-sm list-disc list-inside space-y-1 mb-4">
-            <li>
-              <a className="text-mainorange hover:underline" href="https://adoptium.net/temurin/releases/?version=21" target="_blank" rel="noreferrer">
-                Eclipse Temurin
-              </a> &mdash; recommended, free
-            </li>
-            <li>
-              <a className="text-mainorange hover:underline" href="https://www.azul.com/downloads/?package=jdk-fx" target="_blank" rel="noreferrer">
-                Azul Zulu (FX bundle)
-              </a> &mdash; ships JavaFX modules
-            </li>
-          </ul>
-          <p className="text-mainwhite/60 text-sm">
-            Once Java is on your PATH, double-click the JAR or run it from a terminal.
-          </p>
 
         </section>
 
