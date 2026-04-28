@@ -2,6 +2,7 @@ package com.filespark.javafx;
 
 import java.util.function.Consumer;
 import com.filespark.os.Hotkey;
+import com.filespark.os.HotkeyUtil;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
@@ -88,7 +89,7 @@ public class HotkeyTile extends HBox {
 
     private void beginRecording(Consumer<Hotkey> onHotkeyChanged) {
 
-        hotkeyString.setText("Press keys…");
+        hotkeyString.setText("Press up to " + HotkeyUtil.MAX_KEYS + " keys…");
 
         NativeKeyListener recorder = new NativeKeyListener() {
 
@@ -99,8 +100,21 @@ public class HotkeyTile extends HBox {
 
                 if (isModifierKey(keyCode)) return;
 
-                int cleanMask = e.getModifiers() & 0x0F;
-                Hotkey newHotkey = new Hotkey(cleanMask, keyCode);
+                int normalizedMask = HotkeyUtil.normalizeMask(e.getModifiers());
+
+                if (HotkeyUtil.countModifiers(normalizedMask) > HotkeyUtil.MAX_MODIFIERS) {
+
+                    // Reject combos longer than MAX_KEYS (modifiers + main key).
+                    // Keep the recorder attached so the user can release some
+                    // modifiers and try again without re-clicking the tile.
+                    Platform.runLater(() ->
+                        hotkeyString.setText("Max " + HotkeyUtil.MAX_KEYS + " keys — try again")
+                    );
+                    return;
+
+                }
+
+                Hotkey newHotkey = new Hotkey(normalizedMask, keyCode);
 
                 Platform.runLater(() -> {
 

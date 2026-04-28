@@ -19,7 +19,7 @@ public class GlobalHotkeyListener implements NativeKeyListener {
 
         if (hotkey == null) return;
 
-        int mods = e.getModifiers() & 0x0F;
+        int mods = HotkeyUtil.normalizeMask(e.getModifiers());
 
         if (mods == hotkey.modifierMask() && e.getKeyCode() == hotkey.keyCode()) {
 
