@@ -1,10 +1,20 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { FaGithub } from "react-icons/fa";
 export function HeroVideoSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 1.55;
+    }
+  }, []);
+
   return (
     <section className="relative h-[75vh] w-full overflow-hidden">
       <video
+        ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay
         muted
@@ -12,14 +22,7 @@ export function HeroVideoSection() {
         playsInline
         preload="auto"
       >
-        <source
-          src="https://cdn.medal.tv/assets/next/video/home_hero_new.0fc056a5.webm"
-          type="video/webm"
-        />
-        <source
-          src="https://cdn.medal.tv/assets/next/video/home_hero_new.5bb3dede.mp4"
-          type="video/mp4"
-        />
+        <source src="/demo-of-filespark.mp4" type="video/mp4" />
       </video>
 
       <div className="absolute inset-0 bg-black/60" />
