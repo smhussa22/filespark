@@ -285,8 +285,8 @@ export default async function FileViewerPage({
   const downloadUrl = `/api/download/${encodeURIComponent(userid)}/${encodeURIComponent(id)}?filename=${encodeURIComponent(meta.name)}`;
 
   return (
-    <main className="min-h-[calc(100vh-80px)] flex justify-center px-6 py-8">
-      <div className="w-full max-w-5xl flex flex-col gap-6">
+    <main className="min-h-[calc(100vh-80px)] flex justify-center px-4 sm:px-6 py-6 sm:py-8">
+      <div className="w-full max-w-5xl flex flex-col gap-4 sm:gap-6">
 
         <header className="flex flex-wrap items-start justify-between gap-4">
 
@@ -306,14 +306,14 @@ export default async function FileViewerPage({
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 text-sm sm:text-base">
             <a
               href={rawUrl}
               target="_blank"
               rel="noreferrer"
               className="rounded-md border border-maingrey px-3 py-2 text-mainwhite hover:border-mainorange hover:text-mainorange transition flex items-center gap-2"
             >
-              <FaExpand /> Full screen
+              <FaExpand /> <span className="hidden sm:inline">Full screen</span><span className="sm:hidden">Full</span>
             </a>
             <a
               href={downloadUrl}

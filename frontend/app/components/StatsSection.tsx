@@ -1,6 +1,6 @@
-type Stats = { totalUsers: number; totalUploads: number };
+export type Stats = { totalUsers: number; totalUploads: number };
 
-async function getStats(): Promise<Stats> {
+export async function getStats(): Promise<Stats> {
 
   const fallback: Stats = { totalUsers: 0, totalUploads: 0 };
   const backend = process.env.BACKEND_URL?.replace(/\/$/, "");

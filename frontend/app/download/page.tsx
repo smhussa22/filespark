@@ -8,23 +8,23 @@ export const metadata = {
 
 export default function DownloadPage() {
   return (
-    <main className="min-h-[calc(100vh-80px)] flex justify-center px-6 py-12">
+    <main className="min-h-[calc(100vh-80px)] flex justify-center px-4 sm:px-6 py-8 sm:py-12">
 
       <div className="w-full max-w-3xl">
 
-        <h1 className="text-4xl font-semibold text-mainwhite mb-2">Download FileSpark</h1>
+        <h1 className="text-3xl sm:text-4xl font-semibold text-mainwhite mb-2">Download FileSpark</h1>
         <p className="text-mainwhite/70 mb-6">
           Install the desktop client to upload from anywhere with a global hotkey, watch folders for new files, and
           drop screenshots straight into a sharable link.
         </p>
 
         {/* Primary: bundled Windows zip — no Java install required */}
-        <section className="rounded-lg border border-mainorange/40 bg-mainblack/60 p-8 flex flex-col items-center text-center gap-4">
+        <section className="rounded-lg border border-mainorange/40 bg-mainblack/60 p-6 sm:p-8 flex flex-col items-center text-center gap-4">
 
           <FaWindows size={56} className="text-mainorange" />
 
           <div>
-            <div className="text-mainwhite text-2xl font-medium">FileSpark for Windows</div>
+            <div className="text-mainwhite text-xl sm:text-2xl font-medium">FileSpark for Windows</div>
             <div className="text-mainwhite/60 text-sm mt-1">
               Self-contained · no Java installation required
             </div>

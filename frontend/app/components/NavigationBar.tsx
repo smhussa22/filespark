@@ -13,24 +13,24 @@ export default function NavigationBar() {
 
     <header className="w-full sticky top-0 z-50 bg-mainblack/70 backdrop-blur-md border-b border-maingrey/60">
 
-      <nav className="mx-auto grid max-w-7xl grid-cols-2 items-center px-6 py-4">
+      <nav className="mx-auto grid max-w-7xl grid-cols-2 items-center px-4 sm:px-6 py-3 sm:py-4">
 
         <div className="flex justify-start">
 
           <Link
             href="/"
-            className="text-3xl font-semibold tracking-tight text-mainorange hover:text-mainorange/80 transition"
+            className="text-2xl sm:text-3xl font-semibold tracking-tight text-mainorange hover:text-mainorange/80 transition"
           >
             FileSpark
           </Link>
 
         </div>
 
-        <div className="hidden md:flex justify-end items-center gap-3">
+        <div className="flex justify-end items-center gap-2 sm:gap-3">
 
           <Link
             href="/download"
-            className="rounded-md flex items-center gap-3 border border-maingrey w-36 justify-center px-4 py-2 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
+            className="rounded-md flex items-center gap-2 sm:gap-3 border border-maingrey justify-center px-3 sm:px-4 py-2 text-sm sm:text-base sm:w-36 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
           >
 
             Download
@@ -43,7 +43,7 @@ export default function NavigationBar() {
 
             <a
               href="/api/auth/google"
-              className="rounded-md flex items-center gap-3 border border-maingrey w-36 justify-center px-4 py-2 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
+              className="hidden md:flex rounded-md items-center gap-3 border border-maingrey w-36 justify-center px-4 py-2 font-medium text-mainwhite hover:border-mainorange hover:text-mainorange transition"
             >
 
               <HiOutlineLogout size={30} /> Sign In

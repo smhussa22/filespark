@@ -173,11 +173,11 @@ export default async function ProfilePage() {
   const usedPercent = maxBytes > 0 ? Math.min(100, (usedBytes / maxBytes) * 100) : 0;
 
   return (
-    <main className="min-h-[calc(100vh-80px)] flex justify-center px-6 py-12">
+    <main className="min-h-[calc(100vh-80px)] flex justify-center px-4 sm:px-6 py-8 sm:py-12">
 
       <div className="w-full max-w-5xl">
 
-        <section className="flex items-center gap-6 rounded-lg border border-maingrey bg-mainblack/60 p-6 mb-8">
+        <section className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 rounded-lg border border-maingrey bg-mainblack/60 p-4 sm:p-6 mb-6 sm:mb-8 text-center sm:text-left">
 
           <div className="rounded-full border border-maingrey overflow-hidden w-20 h-20 flex items-center justify-center bg-mainblack shrink-0">
             {picture ? (
@@ -195,9 +195,9 @@ export default async function ProfilePage() {
             )}
           </div>
 
-          <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-2xl font-medium text-mainwhite truncate">{name}</span>
-            {email && <span className="text-mainwhite/70 truncate">{email}</span>}
+          <div className="flex flex-col min-w-0 flex-1 w-full">
+            <span className="text-xl sm:text-2xl font-medium text-mainwhite truncate">{name}</span>
+            {email && <span className="text-mainwhite/70 text-sm sm:text-base truncate">{email}</span>}
           </div>
 
           <form action="/api/auth/logout" method="post" className="shrink-0">
