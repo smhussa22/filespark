@@ -58,7 +58,9 @@ public class AuthService {
 
             return userRepository.findByGoogleId(googleId)
                 .or(() -> userRepository.findByEmail(email))
-                .orElseThrow(() -> new IllegalStateException("User created but not found."));
+                .orElseThrow(() -> new IllegalStateException(
+                    "User created but not found. email=" + email + " googleId=" + googleId
+                        + " duplicateKey=" + exception.getMostSpecificCause().getMessage()));
 
         }
 

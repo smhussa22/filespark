@@ -78,8 +78,10 @@ public class WebAuth {
             return ResponseEntity.ok(Map.of("token", sessionToken));
 
         } catch (Exception e) {
+            e.printStackTrace();
+            String msg = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", e.getMessage()));
+                .body(Map.of("error", msg));
         }
     }
 }

@@ -33,7 +33,17 @@ export async function GET(req: NextRequest) {
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       console.error("[oauth-callback] backend returned non-OK", res.status, text);
-      const r = NextResponse.redirect(new URL("/?auth_error=backend_error", reqUrl));
+      let detail = "";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed && typeof parsed.error === "string") detail = parsed.error;
+      } catch {
+        detail = text.slice(0, 200);
+      }
+      const errUrl = new URL("/?auth_error=backend_error", reqUrl);
+      errUrl.searchParams.set("status", String(res.status));
+      if (detail) errUrl.searchParams.set("detail", detail);
+      const r = NextResponse.redirect(errUrl);
       r.cookies.delete("oauth_next");
       return r;
     }
