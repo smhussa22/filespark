@@ -41,8 +41,10 @@ export function HeroVideoSection({ stats }: { stats: HeroStats }) {
           </p>
 
           <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl mx-auto">
-            <HeroStat value={stats.totalUploads.toLocaleString()} label="files uploaded" />
-            <HeroStat value={stats.totalUsers.toLocaleString()} label="users connected" />
+            { /* <HeroStat value={stats.totalUploads.toLocaleString()} label="files uploaded" />
+            <HeroStat value={stats.totalUsers.toLocaleString()} label="users connected" /> */}
+            <HeroStat value="7,339" label="files uploaded" />
+            <HeroStat value="112" label="users connected" />
             <HeroStat value="12+" label="supported file types" />
           </div>
 
